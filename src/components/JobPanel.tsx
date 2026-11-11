@@ -1,11 +1,29 @@
+import { useEffect, useState } from "react";
 import { AlertTriangle, Check, Download, Loader2, RotateCcw, ShieldCheck, X } from "lucide-react";
 import { formatBytes } from "../lib/format";
 import type { MediaJob } from "../hooks/useMediaJob";
+
+type PreviewKind = "video" | "audio" | "image" | null;
+
+function previewKind(name: string): PreviewKind {
+  const ext = name.split(".").pop()?.toLowerCase() ?? "";
+  if (["mp4", "webm", "mov", "m4v", "ogv"].includes(ext)) return "video";
+  if (["mp3", "wav", "m4a", "ogg", "opus", "aac"].includes(ext)) return "audio";
+  if (["png", "jpg", "jpeg", "webp", "gif"].includes(ext)) return "image";
+  return null;
+}
 
 export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string }) {
   const { phase, progress, result, error, logs, file, meta, previewUrl, cancel, clear } = job;
   const loadingEncoder = phase === "working" && progress === 0;
   const hasVideoPreview = Boolean(previewUrl && meta && meta.width > 0 && meta.height > 0);
+  const hasAudioPreview = Boolean(previewUrl && meta && (!meta.width || !meta.height));
+  const resultPreview = result ? previewKind(result.name) : null;
+  const [previewFailed, setPreviewFailed] = useState(false);
+
+  useEffect(() => {
+    setPreviewFailed(false);
+  }, [result?.url]);
 
   return (
     <aside className="job-panel" aria-live="polite">
@@ -33,15 +51,30 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
       {phase === "ready" && (
         <div className="job-body">
           {hasVideoPreview && (
-            <video
-              className="video-preview"
-              src={previewUrl ?? undefined}
-              controls
-              muted
-              playsInline
-              preload="metadata"
-              aria-label="Video preview"
-            />
+            <figure className="video-preview-figure">
+              <video
+                className="video-preview"
+                src={previewUrl ?? undefined}
+                controls
+                muted
+                playsInline
+                preload="metadata"
+                aria-label="Source video preview"
+              />
+              <figcaption>Source preview</figcaption>
+            </figure>
+          )}
+          {hasAudioPreview && (
+            <figure className="audio-preview-figure">
+              <audio
+                className="audio-preview"
+                src={previewUrl ?? undefined}
+                controls
+                preload="metadata"
+                aria-label="Source audio preview"
+              />
+              <figcaption>Source preview</figcaption>
+            </figure>
           )}
           <p className="job-idle">
             {file ? "File ready. Choose your settings, then run the tool." : "Choose a file to begin."}
@@ -85,6 +118,46 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
           <div className="result-badge">
             <Check size={16} /> Your file is ready
           </div>
+
+          {resultPreview === "video" && !previewFailed && (
+            <figure className="video-preview-figure">
+              <video
+                className="video-preview"
+                src={result.url}
+                controls
+                playsInline
+                preload="metadata"
+                aria-label={`Preview of ${result.name}`}
+                onError={() => setPreviewFailed(true)}
+              />
+              <figcaption>Result preview</figcaption>
+            </figure>
+          )}
+          {resultPreview === "audio" && !previewFailed && (
+            <figure className="audio-preview-figure">
+              <audio
+                className="audio-preview"
+                src={result.url}
+                controls
+                preload="metadata"
+                aria-label={`Audio preview of ${result.name}`}
+                onError={() => setPreviewFailed(true)}
+              />
+              <figcaption>Audio preview</figcaption>
+            </figure>
+          )}
+          {resultPreview === "image" && !previewFailed && (
+            <figure className="image-preview">
+              <img src={result.url} alt={`Preview of ${result.name}`} onError={() => setPreviewFailed(true)} />
+              <figcaption>Result preview</figcaption>
+            </figure>
+          )}
+          {previewFailed && (
+            <p className="job-note">
+              This browser cannot preview the output format inline. Download the file to check it in your media player.
+            </p>
+          )}
+
           <div className="result-file">
             <strong title={result.name}>{result.name}</strong>
             <span>{formatBytes(result.size)}</span>
@@ -95,7 +168,10 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
           <button className="button button-ghost button-block" type="button" onClick={clear}>
             <RotateCcw size={15} /> Start another file
           </button>
-          <p className="job-note">The download link lives only in this tab. Reloading the page removes it.</p>
+          <p className="job-note">
+            Preview the result before you download. The download link lives only in this tab; reloading the page removes
+            it.
+          </p>
         </div>
       )}
 

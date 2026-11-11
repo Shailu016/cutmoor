@@ -2084,6 +2084,7 @@ code {
   border-radius: var(--radius-lg);
   background: var(--panel);
   color: var(--panel-text);
+  color-scheme: dark;
   overflow: hidden;
 }
 
@@ -2308,6 +2309,47 @@ code {
   background: #000;
   aspect-ratio: 16 / 9;
   object-fit: contain;
+}
+
+.video-preview-figure {
+  margin: 0;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: #000;
+}
+
+.video-preview-figure .video-preview {
+  border: 0;
+  border-radius: 0;
+  aspect-ratio: auto;
+  max-height: 360px;
+}
+
+.video-preview-figure figcaption,
+.audio-preview-figure figcaption {
+  padding: 6px 8px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--panel-muted);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.audio-preview-figure {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.audio-preview {
+  width: 100%;
 }
 
 /* ---------- Image panel ---------- */
