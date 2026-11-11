@@ -31,7 +31,7 @@ export function HomePage() {
         <div className="shell hero-grid">
           <div className="hero-copy">
             <span className="eyebrow eyebrow-lime">
-              <Sparkles size={15} /> The local-first media toolkit
+              <Sparkles size={15} /> Cut more. Upload less.
             </span>
             <h1>
               Your media,

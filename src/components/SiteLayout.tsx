@@ -280,8 +280,8 @@ export function SiteLayout() {
           <div className="footer-brand">
             <Logo />
             <p>
-              The browser media toolkit for video and images. Your files stay on your device — no upload, no account, no
-              watermark.
+              <strong>Cut more. Upload less.</strong> The browser media toolkit for video and images. Your files stay on
+              your device — no upload, no account, no watermark.
             </p>
             <span className="mono-label">EST. 2026 · LOCAL-FIRST</span>
           </div>
