@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Crop, RectangleHorizontal } from "lucide-react";
 import { FileDrop } from "../components/FileDrop";
 import { JobPanel } from "../components/JobPanel";
+import { VideoCropPreview } from "../components/Previews";
 import { useMediaJob } from "../hooks/useMediaJob";
 import { baseName } from "../lib/format";
 
@@ -61,6 +62,13 @@ export function ResizeTool() {
 
         {job.file && (
           <div className="settings-card">
+            <VideoCropPreview
+              src={job.previewUrl}
+              width={width}
+              height={height}
+              fit={fit}
+              label={`Live preview · ${width}×${height}`}
+            />
             <div className="settings-head">
               <span className="mono-label">01 · Frame</span>
               {job.meta && job.meta.width > 0 && (

@@ -78,8 +78,21 @@ export function SiteLayout() {
   const toolsPanelRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
+  const firstRender = useRef(true);
 
   const toolsActive = location.pathname.startsWith("/tools");
+
+  useEffect(() => {
+    // The first paint is prerendered, so the entrance animation only runs on
+    // client-side navigation. That keeps the first view instant.
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    document.documentElement.classList.add("page-anim");
+    const timer = window.setTimeout(() => document.documentElement.classList.remove("page-anim"), 320);
+    return () => window.clearTimeout(timer);
+  }, [location.pathname]);
 
   useEffect(() => {
     setToolsOpen(false);

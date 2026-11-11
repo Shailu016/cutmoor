@@ -44,6 +44,7 @@ export interface ImageJob {
   result: ImageJobResult | null;
   error: string | null;
   sourcePreview: string | null;
+  source: LoadedImage | null;
   selectFile: (file: File) => Promise<void>;
   clear: () => void;
   run: (task: (context: ImageTaskContext) => Promise<ImageTaskResult>) => Promise<void>;
@@ -64,6 +65,7 @@ export function useImageJob(): ImageJob {
   const [result, setResult] = useState<ImageJobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sourcePreview, setSourcePreview] = useState<string | null>(null);
+  const [source, setSource] = useState<LoadedImage | null>(null);
 
   const loadedRef = useRef<LoadedImage | null>(null);
   const resultUrlRef = useRef<string | null>(null);
@@ -109,6 +111,7 @@ export function useImageJob(): ImageJob {
     setResult(null);
     setError(null);
     setSourcePreview(null);
+    setSource(null);
   }, [releaseLoaded, releaseResult]);
 
   const selectFile = useCallback(
@@ -128,6 +131,7 @@ export function useImageJob(): ImageJob {
       setResult(null);
       setError(null);
       setSourcePreview(null);
+      setSource(null);
 
       try {
         const loaded = await loadImage(next, {
@@ -149,6 +153,7 @@ export function useImageJob(): ImageJob {
           hasAlpha,
         });
         setSourcePreview(createPreview(loaded, hasAlpha));
+        setSource(loaded);
         setPhase("ready");
       } catch (loadError) {
         if (tokenRef.current !== token) return;
@@ -249,6 +254,7 @@ export function useImageJob(): ImageJob {
     result,
     error,
     sourcePreview,
+    source,
     selectFile,
     clear,
     run,

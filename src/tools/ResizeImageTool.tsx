@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Crop, RectangleHorizontal } from "lucide-react";
 import { FileDrop } from "../components/FileDrop";
 import { ImageJobPanel } from "../components/ImageJobPanel";
+import { LiveCropPreview } from "../components/Previews";
 import { useImageEncoderSupport } from "../hooks/useImageEncoderSupport";
 import { useImageJob } from "../hooks/useImageJob";
 import { baseName } from "../lib/format";
@@ -147,6 +148,14 @@ export function ResizeImageTool() {
 
         {job.file && job.meta && (
           <div className="settings-card">
+            <LiveCropPreview
+              source={job.source}
+              width={outputSize.width}
+              height={outputSize.height}
+              fit={fit}
+              background={padBackground}
+              label={`Live preview · ${outputSize.width}×${outputSize.height}`}
+            />
             <div className="settings-head">
               <span className="mono-label">01 · Frame</span>
               <span className="settings-hint">

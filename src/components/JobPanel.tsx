@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, Download, Loader2, RotateCcw, ShieldCheck, X } from "lucide-react";
-import { formatBytes } from "../lib/format";
+import { formatBytes, formatDuration } from "../lib/format";
 import type { MediaJob } from "../hooks/useMediaJob";
 
 type PreviewKind = "video" | "audio" | "image" | null;
@@ -79,6 +79,17 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
           <p className="job-idle">
             {file ? "File ready. Choose your settings, then run the tool." : "Choose a file to begin."}
           </p>
+          {meta && file && (
+            <div className="meta-row">
+              {meta.duration > 0 && <span>{formatDuration(meta.duration)}</span>}
+              {meta.width > 0 && meta.height > 0 && (
+                <span>
+                  {meta.width}×{meta.height}
+                </span>
+              )}
+              <span>{formatBytes(file.size)}</span>
+            </div>
+          )}
           <div className="job-trust">
             <ShieldCheck size={16} />
             <span>The first run loads the encoder once. Later runs start faster.</span>
