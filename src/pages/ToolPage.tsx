@@ -10,8 +10,31 @@ import { ConvertTool } from "../tools/ConvertTool";
 import { AudioTool } from "../tools/AudioTool";
 import { FrameTool } from "../tools/FrameTool";
 import { CaptionsTool } from "../tools/CaptionsTool";
+import { CompressImageTool } from "../tools/CompressImageTool";
+import { ResizeImageTool } from "../tools/ResizeImageTool";
+import { ConvertImageTool } from "../tools/ConvertImageTool";
+import { HeicTool } from "../tools/HeicTool";
 import { toolBySlug, TOOLS } from "../lib/tools";
 import { NotFoundPage } from "./NotFoundPage";
+
+const IMAGE_GUIDES: Record<string, { to: string; label: string }> = {
+  "compress-image": {
+    to: "/guides/compress-image-without-visible-quality-loss",
+    label: "How to compress an image without visible quality loss",
+  },
+  "resize-image": {
+    to: "/guides/social-media-image-sizes",
+    label: "Social media image sizes, in one place",
+  },
+  "convert-image": {
+    to: "/guides/png-vs-jpg-vs-webp",
+    label: "PNG vs JPG vs WebP: which one to use",
+  },
+  "heic-to-jpg": {
+    to: "/guides/heic-to-jpg-guide",
+    label: "HEIC to JPG: why iPhone photos need converting",
+  },
+};
 
 function ToolRenderer({ slug }: { slug: string }) {
   if (slug === "compress") return <CompressTool />;
@@ -21,6 +44,10 @@ function ToolRenderer({ slug }: { slug: string }) {
   if (slug === "audio") return <AudioTool />;
   if (slug === "frame") return <FrameTool />;
   if (slug === "captions") return <CaptionsTool />;
+  if (slug === "compress-image") return <CompressImageTool />;
+  if (slug === "resize-image") return <ResizeImageTool />;
+  if (slug === "convert-image") return <ConvertImageTool />;
+  if (slug === "heic-to-jpg") return <HeicTool />;
   return null;
 }
 
@@ -70,7 +97,7 @@ export function ToolPage() {
         <div className="tool-lower">
           <section className="tool-steps">
             <span className="mono-label">How it works</span>
-            <h2>Three steps, no upload bar</h2>
+            <h2>From file to download, with no upload bar</h2>
             <ol className="steps">
               {tool.steps.map((step, index) => (
                 <li key={step.name}>
@@ -86,12 +113,23 @@ export function ToolPage() {
 
           <aside className="tool-side-card">
             <h3>Good to know</h3>
-            <p>
-              Browser encoding uses your device's memory. Close other heavy tabs, keep the original file, and prefer a
-              desktop for files above 200 MB.
-            </p>
-            <Link className="text-link" to="/guides/reduce-video-file-size-without-losing-quality">
-              How to reduce size without losing quality <ArrowRight size={15} />
+            {tool.kind === "image" ? (
+              <p>
+                Image work happens in a canvas in this tab. Photos above 16.7 megapixels are capped for browser safety,
+                JPG cannot store transparency, and the first HEIC conversion may download a one-time local decoder. Keep
+                the original file until you have checked the preview.
+              </p>
+            ) : (
+              <p>
+                Browser encoding uses your device's memory. Close other heavy tabs, keep the original file, and prefer a
+                desktop for files above 200 MB.
+              </p>
+            )}
+            <Link
+              className="text-link"
+              to={IMAGE_GUIDES[tool.slug]?.to ?? "/guides/reduce-video-file-size-without-losing-quality"}
+            >
+              {IMAGE_GUIDES[tool.slug]?.label ?? "How to reduce size without losing quality"} <ArrowRight size={15} />
             </Link>
           </aside>
         </div>

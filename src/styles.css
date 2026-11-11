@@ -714,6 +714,29 @@ summary:focus-visible {
   grid-template-columns: repeat(3, 1fr);
 }
 
+.tool-group + .tool-group {
+  margin-top: 48px;
+}
+
+.tool-group-head {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.tool-group-head h2,
+.tool-group-head h3 {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.6vw, 34px);
+  font-weight: 550;
+  letter-spacing: -0.035em;
+}
+
+#image-tools {
+  scroll-margin-top: 96px;
+}
+
 .tool-card {
   position: relative;
   display: flex;
@@ -1577,6 +1600,216 @@ summary:focus-visible {
   line-height: 1.35;
 }
 
+/* ---------- Image tools ---------- */
+
+.file-icon-image {
+  background: var(--sky);
+}
+
+.file-icon-audio {
+  background: var(--gold);
+}
+
+.range-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.range-row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--forest);
+}
+
+.range-value {
+  min-width: 34px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  color: var(--ink);
+}
+
+.color-field {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+}
+
+.color-field label:not(.checkbox-field) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.color-field input[type="color"] {
+  width: 50px;
+  height: 36px;
+  padding: 2px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--paper);
+  cursor: pointer;
+}
+
+.color-field .settings-note {
+  margin: 0;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.checkbox-field input {
+  accent-color: var(--forest);
+}
+
+.info-callout,
+.convert-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px;
+  border-radius: 10px;
+  background: rgba(200, 241, 105, 0.18);
+  border: 1px solid rgba(175, 224, 71, 0.45);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.convert-note {
+  background: var(--paper-2);
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.info-callout svg,
+.convert-note svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--forest);
+}
+
+.info-callout p {
+  margin: 0;
+}
+
+.image-preset-shape {
+  display: block;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  opacity: 0.55;
+}
+
+.preset.active .image-preset-shape {
+  opacity: 1;
+  background: var(--lime);
+}
+
+.image-preset-custom {
+  width: 28px;
+  height: 28px;
+  border-style: dashed;
+}
+
+.image-preview {
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.image-preview img {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.image-preview figcaption,
+.image-compare figcaption {
+  padding: 6px 8px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b9c4b8;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.image-meta-row,
+.image-result-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
+.image-meta-row span,
+.image-result-stats span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #b9c4b8;
+}
+
+.image-result-stats .stat-good {
+  color: var(--lime);
+  border-color: rgba(200, 241, 105, 0.35);
+  background: rgba(200, 241, 105, 0.1);
+}
+
+.image-result-stats .stat-warn {
+  color: #ffb4a6;
+  border-color: rgba(255, 180, 166, 0.3);
+  background: rgba(255, 180, 166, 0.08);
+}
+
+.image-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.image-compare figure {
+  margin: 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.image-compare img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #ffffff;
+}
+
 /* ---------- Job panel ---------- */
 
 .job-panel {
@@ -2421,7 +2654,7 @@ summary:focus-visible {
 
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.5fr repeat(4, 0.75fr);
+  grid-template-columns: 1.5fr repeat(5, 0.75fr);
   gap: 40px;
   padding-bottom: 46px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);

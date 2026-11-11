@@ -5,10 +5,19 @@ import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
 import { HOME_FAQS } from "../lib/seo";
-import { TOOLS } from "../lib/tools";
+import { IMAGE_TOOLS, VIDEO_TOOLS } from "../lib/tools";
+
+const FEATURED_GUIDES = [
+  "compress-video-for-whatsapp",
+  "social-media-image-sizes",
+  "heic-to-jpg-guide",
+  "png-vs-jpg-vs-webp",
+];
 
 export function HomePage() {
-  const featuredGuides = GUIDES.slice(0, 4);
+  const featuredGuides = FEATURED_GUIDES.map((slug) => GUIDES.find((guide) => guide.slug === slug)).filter(
+    (guide): guide is (typeof GUIDES)[number] => Boolean(guide),
+  );
 
   return (
     <>
@@ -17,7 +26,7 @@ export function HomePage() {
         <div className="shell hero-grid">
           <div className="hero-copy">
             <span className="eyebrow eyebrow-lime">
-              <Sparkles size={15} /> The browser video toolkit
+              <Sparkles size={15} /> The browser media toolkit
             </span>
             <h1>
               Your video.
@@ -25,15 +34,16 @@ export function HomePage() {
               <em>Ready for every platform.</em>
             </h1>
             <p className="hero-lede">
-              Compress to a target size, crop to 9:16, trim the ends, convert the format, and pull out the audio. All in
-              your browser. No upload, no account, no watermark.
+              Compress to a target size, crop to 9:16, trim the ends, convert the format, and pull out the audio. Resize a
+              photo for a feed, or turn an iPhone HEIC into a JPG. All in your browser. No upload, no account, no
+              watermark.
             </p>
             <div className="hero-actions">
               <Link className="button button-primary button-lg" to="/tools/compress">
                 Compress a video <ArrowRight size={18} />
               </Link>
-              <Link className="button button-ghost button-lg" to="/tools">
-                See all tools
+              <Link className="button button-ghost button-lg" to="/tools#image-tools">
+                Browse image tools
               </Link>
             </div>
             <ul className="hero-points">
@@ -94,8 +104,10 @@ export function HomePage() {
           <span>MKV</span>
           <span>AVI</span>
           <span>GIF</span>
-          <span>MP3</span>
-          <span>WAV</span>
+          <span>JPG</span>
+          <span>PNG</span>
+          <span>WebP</span>
+          <span>HEIC</span>
           <span className="strip-note">Files stay local. No upload bar.</span>
         </div>
       </section>
@@ -104,26 +116,54 @@ export function HomePage() {
         <div className="section-head">
           <div>
             <span className="mono-label">The toolkit</span>
-            <h2>One job per tool. Done properly.</h2>
+            <h2>Two toolkits. One local-first rule.</h2>
           </div>
           <p>
             No editor timeline. No sign-up wall. Choose the job you have, drop a file, and take the export. Every tool is
             built to do one thing and tell you the truth about the result.
           </p>
         </div>
-        <div className="tool-grid">
-          {TOOLS.map((tool) => (
-            <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
-              <span className={`tool-card-icon icon-${tool.accent}`}>
-                <ToolIcon icon={tool.icon} />
-              </span>
-              <strong>{tool.name}</strong>
-              <p>{tool.short}</p>
-              <span className="tool-card-link">
-                Open tool <ArrowRight size={14} />
-              </span>
-            </Link>
-          ))}
+
+        <div className="tool-group">
+          <div className="tool-group-head">
+            <span className="mono-label">Video · {VIDEO_TOOLS.length} tools</span>
+            <h3>Cut, shrink, and convert footage</h3>
+          </div>
+          <div className="tool-grid">
+            {VIDEO_TOOLS.map((tool) => (
+              <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
+                <span className={`tool-card-icon icon-${tool.accent}`}>
+                  <ToolIcon icon={tool.icon} />
+                </span>
+                <strong>{tool.name}</strong>
+                <p>{tool.short}</p>
+                <span className="tool-card-link">
+                  Open tool <ArrowRight size={14} />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="tool-group" id="image-tools">
+          <div className="tool-group-head">
+            <span className="mono-label">Images · {IMAGE_TOOLS.length} tools</span>
+            <h3>Resize, compress, and fix the format</h3>
+          </div>
+          <div className="tool-grid">
+            {IMAGE_TOOLS.map((tool) => (
+              <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
+                <span className={`tool-card-icon icon-${tool.accent}`}>
+                  <ToolIcon icon={tool.icon} />
+                </span>
+                <strong>{tool.name}</strong>
+                <p>{tool.short}</p>
+                <span className="tool-card-link">
+                  Open tool <ArrowRight size={14} />
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -135,12 +175,12 @@ export function HomePage() {
           <h2>The upload is the slowest part. So we removed it.</h2>
           <p>
             Most converters take your file, put it on a server, queue it behind other jobs, and send back a link. ClipKit
-            opens the file in your browser, encodes it with WebAssembly, and saves the result straight to your downloads
-            folder.
+            opens the file in your browser, encodes it with WebAssembly or the canvas API, and saves the result straight
+            to your downloads folder.
           </p>
           <p>
-            That means no upload wait, no storage bucket, and no third party holding a copy of your footage. It also means
-            the limits are honest: your device's memory is the ceiling, not a subscription tier.
+            That means no upload wait, no storage bucket, and no third party holding a copy of your footage or photos. It
+            also means the limits are honest: your device's memory is the ceiling, not a subscription tier.
           </p>
           <Link className="text-link" to="/about">
             How ClipKit works <ArrowRight size={15} />
@@ -162,7 +202,7 @@ export function HomePage() {
             </span>
             <div>
               <strong>No queue, no account</strong>
-              <p>Open the page and start. The first job loads the encoder once; the browser caches it for the next one.</p>
+              <p>Open the page and start. The first video job loads the encoder once; the browser caches it for the next one.</p>
             </div>
           </div>
           <div className="feature-card">
@@ -170,8 +210,8 @@ export function HomePage() {
               <MonitorPlay size={20} />
             </span>
             <div>
-              <strong>Built for short-form</strong>
-              <p>Presets for Reels, Shorts, TikTok, WhatsApp, and Discord — not a generic “convert anything” box.</p>
+              <strong>Built for feeds</strong>
+              <p>Presets for Reels, Shorts, TikTok, WhatsApp, Instagram posts, YouTube thumbnails, and link previews.</p>
             </div>
           </div>
         </div>
@@ -183,13 +223,13 @@ export function HomePage() {
             <span className="mono-label">The flow</span>
             <h2>Drop. Choose. Done.</h2>
           </div>
-          <p>Three steps, whether the job is a 12-second Reel or a 40-minute screen recording.</p>
+          <p>Three steps, whether the job is a 12-second Reel, a 48-megapixel photo, or a 40-minute screen recording.</p>
         </div>
         <ol className="home-steps">
           <li>
             <span>01</span>
             <strong>Drop your file</strong>
-            <p>The browser reads the duration and dimensions locally. Nothing is sent anywhere.</p>
+            <p>The browser reads the duration, format, and dimensions locally. Nothing is sent anywhere.</p>
           </li>
           <li>
             <span>02</span>
@@ -251,10 +291,10 @@ export function HomePage() {
         <div>
           <span className="mono-label">Ready when you are</span>
           <h2>Make the file fit. Keep the quality.</h2>
-          <p>Free tools, local processing, and an export that does not ask you to make an account.</p>
+          <p>Video and image tools, local processing, and an export that does not ask you to make an account.</p>
         </div>
-        <Link className="button button-primary button-lg" to="/tools/compress">
-          Start with a video <ArrowRight size={18} />
+        <Link className="button button-primary button-lg" to="/tools">
+          Open the toolkit <ArrowRight size={18} />
         </Link>
       </section>
     </>

@@ -6,15 +6,15 @@ export const SITE = {
   name: "ClipKit",
   legalName: "ClipKit",
   url: (import.meta.env.VITE_SITE_URL || "https://clipkit.tools").replace(/\/$/, ""),
-  tagline: "Your video. Ready for every platform.",
+  tagline: "Your media. Ready for every platform.",
   description:
-    "Compress, crop, trim, convert, and extract audio from video in your browser. No upload, no account, no watermark. Free tools for Reels, Shorts, and TikTok.",
+    "Compress, crop, trim, convert, and extract audio from video — or compress, resize, convert, and HEIC-to-JPG your images. Everything runs in your browser. No upload, no account, no watermark.",
   email: "hello@clipkit.tools",
   locale: "en_US",
   language: "en",
   themeColor: "#101311",
   ogImage: "/og-image.png",
-  ogImageAlt: "ClipKit — browser video tools for Reels, Shorts, and TikTok",
+  ogImageAlt: "ClipKit — browser video and image tools for every platform",
 };
 
 export type PageType = "website" | "article";
@@ -31,29 +31,29 @@ export interface PageMeta {
 }
 
 const home: PageMeta = {
-  title: "ClipKit — compress, crop, and convert video in your browser",
+  title: "ClipKit — compress video and images in your browser",
   description:
-    "Free browser video tools for creators: compress to a target size, crop to 9:16, trim, convert, and extract audio. Your file never leaves your device.",
+    "Free browser tools for video and images: compress to a target size, crop to 9:16, trim, convert, extract audio, resize photos, and turn HEIC into JPG. Your files never leave your device.",
   path: "/",
 };
 
 const toolsIndex: PageMeta = {
-  title: "Free video tools — compress, crop, trim, convert | ClipKit",
+  title: "Free video and image tools — compress, crop, convert | ClipKit",
   description:
-    "Every ClipKit tool runs locally in your browser. Compress a video, crop it to 9:16, trim the ends, convert the format, or pull out the audio.",
+    "Every ClipKit tool runs locally in your browser. Compress a video, crop it to 9:16, trim the ends, convert the format, extract audio, resize an image, or convert HEIC to JPG.",
   path: "/tools",
 };
 
 const guidesIndex: PageMeta = {
-  title: "Video guides — sizes, limits, and settings | ClipKit",
+  title: "Video and image guides — sizes, limits, and settings | ClipKit",
   description:
-    "Practical guides for short-form video: compress for WhatsApp and Discord, crop to 9:16, choose the right Reels size, and reduce file size without ruining quality.",
+    "Practical guides for short-form video and social images: compress for WhatsApp and Discord, crop to 9:16, choose the right image size, convert HEIC, and pick between PNG, JPG, and WebP.",
   path: "/guides",
 };
 
 const notFound: PageMeta = {
   title: "Page not found — ClipKit",
-  description: "That page does not exist. Browse the video tools or the ClipKit guides instead.",
+  description: "That page does not exist. Browse the video and image tools or the ClipKit guides instead.",
   path: "/404",
   noindex: true,
 };
@@ -140,11 +140,15 @@ export function softwareJsonLd() {
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tools supported by advertising." },
     featureList: [
       "Compress video to a target file size",
-      "Crop and resize to 9:16, 1:1, and 4:5",
+      "Crop and resize video to 9:16, 1:1, and 4:5",
       "Trim video with accurate cuts",
       "Convert MP4, WebM, GIF, and audio",
       "Extract a still frame",
       "Convert SRT and VTT subtitles",
+      "Compress images to a target file size",
+      "Resize and crop images to social presets",
+      "Convert JPG, PNG, and WebP",
+      "Convert iPhone HEIC and HEIF photos to JPG",
       "Local browser processing with no upload",
     ],
     isAccessibleForFree: true,
@@ -229,7 +233,7 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
     if (tool) {
       graph.push({
         "@type": "HowTo",
-        name: `How to ${tool.name.toLowerCase()} with ClipKit`,
+        name: `How to use ${tool.name} with ClipKit`,
         description: tool.intro,
         step: tool.steps.map((step, index) => ({
           "@type": "HowToStep",
@@ -296,19 +300,19 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
 
 export const HOME_FAQS = [
   {
-    question: "Does ClipKit upload my video?",
+    question: "Does ClipKit upload my video or image?",
     answer:
-      "No. The encoder runs inside your browser using WebAssembly. The file is read from your device, processed in memory, and saved back to your device. There is no ClipKit server that receives the video.",
+      "No. Video is encoded inside your browser with WebAssembly, and images are decoded and re-encoded with the canvas API. Files are read from your device, processed in memory, and saved back to your device. There is no ClipKit server that receives them.",
   },
   {
     question: "Is ClipKit really free?",
     answer:
-      "Yes. Every tool is free and there is no account, watermark, or export limit. The site is supported by advertising, which only loads if you accept advertising cookies.",
+      "Yes. Every video and image tool is free, with no account, watermark, or export limit. The site is supported by advertising, which only loads if you accept advertising cookies.",
   },
   {
-    question: "Which video formats can I use?",
+    question: "Which formats can I use?",
     answer:
-      "MP4, MOV, WebM, MKV, and AVI are accepted as inputs. Exports are MP4 by default, with WebM, GIF, MP3, WAV, M4A, PNG, and JPG available depending on the tool.",
+      "Video inputs include MP4, MOV, WebM, MKV, and AVI. Image inputs include JPG, PNG, WebP, AVIF, GIF, BMP, HEIC, and HEIF. Exports include MP4, WebM, GIF, MP3, WAV, M4A, JPG, PNG, and WebP, depending on the tool and your browser.",
   },
   {
     question: "Can ClipKit download a video from YouTube or Instagram?",
@@ -316,13 +320,18 @@ export const HOME_FAQS = [
       "No. ClipKit only works with files you already have. It does not fetch URLs or download content from streaming platforms, and it cannot bypass a platform player.",
   },
   {
-    question: "How big can a video be?",
+    question: "How big can a file be?",
     answer:
-      "Browser memory is the real limit. Files up to about 500 MB work on a desktop with 8 GB of RAM. Phones and older laptops should stay under 200 MB. A very large file may run out of memory in the tab.",
+      "Browser memory is the real limit. Video files up to about 500 MB work on a desktop with 8 GB of RAM, while phones and older laptops should stay under 200 MB. Image output is capped at 16.7 megapixels for canvas safety, and very large photos are scaled down before export.",
   },
   {
     question: "Do I need to install anything?",
     answer:
-      "No. ClipKit runs in a modern browser on desktop, tablet, and phone. The first job downloads the encoder once, then the browser caches it for later jobs.",
+      "No. ClipKit runs in a modern browser on desktop, tablet, and phone. The first video job downloads the encoder once and the browser caches it. iPhone HEIC files may download a separate 3 MB local decoder on Chrome, Edge, and Firefox; Safari uses the system decoder.",
+  },
+  {
+    question: "Why can't I export WebP in Safari?",
+    answer:
+      "Safari can display WebP but cannot encode it from a canvas, and it silently returns a PNG instead. ClipKit tests the encoder at runtime and disables WebP export when it is unavailable, so a file with a .webp extension is never actually a PNG. JPG and PNG remain available.",
   },
 ];

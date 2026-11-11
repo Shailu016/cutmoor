@@ -1,19 +1,21 @@
 # ClipKit
 
-The browser video toolkit for Reels, Shorts, and TikTok. Compress, crop, trim,
-convert, extract audio, save a frame, and convert subtitles — all locally in the
+The browser video and image toolkit. Compress, crop, trim, convert, extract
+audio, save a frame, and convert subtitles — plus compress, resize, and convert
+images, and turn iPhone HEIC photos into JPG. Everything runs locally in the
 browser. Files are never uploaded. No account, no watermark.
 
 Built with React 19, Vite 6, TypeScript, and `@ffmpeg/ffmpeg` with a self-hosted
-single-thread WebAssembly core. The site is prerendered to static HTML and can
-be hosted on any static host.
+single-thread WebAssembly core for video. Images use the native canvas API, with
+`heic-to` loaded lazily only when a HEIC file cannot be decoded natively. The
+site is prerendered to static HTML and can be hosted on any static host.
 
 ## Quick start
 
 ```bash
 npm install      # also copies the ffmpeg core into public/ffmpeg
 npm run dev      # http://localhost:5173
-npm test         # unit tests for formatting and subtitle conversion
+npm test         # unit tests for formatting, subtitles, and image geometry
 npm run typecheck
 npm run build    # client + SSR + prerender + sitemap/robots/ads.txt
 npm run preview  # serve the built dist/ with pretty URLs
@@ -23,17 +25,21 @@ npm run preview  # serve the built dist/ with pretty URLs
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Marketing home with FAQ and tool grid |
-| `/tools` | Tool directory |
-| `/tools/compress` | Target-size and quality-first compression |
+| `/` | Marketing home with FAQ and grouped video/image tool grid |
+| `/tools` | Tool directory with problem-based choices |
+| `/tools/compress` | Target-size and quality-first video compression |
 | `/tools/resize` | 9:16, 1:1, 4:5, 16:9, custom; crop or pad |
 | `/tools/trim` | Accurate start/end trim |
 | `/tools/convert` | MP4, WebM, GIF, MP3, M4A, WAV |
 | `/tools/audio` | Extract MP3, M4A, or WAV |
 | `/tools/frame` | Save a PNG or JPG still |
 | `/tools/captions` | SRT ↔ VTT and timing shift |
-| `/guides` | 10 practical video guides |
-| `/about`, `/privacy`, `/terms`, `/cookies`, `/contact`, `/editorial` | Trust pages |
+| `/tools/compress-image` | Target-size or quality compression for JPG, PNG, WebP |
+| `/tools/resize-image` | Social presets, crop or pad, transparency |
+| `/tools/convert-image` | JPG, PNG, WebP conversion with quality control |
+| `/tools/heic-to-jpg` | iPhone HEIC/HEIF to JPG, decoded locally |
+| `/guides` | 14 practical video and image guides |
+| `/about`, `/privacy`, `/terms`, `/cookies`, `/contact`, `/editorial`, `/licences` | Trust and licence pages |
 
 ## Configuration
 
@@ -71,6 +77,8 @@ Before going live:
 - `dist/404.html` is the not-found shell.
 - `dist/sitemap.xml`, `dist/robots.txt`, and `dist/ads.txt` are generated.
 - `dist/ffmpeg/` contains the ~32 MB encoder core, served from your origin.
+- `dist/assets/` includes a lazy ~3.2 MB HEIC decoder chunk, fetched only when a
+  HEIC file cannot be decoded by the browser.
 
 Netlify, Vercel, or any static server works. Pretty URLs need folder-index
 resolution, which all of those provide. For Netlify add nothing; for a bare
@@ -86,15 +94,26 @@ is compressed even though the uncompressed file is 32 MB.
 
 ## Notes on limits
 
-- ffmpeg runs in a Web Worker. Very large files are limited by tab memory, not
-  by an upload quota. ~500 MB is reasonable on a desktop with 8 GB of RAM.
+- ffmpeg runs in a Web Worker. Video files are limited by tab memory, not by an
+  upload quota. ~500 MB is reasonable on a desktop with 8 GB of RAM.
+- Image output is capped at 16,777,216 pixels and 16,384 px per edge, matching
+  the largest canvas Safari will paint reliably. Larger sources are downscaled.
+- Safari cannot encode WebP from a canvas and silently returns a PNG. The UI
+  probes the encoder and disables WebP export where it is unavailable.
+- No current browser can encode AVIF from a canvas, so AVIF is accepted as input
+  but never offered as output.
+- HEIC uses the native system decoder on Safari. Chrome, Edge, and Firefox lazy
+  load a ~3.2 MB `heic-to` chunk after a HEIC file is selected; it is cached and
+  only fetched when needed. Live Photos and some 10-bit HDR variants may fail.
 - GIF export is intentionally capped in quality (640 px, 12 fps) because GIF is
   a poor format for long clips.
-- All exports re-encode for compatibility. Keeping the original file is always
-  recommended.
+- All video exports re-encode for compatibility. Image exports also re-encode,
+  which strips most metadata. Keeping the original file is always recommended.
 
 ## License
 
 Source is private to the operator. Third-party dependencies keep their own
-licenses (`@ffmpeg/core` is LGPL/GPL depending on build; the single-thread core
-used here is the standard `@ffmpeg/core` distribution).
+licenses. `heic-to`, libheif, and libde265 are LGPL-3.0; `@ffmpeg/core` is
+distributed under GPL-2.0-or-later; React, React Router, and Vite are MIT;
+Lucide is ISC; the Fontsource fonts are OFL-1.1. See `THIRD_PARTY_NOTICES.md`
+and the public `/licences` page for attribution and source links.

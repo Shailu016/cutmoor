@@ -5,12 +5,24 @@ export interface ToolFaq {
 
 export interface ToolDef {
   slug: string;
+  kind: "video" | "image";
   name: string;
   short: string;
   title: string;
   description: string;
   intro: string;
-  icon: "compress" | "crop" | "trim" | "convert" | "audio" | "frame" | "captions";
+  icon:
+    | "compress"
+    | "crop"
+    | "trim"
+    | "convert"
+    | "audio"
+    | "frame"
+    | "captions"
+    | "image-compress"
+    | "image-resize"
+    | "image-convert"
+    | "heic";
   accent: string;
   keywords: string[];
   steps: { name: string; text: string }[];
@@ -21,6 +33,7 @@ export interface ToolDef {
 export const TOOLS: ToolDef[] = [
   {
     slug: "compress",
+    kind: "video",
     name: "Compress video",
     short: "Hit a target file size without wrecking the picture.",
     title: "Compress a video online — in your browser, no upload",
@@ -62,6 +75,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     slug: "resize",
+    kind: "video",
     name: "Crop & resize",
     short: "Make a clean 9:16, 1:1, or 4:5 cut for any feed.",
     title: "Crop a video to 9:16, 1:1, or 4:5 — free and local",
@@ -104,6 +118,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     slug: "trim",
+    kind: "video",
     name: "Trim video",
     short: "Cut the dead air at the start and end.",
     title: "Trim a video online — accurate cuts, no upload",
@@ -145,6 +160,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     slug: "convert",
+    kind: "video",
     name: "Convert video",
     short: "MP4, WebM, GIF, or audio — one clean export.",
     title: "Convert video online — MP4, WebM, GIF, MP3",
@@ -186,6 +202,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     slug: "audio",
+    kind: "video",
     name: "Extract audio",
     short: "Pull the sound out as MP3, WAV, or M4A.",
     title: "Extract audio from video — MP3, WAV, M4A",
@@ -227,6 +244,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     slug: "frame",
+    kind: "video",
     name: "Save a frame",
     short: "Grab a clean still for a thumbnail or cover.",
     title: "Extract a frame from a video — PNG or JPG",
@@ -268,6 +286,7 @@ export const TOOLS: ToolDef[] = [
   },
   {
     slug: "captions",
+    kind: "video",
     name: "Convert subtitles",
     short: "SRT to VTT, VTT to SRT, or shift the timing.",
     title: "SRT to VTT converter — free, instant, no upload",
@@ -307,7 +326,279 @@ export const TOOLS: ToolDef[] = [
     ],
     related: ["trim", "audio", "compress"],
   },
+  {
+    slug: "compress-image",
+    kind: "image",
+    name: "Compress image",
+    short: "Hit a target file size without turning the photo to mud.",
+    title: "Compress an image online — target a file size, no upload",
+    description:
+      "Compress JPG, PNG, WebP, HEIC, and AVIF images to a target size in your browser. Cap the dimensions, keep the best quality that fits, and download. No upload, no account, no watermark.",
+    intro:
+      "An upload form says the photo must be under 200 KB. A website is slow because every image is 4 MB. Pick a target size and ClipKit searches for the highest quality that fits, reducing the dimensions only when quality alone cannot get there. The file never leaves your device.",
+    icon: "image-compress",
+    accent: "lime",
+    keywords: [
+      "compress image",
+      "image compressor",
+      "reduce image size",
+      "compress image to 200kb",
+      "compress jpg",
+      "compress png",
+    ],
+    steps: [
+      {
+        name: "Choose the image",
+        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, or BMP file. ClipKit reads its dimensions and size locally.",
+      },
+      {
+        name: "Set a target",
+        text: "Pick a common limit such as 200 KB or 1 MB, or type your own. You can also cap the long edge at 2560, 1920, 1280, or 800 px.",
+      },
+      {
+        name: "Compress and download",
+        text: "The browser encodes the image at several quality levels and keeps the best one under your target. If it has to reduce the dimensions, it tells you exactly what it did.",
+      },
+    ],
+    faqs: [
+      {
+        question: "How does target-size compression work?",
+        answer:
+          "For JPG and WebP, ClipKit encodes the image repeatedly and binary-searches the quality setting until the file is just under your target. If even the lowest quality is still too large, it reduces the dimensions in steps. PNG is lossless, so it can only reach a target by reducing dimensions.",
+      },
+      {
+        question: "Will compressing an image make it blurry?",
+        answer:
+          "A smaller file needs fewer bits, so some detail has to go. The tool protects quality by keeping the dimensions and lowering compression strength first. If the target is extremely small, reducing the long edge usually looks better than crushing the quality to 30 percent. Compare the before and after previews before you download.",
+      },
+      {
+        question: "Should I compress a PNG or convert it to JPG?",
+        answer:
+          "PNG is the right choice for screenshots, logos, and images with transparency. For photographs, JPG or WebP reaches a much smaller size at the same visible quality. If the PNG has no transparency, converting it to JPG first is often the single biggest saving.",
+      },
+      {
+        question: "Does ClipKit upload my image?",
+        answer:
+          "No. The image is decoded and re-encoded by your browser using the canvas API. There is no upload endpoint, no account, and no server-side copy. You can disconnect from the internet after the page loads and the tool still works.",
+      },
+      {
+        question: "What is a realistic target size?",
+        answer:
+          "A 1080 px photo usually looks clean between 150 and 400 KB. A 200 KB target is common for job portals and email. Website hero images often work at 100 to 250 KB when capped at 1600 px wide. Below about 50 KB, a full-resolution photo will show compression artifacts.",
+      },
+    ],
+    related: ["resize-image", "convert-image", "heic-to-jpg"],
+  },
+  {
+    slug: "resize-image",
+    kind: "image",
+    name: "Resize image",
+    short: "Crop or pad a photo to a platform-perfect size.",
+    title: "Resize an image online — Instagram, YouTube, and link preview sizes",
+    description:
+      "Resize and crop images to 1080 × 1350, 1080 × 1920, 1280 × 720, 1200 × 630, and more. Crop to fill or pad with a color. Runs entirely in your browser, with no upload.",
+    intro:
+      "Every feed crops differently. A landscape photo becomes a vertical Story, a square post becomes a link preview, and a screenshot needs exact pixels for an app store. Choose a platform preset or type your own size, then crop to fill the frame or pad the whole image onto a background.",
+    icon: "image-resize",
+    accent: "sky",
+    keywords: [
+      "resize image",
+      "image resizer",
+      "crop image online",
+      "resize image for instagram",
+      "youtube thumbnail size",
+      "1080x1350",
+    ],
+    steps: [
+      {
+        name: "Load the image",
+        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, or BMP file. ClipKit shows the source dimensions.",
+      },
+      {
+        name: "Pick a preset or exact size",
+        text: "Choose Instagram post, square, Story, YouTube thumbnail, link preview, X post, LinkedIn, or an app icon. Custom accepts any size up to the canvas limit.",
+      },
+      {
+        name: "Crop or pad",
+        text: "Crop to fill keeps the centre and trims the edges. Pad to fit keeps the whole image and adds a background colour or transparency.",
+      },
+      {
+        name: "Export",
+        text: "Choose JPG, PNG, or WebP, set the quality, and download the resized image from your device.",
+      },
+    ],
+    faqs: [
+      {
+        question: "What is the best Instagram image size?",
+        answer:
+          "Use 1080 × 1350 for a portrait feed post (4:5), 1080 × 1080 for a square post, and 1080 × 1920 for a Story or Reel cover (9:16). Instagram compresses uploads again, so start from a sharp source and avoid upscaling a small image.",
+      },
+      {
+        question: "What size should a YouTube thumbnail be?",
+        answer:
+          "YouTube recommends 1280 × 720 (16:9), at least 1280 px wide, and under 2 MB. The preset in ClipKit uses those exact dimensions. Keep important text away from the bottom-right corner, where the duration badge sits.",
+      },
+      {
+        question: "What does crop to fill mean?",
+        answer:
+          "Crop scales the image until it covers the whole frame, then trims the overflow from the centre. Nothing is stretched. If the subject is near an edge, check the preview: a centre crop can cut it off. Pad is the safer choice for screenshots and diagrams.",
+      },
+      {
+        question: "Does resizing up add detail?",
+        answer:
+          "No. Upscaling interpolates existing pixels and can look soft. Use the largest source you have and resize down to the final dimensions. For print or a large banner, start from a higher-resolution original rather than enlarging a small file.",
+      },
+      {
+        question: "Can I resize an image without losing transparency?",
+        answer:
+          "Yes. Choose PNG, or WebP in a browser that can encode it. With Pad selected, enable transparent padding. JPG has no alpha channel, so transparent areas are filled with the background colour you choose.",
+      },
+    ],
+    related: ["compress-image", "convert-image", "heic-to-jpg"],
+  },
+  {
+    slug: "convert-image",
+    kind: "image",
+    name: "Convert image",
+    short: "JPG, PNG, and WebP in one clean pass.",
+    title: "Convert images online — JPG, PNG, and WebP, no upload",
+    description:
+      "Convert JPG to PNG, PNG to JPG, WebP to JPG, or HEIC to JPG in your browser. Control quality, handle transparency, and strip metadata. No upload, no account, no watermark.",
+    intro:
+      "Formats are a compatibility problem, not a quality problem. A screenshot saved as JPG picks up artifacts around text. A photo saved as PNG is needlessly large. A WebP downloaded from a website will not open in an older editor. Pick the output that fits the destination, and ClipKit encodes it locally.",
+    icon: "image-convert",
+    accent: "violet",
+    keywords: [
+      "image converter",
+      "png to jpg",
+      "jpg to png",
+      "webp to jpg",
+      "webp to png",
+      "convert image",
+    ],
+    steps: [
+      {
+        name: "Add an image",
+        text: "Drop a JPG, PNG, WebP, AVIF, GIF, BMP, HEIC, or HEIF file. The source format and dimensions are detected locally.",
+      },
+      {
+        name: "Choose the output",
+        text: "Pick JPG for compatibility, PNG for lossless graphics and transparency, or WebP for a smaller web file.",
+      },
+      {
+        name: "Set quality and transparency",
+        text: "JPG and WebP use the quality slider. When a transparent image is exported to JPG, choose the colour that fills the empty pixels.",
+      },
+      {
+        name: "Convert and download",
+        text: "The browser re-encodes the image and saves it to your device. Metadata such as GPS coordinates is not copied.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Which format should I choose?",
+        answer:
+          "JPG for photographs and anything that must open everywhere. PNG for screenshots, logos, diagrams, and images with transparency. WebP for websites when you control the audience and want a smaller file. There is no single best format; it depends on the content and where it is going.",
+      },
+      {
+        question: "Does converting PNG to JPG lose quality?",
+        answer:
+          "Yes, slightly, because JPG is lossy and PNG is not. At 90 percent quality the difference is hard to see in a photo, but sharp text and flat graphics can show ringing. Keep the PNG original if you may need to edit it again, and convert a copy for sharing.",
+      },
+      {
+        question: "Can I convert WebP to JPG?",
+        answer:
+          "Yes. ClipKit decodes WebP with the browser and exports JPG or PNG. This is useful when an older editor, a print shop, or an upload form rejects WebP. Converting to JPG flattens transparency, so choose a background colour first.",
+      },
+      {
+        question: "Does the converted file keep EXIF and GPS data?",
+        answer:
+          "No. The image is drawn to a canvas and re-encoded, so EXIF, GPS, camera model, and most other metadata are not carried over. Orientation is applied to the pixels before export, so the image still appears upright. This is usually good for privacy, but it also removes copyright and colour-profile metadata.",
+      },
+      {
+        question: "Why can't I choose WebP in Safari?",
+        answer:
+          "Safari can display WebP but cannot encode it from a canvas; it silently returns a PNG instead. ClipKit probes the browser at runtime and disables WebP export when the encoder is missing, so you never download a file with the wrong extension. Use JPG or PNG in Safari, or convert in Chrome, Edge, or Firefox.",
+      },
+    ],
+    related: ["compress-image", "resize-image", "heic-to-jpg"],
+  },
+  {
+    slug: "heic-to-jpg",
+    kind: "image",
+    name: "HEIC to JPG",
+    short: "Open iPhone photos on Windows, Android, or any upload form.",
+    title: "HEIC to JPG converter — free, private, no upload",
+    description:
+      "Convert iPhone HEIC and HEIF photos to JPG in your browser. No upload, no account, no watermark. Works on Windows, Android, Mac, and Chromebooks.",
+    intro:
+      "iPhones save photos as HEIC: smaller than JPG, but many Windows apps, Android phones, and upload forms still refuse to open it. Drop the photo here and ClipKit decodes it on your device, applies the orientation, and exports a standard JPG that works everywhere.",
+    icon: "heic",
+    accent: "gold",
+    keywords: [
+      "heic to jpg",
+      "heic to jpeg",
+      "convert heic to jpg",
+      "heic converter",
+      "iphone photo to jpg",
+      "heif to jpg",
+    ],
+    steps: [
+      {
+        name: "Add the HEIC photo",
+        text: "Drop a .heic or .heif file from an iPhone, iPad, or camera. The file is read locally, not uploaded.",
+      },
+      {
+        name: "Wait for the local decoder",
+        text: "Safari uses the system HEIC decoder. Chrome, Edge, and Firefox download a 3 MB decoder once, only when a HEIC file is selected.",
+      },
+      {
+        name: "Check the preview",
+        text: "Confirm the photo looks right and is the expected size. Live Photos and some 10-bit HDR variants may not decode.",
+      },
+      {
+        name: "Download the JPG",
+        text: "Export a standard JPG at up to 90 percent quality. GPS and camera metadata are not copied.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Why won't Windows open a HEIC file?",
+        answer:
+          "HEIC is an Apple-led variant of the HEIF container, and Windows does not include a decoder by default. Microsoft sells a HEIF Image Extensions package for some editions, but the simpler fix is to convert the photo to JPG, which every Windows app can open.",
+      },
+      {
+        question: "Is this HEIC converter really private?",
+        answer:
+          "Yes. The photo is read from your disk, decoded in the tab, and encoded back to a downloadable file. There is no upload endpoint. On Safari the system decoder is used. On other browsers the open-source libheif decoder is downloaded once and runs locally in WebAssembly.",
+      },
+      {
+        question: "Why does it take longer the first time?",
+        answer:
+          "Chrome, Edge, and Firefox need a WebAssembly HEIC decoder. It is about 3 MB, loaded only when you select a HEIC file, and cached by the browser for later visits. Safari has a native decoder, so the first conversion is immediate.",
+      },
+      {
+        question: "Does the JPG keep the photo's location data?",
+        answer:
+          "No. Metadata is stripped during the canvas re-encode, including GPS coordinates, camera model, and capture time. The image is rotated upright before export. If you need to preserve metadata for an archive, keep the original HEIC file as well.",
+      },
+      {
+        question: "Which HEIC files are not supported?",
+        answer:
+          "Most single-image HEIC photos work. Live Photos, burst sequences, some 10-bit HDR captures, and unusual HEIF profiles may fail because they contain multiple images or codecs the decoder does not handle. If a file fails, open it in Photos on the iPhone, tap Share, and choose Copy Photo or save it as a JPEG, then convert that copy.",
+      },
+      {
+        question: "Does converting HEIC to JPG reduce quality?",
+        answer:
+          "A little. HEIC is more efficient, so the same visual quality takes fewer bytes. Exporting at 90 percent JPG keeps the photo clean for sharing and printing at normal sizes, but the file will usually be larger than the HEIC original. That is the cost of compatibility.",
+      },
+    ],
+    related: ["convert-image", "compress-image", "resize-image"],
+  },
 ];
+
+export const VIDEO_TOOLS = TOOLS.filter((tool) => tool.kind === "video");
+export const IMAGE_TOOLS = TOOLS.filter((tool) => tool.kind === "image");
 
 export function toolBySlug(slug: string): ToolDef | undefined {
   return TOOLS.find((tool) => tool.slug === slug);

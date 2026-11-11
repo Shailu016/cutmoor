@@ -21,6 +21,15 @@ const FOOTER = [
     ],
   },
   {
+    title: "Image tools",
+    links: [
+      { to: "/tools/compress-image", label: "Compress image" },
+      { to: "/tools/resize-image", label: "Resize image" },
+      { to: "/tools/convert-image", label: "Convert image" },
+      { to: "/tools/heic-to-jpg", label: "HEIC to JPG" },
+    ],
+  },
+  {
     title: "More tools",
     links: [
       { to: "/tools/audio", label: "Extract audio" },
@@ -34,7 +43,7 @@ const FOOTER = [
     links: [
       { to: "/guides", label: "Guides" },
       { to: "/guides/compress-video-for-whatsapp", label: "WhatsApp limits" },
-      { to: "/guides/compress-video-for-discord", label: "Discord limits" },
+      { to: "/guides/social-media-image-sizes", label: "Image sizes" },
       { to: "/editorial", label: "Editorial policy" },
     ],
   },
@@ -45,6 +54,7 @@ const FOOTER = [
       { to: "/contact", label: "Contact" },
       { to: "/privacy", label: "Privacy" },
       { to: "/terms", label: "Terms" },
+      { to: "/licences", label: "Licences" },
     ],
   },
 ];
@@ -68,9 +78,17 @@ export function SiteLayout() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (location.hash) {
+      const target = document.querySelector(location.hash);
+      if (target) {
+        target.scrollIntoView({ block: "start" });
+        setOpen(false);
+        return;
+      }
+    }
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     setOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.hash]);
 
   return (
     <>
@@ -88,8 +106,8 @@ export function SiteLayout() {
             ))}
           </nav>
           <div className="header-actions">
-            <Link className="header-cta" to="/tools/compress">
-              Compress a video <ArrowUpRight size={15} />
+            <Link className="header-cta" to="/tools">
+              Open the toolkit <ArrowUpRight size={15} />
             </Link>
             <button
               className="menu-button"
@@ -109,8 +127,8 @@ export function SiteLayout() {
                 {link.label}
               </NavLink>
             ))}
-            <Link className="mobile-link mobile-cta" to="/tools/compress">
-              Compress a video
+            <Link className="mobile-link mobile-cta" to="/tools">
+              Open the toolkit
             </Link>
           </nav>
         )}
@@ -129,8 +147,8 @@ export function SiteLayout() {
           <div className="footer-brand">
             <Logo />
             <p>
-              The browser video toolkit for Reels, Shorts, and TikTok. Your file stays on your device — no upload, no
-              account, no watermark.
+              The browser media toolkit for video and images. Your files stay on your device — no upload, no account, no
+              watermark.
             </p>
             <span className="mono-label">EST. 2026 · LOCAL-FIRST</span>
           </div>

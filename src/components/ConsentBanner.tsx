@@ -26,10 +26,10 @@ export function ConsentBanner() {
   return (
     <div className="consent" role="dialog" aria-label="Cookie and advertising choice">
       <div className="consent-copy">
-        <strong>Cookies, ads, and your video.</strong>
+        <strong>Cookies, ads, and your files.</strong>
         <p>
-          Your video never leaves this device. If you accept, Google AdSense may set advertising cookies. If you
-          reject, the ad script does not load. <Link to="/cookies">Read the cookie page</Link>.
+          Your files never leave this device. If you accept, Google AdSense may set advertising cookies. If you reject,
+          the ad script does not load. <Link to="/cookies">Read the cookie page</Link>.
         </p>
       </div>
       <div className="consent-actions">

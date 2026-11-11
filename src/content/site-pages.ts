@@ -20,28 +20,28 @@ const UPDATED = "2026-11-11";
 export const SITE_PAGES: SitePage[] = [
   {
     slug: "about",
-    title: "About ClipKit — the browser video toolkit",
+    title: "About ClipKit — the browser media toolkit",
     description:
-      "ClipKit is a free, local-first video toolkit for creators. Compress, crop, trim, convert, and extract audio without uploading your files.",
+      "ClipKit is a free, local-first toolkit for video and images. Compress, crop, trim, convert, resize, and extract audio without uploading your files.",
     eyebrow: "About",
     updated: UPDATED,
     intro: [
-      "ClipKit is a small set of video tools that run in your browser. It exists because the everyday jobs around short-form video are boring, repetitive, and usually require a trip through an upload form on someone else's server.",
+      "ClipKit is a small set of video and image tools that run in your browser. It exists because the everyday jobs around short-form media are boring, repetitive, and usually require a trip through an upload form on someone else's server.",
       "Drop a file, choose a preset, get a clean export. The file is processed on your device. There is no account, no storage bucket, and no queue.",
     ],
     sections: [
       {
         heading: "Who it is for",
         paragraphs: [
-          "Creators who need a Reel to fit a size limit. Small teams making product clips on a laptop. Anyone who has recorded a video and discovered it is 180 MB when the app accepts 25 MB.",
-          "The tools are deliberately narrow. ClipKit is not an editor, a timeline, or a replacement for Premiere, Final Cut, or CapCut. It is the step after editing: make the file fit, make it the right shape, and get it out.",
+          "Creators who need a Reel to fit a size limit. Small teams making product clips and social images on a laptop. Anyone who has recorded a video and discovered it is 180 MB when the app accepts 25 MB, or exported a photo that a job portal refuses because it is 6 MB.",
+          "The tools are deliberately narrow. ClipKit is not an editor, a timeline, or a replacement for Premiere, Final Cut, CapCut, or Photoshop. It is the step after editing: make the file fit, make it the right shape, and get it out.",
         ],
       },
       {
         heading: "Why local processing",
         paragraphs: [
-          "Uploading a video is slow, costs the operator bandwidth, and creates a copy of your file on a machine you do not control. Running the encoder in the browser avoids all three.",
-          "The tradeoff is honest: browser processing is limited by the memory of your device. Very large files, especially on phones, can fail. ClipKit shows the limit before you start and never pretends a job succeeded when it did not.",
+          "Uploading a video or photo is slow, costs the operator bandwidth, and creates a copy of your file on a machine you do not control. Running the encoder in the browser avoids all three.",
+          "Video is handled by a WebAssembly build of FFmpeg. Images are decoded and re-encoded with the browser's canvas API, with a lazily loaded HEIC decoder where the operating system does not provide one. The tradeoff is honest: browser processing is limited by the memory of your device. Very large files, especially on phones, can fail. ClipKit shows the limit before you start and never pretends a job succeeded when it did not.",
         ],
       },
       {
@@ -68,13 +68,14 @@ export const SITE_PAGES: SitePage[] = [
     eyebrow: "Privacy",
     updated: UPDATED,
     intro: [
-      "ClipKit is designed so that the most sensitive thing you bring — the video itself — never leaves your device. This page explains exactly what that means, and what is still collected when you visit the site.",
+      "ClipKit is designed so that the most sensitive thing you bring — the video or photo itself — never leaves your device. This page explains exactly what that means, and what is still collected when you visit the site.",
     ],
     sections: [
       {
-        heading: "Your video files",
+        heading: "Your video and image files",
         paragraphs: [
-          "Video and audio files are read by your browser and processed in the page using WebAssembly. They are not uploaded to a ClipKit server. ClipKit does not operate a video storage service and does not keep a copy of your file.",
+          "Video and audio files are read by your browser and processed in the page using WebAssembly. Images are decoded and re-encoded with the canvas API. They are not uploaded to a ClipKit server. ClipKit does not operate a media storage service and does not keep a copy of your file.",
+          "HEIC photos are decoded locally. Safari uses the operating system decoder. Chrome, Edge, and Firefox download an open-source libheif decoder once, only when a HEIC file is selected; it runs in the page and does not send the photo anywhere.",
           "When you close or reload the tab, the working copy in memory is released by the browser. The exported file is saved wherever your browser saves downloads.",
         ],
       },
@@ -217,7 +218,7 @@ export const SITE_PAGES: SitePage[] = [
         heading: "How to change your choice",
         paragraphs: [
           "Use the button below to clear your saved choice. The banner will appear again on the next page load, and you can accept or reject advertising cookies.",
-          "You can also clear site data in your browser settings. Blocking all cookies may affect the ad-supported parts of the site, but the video tools will continue to work.",
+          "You can also clear site data in your browser settings. Blocking all cookies may affect the ad-supported parts of the site, but the video and image tools will continue to work.",
         ],
       },
       {
@@ -254,7 +255,7 @@ export const SITE_PAGES: SitePage[] = [
         ],
         bullets: [
           "The tool you used and the preset you chose.",
-          "File type, approximate size, and duration.",
+          "File type, approximate size, and dimensions or duration.",
           "Browser and operating system.",
           "What you expected and what happened instead.",
         ],
@@ -277,7 +278,7 @@ export const SITE_PAGES: SitePage[] = [
     slug: "editorial",
     title: "Editorial policy — how ClipKit guides are made",
     description:
-      "How ClipKit researches, writes, tests, and updates its video guides, and how corrections are handled.",
+      "How ClipKit researches, writes, tests, and updates its video and image guides, and how corrections are handled.",
     eyebrow: "Editorial",
     updated: UPDATED,
     intro: [
@@ -288,13 +289,13 @@ export const SITE_PAGES: SitePage[] = [
         heading: "Who writes the guides",
         paragraphs: [
           "Guides are written and edited by the ClipKit team. Each guide is checked against the behavior of the tools on this site: the presets, the limits, the output formats, and the error messages a visitor will actually see.",
-          "The team has hands-on experience preparing short-form video for social platforms. Where a recommendation depends on a platform's current rules, the guide says so and links to the platform's own documentation when possible.",
+          "The team has hands-on experience preparing short-form video and social images for publishing. Where a recommendation depends on a platform's current rules, the guide says so and links to the platform's own documentation when possible.",
         ],
       },
       {
         heading: "How we test",
         paragraphs: [
-          "A typical test uses three files: a 1080p phone clip, a vertical 9:16 clip, and a longer screen recording. We run each preset, inspect the output size and duration, and note where the browser approach fails.",
+          "A typical video test uses three files: a 1080p phone clip, a vertical 9:16 clip, and a longer screen recording. An image test uses a 12 MP phone photo, a transparent PNG screenshot, and an iPhone HEIC original. We run each preset, inspect the output size and dimensions, and note where the browser approach fails.",
           "We do not publish invented benchmarks, fake studies, or precise speed claims that depend on a device we cannot see. When we give a number, it is a limit, a platform recommendation, or a setting you can reproduce.",
         ],
       },
@@ -312,6 +313,75 @@ export const SITE_PAGES: SitePage[] = [
         ],
       },
     ],
+  },
+  {
+    slug: "licences",
+    title: "Third-party licences — ClipKit",
+    description:
+      "The open-source components that power ClipKit, including FFmpeg, heic-to, libheif, React, Lucide, and the site fonts, with links to their licences.",
+    eyebrow: "Licences",
+    updated: UPDATED,
+    intro: [
+      "ClipKit is built on open-source software. The browser does the heavy lifting, and several of those components carry obligations that are worth stating plainly.",
+      "The list below covers the components that are distributed to visitors as part of the site, plus the libraries used to build it. Full licence texts are available at the linked upstream projects and in the repository's THIRD_PARTY_NOTICES.md.",
+    ],
+    sections: [
+      {
+        heading: "FFmpeg and ffmpeg.wasm",
+        paragraphs: [
+          "Video decoding and encoding use FFmpeg, compiled to WebAssembly and delivered by the ffmpeg.wasm project. The @ffmpeg/core build used by ClipKit is licensed under the GNU General Public License version 2 or later (GPL-2.0-or-later).",
+          "The corresponding source code is available from the FFmpeg project and the ffmpeg.wasm repository, including the scripts used to build the WebAssembly core. If you deploy a modified version of the core, you are responsible for providing the corresponding source under the GPL.",
+        ],
+        bullets: [
+          "FFmpeg: https://ffmpeg.org/ — GPL-2.0-or-later for this build.",
+          "ffmpeg.wasm: https://github.com/ffmpegwasm/ffmpeg.wasm — build and packaging source.",
+          "@ffmpeg/ffmpeg and @ffmpeg/util: MIT.",
+        ],
+      },
+      {
+        heading: "HEIC decoding",
+        paragraphs: [
+          "The HEIC converter uses the heic-to library, which bundles a WebAssembly build of libheif and the libde265 decoder. These components are licensed under the GNU Lesser General Public License version 3 (LGPL-3.0).",
+          "The decoder is loaded lazily, only when a HEIC file is selected, and runs entirely in the browser. ClipKit does not modify the library. The upstream source is linked below so the corresponding source can be obtained.",
+        ],
+        bullets: [
+          "heic-to by Hopper Gee: https://github.com/hoppergee/heic-to — LGPL-3.0.",
+          "libheif: https://github.com/strukturag/libheif — LGPL-3.0.",
+          "libde265: https://github.com/strukturag/libde265 — LGPL-3.0.",
+        ],
+      },
+      {
+        heading: "Interface and build libraries",
+        paragraphs: [
+          "The interface is built with React and React Router under the MIT licence. Icons come from Lucide under the ISC licence. The site is built with Vite under the MIT licence.",
+        ],
+        bullets: [
+          "React and React DOM: https://github.com/facebook/react — MIT.",
+          "React Router: https://github.com/remix-run/react-router — MIT.",
+          "Lucide: https://github.com/lucide-icons/lucide — ISC.",
+          "Vite: https://github.com/vitejs/vite — MIT.",
+        ],
+      },
+      {
+        heading: "Fonts",
+        paragraphs: [
+          "Fraunces and Manrope are served through Fontsource and are licensed under the SIL Open Font License 1.1. The fonts are self-hosted with the site, not fetched from a third-party font service.",
+        ],
+        bullets: [
+          "Fraunces: https://github.com/undercasetype/Fraunces — OFL-1.1.",
+          "Manrope: https://github.com/sharanda/manrope — OFL-1.1.",
+          "Fontsource: https://github.com/fontsource/fontsource — MIT packaging.",
+        ],
+      },
+      {
+        heading: "No warranty",
+        paragraphs: [
+          "These components are provided as-is, without warranty of any kind. The licence texts control the rights and obligations that apply to each component; this page is a summary, not a substitute for those texts.",
+        ],
+      },
+    ],
+    footnote:
+      "If you deploy ClipKit commercially, review the GPL and LGPL obligations with your own counsel and keep the linked source and notices available to visitors.",
   },
 ];
 

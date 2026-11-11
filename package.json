@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "ClipKit — the browser video toolkit for Reels, Shorts, and TikTok. Compress, crop, trim, convert, and extract audio without uploading.",
+  "description": "ClipKit — the browser video and image toolkit. Compress, crop, trim, convert, extract audio, resize images, and convert HEIC to JPG without uploading.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
@@ -20,6 +20,7 @@
     "@ffmpeg/util": "^0.12.2",
     "@fontsource-variable/fraunces": "^5.2.8",
     "@fontsource-variable/manrope": "^5.2.8",
+    "heic-to": "^1.6.7",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

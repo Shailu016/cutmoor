@@ -1,21 +1,38 @@
 import { useRef, useState } from "react";
-import { FileVideo, ShieldCheck, Upload, X } from "lucide-react";
+import { FileAudio, FileImage, FileVideo, ShieldCheck, Upload, X } from "lucide-react";
 import { formatBytes } from "../lib/format";
-import type { VideoMeta } from "../lib/media";
+
+export interface FileDropMeta {
+  width?: number;
+  height?: number;
+  duration?: number;
+}
 
 interface FileDropProps {
   file: File | null;
-  meta?: VideoMeta | null;
+  meta?: FileDropMeta | null;
   onFile: (file: File) => void;
   onClear: () => void;
   accept?: string;
   hint: string;
   disabled?: boolean;
+  kind?: "video" | "image" | "audio";
 }
 
-export function FileDrop({ file, meta, onFile, onClear, accept = "video/*,audio/*", hint, disabled }: FileDropProps) {
+export function FileDrop({
+  file,
+  meta,
+  onFile,
+  onClear,
+  accept = "video/*,audio/*",
+  hint,
+  disabled,
+  kind = "video",
+}: FileDropProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+
+  const Icon = kind === "image" ? FileImage : kind === "audio" ? FileAudio : FileVideo;
 
   const take = (files: FileList | null) => {
     const next = files?.[0];
@@ -25,15 +42,17 @@ export function FileDrop({ file, meta, onFile, onClear, accept = "video/*,audio/
   if (file) {
     return (
       <div className="file-card">
-        <div className="file-icon">
-          <FileVideo size={26} />
+        <div className={`file-icon file-icon-${kind}`}>
+          <Icon size={26} />
         </div>
         <div className="file-details">
           <strong title={file.name}>{file.name}</strong>
           <span>
             {formatBytes(file.size)}
-            {meta && meta.duration > 0 ? ` · ${Math.round(meta.duration)}s` : ""}
-            {meta && meta.width > 0 ? ` · ${meta.width}×${meta.height}` : ""}
+            {typeof meta?.duration === "number" && meta.duration > 0 ? ` · ${Math.round(meta.duration)}s` : ""}
+            {typeof meta?.width === "number" && meta.width > 0 && typeof meta?.height === "number"
+              ? ` · ${meta.width}×${meta.height}`
+              : ""}
           </span>
         </div>
         <button className="icon-button" type="button" onClick={onClear} aria-label="Remove file" disabled={disabled}>
@@ -45,7 +64,7 @@ export function FileDrop({ file, meta, onFile, onClear, accept = "video/*,audio/
 
   return (
     <div
-      className={`dropzone ${dragging ? "dragging" : ""}`}
+      className={`dropzone ${dragging ? "dragging" : ""} ${kind === "image" ? "dropzone-image" : ""}`}
       onDragOver={(event) => {
         event.preventDefault();
         if (!disabled) setDragging(true);

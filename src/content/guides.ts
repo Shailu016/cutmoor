@@ -1,8 +1,9 @@
 import { GUIDES_A } from "./guides-a";
 import { GUIDES_B } from "./guides-b";
+import { GUIDES_C } from "./guides-c";
 import type { Guide } from "./types";
 
-export const GUIDES: Guide[] = [...GUIDES_A, ...GUIDES_B];
+export const GUIDES: Guide[] = [...GUIDES_A, ...GUIDES_B, ...GUIDES_C];
 
 export function guideBySlug(slug: string): Guide | undefined {
   return GUIDES.find((guide) => guide.slug === slug);
