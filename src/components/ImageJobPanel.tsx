@@ -64,6 +64,7 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
               </span>
               <span>{formatBytes(file.size)}</span>
               <span>{sourceLabel(meta.kind)}</span>
+              {meta.hasAlpha && <span>Transparency</span>}
             </div>
           )}
           <p className="job-idle">Choose your settings, then run the tool.</p>
@@ -150,7 +151,7 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
       {phase === "error" && (
         <div className="job-body">
           <div className="result-badge result-badge-error">
-            <AlertTriangle size={16} /> The image could not be processed
+            <AlertTriangle size={16} /> The image could not be read or processed
           </div>
           <p className="job-error">{error}</p>
           <button className="button button-ghost button-block" type="button" onClick={clear}>
@@ -160,12 +161,6 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
             Common causes: the file is not a supported image, a HEIC variant cannot be decoded, or the photo is larger
             than the browser canvas can hold. Keep the original file.
           </p>
-        </div>
-      )}
-
-      {phase === "working" && (
-        <div className="job-spinner" aria-hidden="true">
-          <Loader2 size={18} className="spin" />
         </div>
       )}
     </aside>

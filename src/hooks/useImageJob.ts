@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createPreview,
+  detectAlpha,
   loadImage,
-  sourceHasAlpha,
   type ImageFormat,
   type ImageMeta,
   type LoadedImage,
@@ -68,6 +68,7 @@ export function useImageJob(): ImageJob {
   const loadedRef = useRef<LoadedImage | null>(null);
   const resultUrlRef = useRef<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const workingRef = useRef(false);
   const tokenRef = useRef(0);
 
   const releaseLoaded = useCallback(() => {
@@ -97,6 +98,7 @@ export function useImageJob(): ImageJob {
     tokenRef.current += 1;
     abortRef.current?.abort();
     abortRef.current = null;
+    workingRef.current = false;
     releaseLoaded();
     releaseResult();
     setFile(null);
@@ -115,6 +117,7 @@ export function useImageJob(): ImageJob {
       tokenRef.current = token;
       abortRef.current?.abort();
       abortRef.current = null;
+      workingRef.current = false;
       releaseLoaded();
       releaseResult();
       setFile(next);
@@ -138,13 +141,14 @@ export function useImageJob(): ImageJob {
           return;
         }
         loadedRef.current = loaded;
+        const hasAlpha = detectAlpha(loaded);
         setMeta({
           width: loaded.width,
           height: loaded.height,
           kind: loaded.kind,
-          hasAlpha: sourceHasAlpha(loaded.kind),
+          hasAlpha,
         });
-        setSourcePreview(createPreview(loaded));
+        setSourcePreview(createPreview(loaded, hasAlpha));
         setPhase("ready");
       } catch (loadError) {
         if (tokenRef.current !== token) return;
@@ -162,8 +166,11 @@ export function useImageJob(): ImageJob {
   const run = useCallback(
     async (task: (context: ImageTaskContext) => Promise<ImageTaskResult>) => {
       if (!loadedRef.current || !file) return;
-      if (phase === "working") return;
+      if (workingRef.current || phase === "working") return;
 
+      workingRef.current = true;
+      abortRef.current?.abort();
+      abortRef.current = null;
       releaseResult();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -201,8 +208,10 @@ export function useImageJob(): ImageJob {
       } catch (jobError) {
         if (tokenRef.current !== token) return;
         if (controller.signal.aborted || (jobError instanceof DOMException && jobError.name === "AbortError")) {
-          setPhase(loadedRef.current ? "ready" : "idle");
-          setProgress(0);
+          if (abortRef.current === controller) {
+            setPhase(loadedRef.current ? "ready" : "idle");
+            setProgress(0);
+          }
           return;
         }
         const message =
@@ -212,15 +221,20 @@ export function useImageJob(): ImageJob {
         setError(message);
         setPhase("error");
       } finally {
-        if (abortRef.current === controller) abortRef.current = null;
+        if (abortRef.current === controller) {
+          abortRef.current = null;
+          workingRef.current = false;
+        }
       }
     },
     [file, phase, releaseResult],
   );
 
   const cancel = useCallback(() => {
+    tokenRef.current += 1;
     abortRef.current?.abort();
     abortRef.current = null;
+    workingRef.current = false;
     setPhase(loadedRef.current ? "ready" : "idle");
     setProgress(0);
     setError(null);

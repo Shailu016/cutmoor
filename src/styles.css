@@ -2454,6 +2454,17 @@ summary:focus-visible {
   color: var(--forest);
 }
 
+.legal-body ul a {
+  color: var(--forest);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.legal-body ul a:hover {
+  color: var(--ink);
+}
+
 .legal-body .button {
   margin-top: 8px;
 }

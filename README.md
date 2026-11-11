@@ -92,6 +92,12 @@ The encoder is large but cached by the browser after the first job. Serve
 `/ffmpeg/*` with long cache headers and Brotli/gzip where possible. The transfer
 is compressed even though the uncompressed file is 32 MB.
 
+If you add a Content-Security-Policy, allow WebAssembly in `script-src`
+(`'wasm-unsafe-eval'` in Chromium) for ffmpeg.wasm and the HEIC decoder. The
+HEIC import already uses `heic-to/csp`, which avoids string-eval loading, but
+WASM compilation still needs to be permitted. The ad script remains gated behind
+explicit advertising consent.
+
 ## Notes on limits
 
 - ffmpeg runs in a Web Worker. Video files are limited by tab memory, not by an

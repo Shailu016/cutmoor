@@ -26,6 +26,7 @@ export interface Guide {
   published: string;
   modified: string;
   readingMinutes: number;
+  tools: string[];
   sections: GuideSection[];
   faqs: GuideFaq[];
 }

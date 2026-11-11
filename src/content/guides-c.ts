@@ -13,6 +13,7 @@ export const GUIDES_C: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 8,
+    tools: ["resize-image", "compress-image"],
     sections: [
       {
         heading: "Start with the crop, not the pixel count",
@@ -146,6 +147,7 @@ export const GUIDES_C: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 7,
+    tools: ["convert-image", "compress-image"],
     sections: [
       {
         heading: "The one-minute answer",
@@ -286,6 +288,7 @@ export const GUIDES_C: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 7,
+    tools: ["compress-image", "resize-image"],
     sections: [
       {
         heading: "Why an image is large",
@@ -417,6 +420,7 @@ export const GUIDES_C: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 8,
+    tools: ["heic-to-jpg", "convert-image"],
     sections: [
       {
         heading: "What HEIC actually is",

@@ -111,6 +111,7 @@ export function organizationJsonLd() {
     name: SITE.name,
     url: `${SITE.url}/`,
     email: SITE.email,
+    slogan: SITE.tagline,
     description: SITE.description,
     logo: { "@type": "ImageObject", url: absoluteUrl("/icon-512.png"), width: 512, height: 512 },
   };

@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Calendar, ChevronRight, Clock } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { Seo } from "../components/Seo";
+import { relatedGuides, toolsForGuide } from "../content/guide-helpers";
 import { GUIDES, guideBySlug } from "../content/guides";
 import { TOOLS } from "../lib/tools";
 import { NotFoundPage } from "./NotFoundPage";
@@ -16,16 +17,8 @@ export function GuidePage() {
 
   if (!guide) return <NotFoundPage />;
 
-  const relatedTools = TOOLS.filter((tool) => {
-    if (guide.slug.includes("compress")) return ["compress", "resize"].includes(tool.slug);
-    if (guide.slug.includes("crop") || guide.slug.includes("size")) return ["resize", "compress"].includes(tool.slug);
-    if (guide.slug.includes("trim")) return tool.slug === "trim";
-    if (guide.slug.includes("audio")) return tool.slug === "audio";
-    if (guide.slug.includes("subtitle") || guide.slug.includes("srt")) return tool.slug === "captions";
-    return ["compress", "convert"].includes(tool.slug);
-  }).slice(0, 2);
-
-  const moreGuides = GUIDES.filter((item) => item.slug !== guide.slug).slice(0, 3);
+  const relatedTools = toolsForGuide(guide, TOOLS);
+  const moreGuides = relatedGuides(guide, GUIDES, TOOLS, 3);
 
   return (
     <>
@@ -154,7 +147,7 @@ export function GuidePage() {
             <div className="aside-card aside-cta">
               <span className="mono-label">Free tool</span>
               <strong>No upload. No account.</strong>
-              <p>Compress, crop, trim, and convert in the browser.</p>
+              <p>Compress, resize, trim, and convert video and images in the browser.</p>
               <Link className="button button-primary button-block" to="/tools">
                 Open the toolkit
               </Link>

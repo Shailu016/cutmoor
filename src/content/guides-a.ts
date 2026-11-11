@@ -13,6 +13,7 @@ export const GUIDES_A: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 6,
+    tools: ["compress", "resize"],
     sections: [
       {
         heading: "What WhatsApp actually does to a video",
@@ -123,6 +124,7 @@ export const GUIDES_A: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 6,
+    tools: ["compress"],
     sections: [
       {
         heading: "The limits, including the ones people still quote",
@@ -254,6 +256,7 @@ export const GUIDES_A: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 6,
+    tools: ["resize", "compress"],
     sections: [
       {
         heading: "The specs that matter",
@@ -373,6 +376,7 @@ export const GUIDES_A: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 7,
+    tools: ["resize", "compress"],
     sections: [
       {
         heading: "What a 9:16 crop actually costs",
@@ -494,6 +498,7 @@ export const GUIDES_A: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 6,
+    tools: ["convert", "compress"],
     sections: [
       {
         heading: "What MOV actually is",

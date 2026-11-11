@@ -30,7 +30,6 @@ export const IMAGE_EXT: Record<ImageFormat, string> = {
  */
 export const MAX_CANVAS_PIXELS = 16_777_216;
 export const MAX_CANVAS_EDGE = 16_384;
-export const MIN_OUTPUT_EDGE = 64;
 
 export interface Dimensions {
   width: number;
@@ -114,12 +113,42 @@ export function sourceLabel(kind: SourceKind): string {
   return SOURCE_LABELS[kind];
 }
 
-export function formatMime(format: ImageFormat): string {
-  return IMAGE_MIME[format];
-}
-
 export function formatExtension(format: ImageFormat): string {
   return IMAGE_EXT[format];
+}
+
+/** Human-readable target size, shared by the settings footer and result notes. */
+export function formatTargetSize(bytes: number): string {
+  const kb = Math.max(0, bytes) / 1024;
+  if (kb >= 1024) {
+    const mb = kb / 1024;
+    return `${Number.isInteger(mb) ? mb.toFixed(0) : mb.toFixed(1)} MB`;
+  }
+  return `${Math.round(kb)} KB`;
+}
+
+/** A short, honest note for source formats that cannot preserve animation or vectors. */
+export function sourceKindNote(kind: SourceKind): string | undefined {
+  if (kind === "gif") return "GIF input uses the first frame; the animation is not preserved.";
+  if (kind === "svg") return "SVG input is rasterized at the output size.";
+  return undefined;
+}
+
+/** The result note for target-size compression, including the honest no-op case. */
+export function targetCompressNote(options: {
+  targetBytes: number;
+  width: number;
+  height: number;
+  downscaledForTarget: boolean;
+  lossy: boolean;
+}): string | undefined {
+  if (options.downscaledForTarget) {
+    return `To reach ${formatTargetSize(options.targetBytes)}, the output was reduced to ${options.width}×${options.height}.`;
+  }
+  if (!options.lossy) {
+    return "PNG is lossless, so the pixels were not further compressed to meet the target.";
+  }
+  return undefined;
 }
 
 /** Best-effort type detection from the MIME type, then the file extension. */
@@ -142,11 +171,33 @@ export function sourceHasAlpha(kind: SourceKind): boolean {
   return kind === "png" || kind === "webp" || kind === "avif" || kind === "gif" || kind === "svg";
 }
 
-/** The default output for a source: keep the familiar format, but never emit HEIC or AVIF. */
-export function defaultOutputFormat(kind: SourceKind): ImageFormat {
-  if (kind === "jpeg" || kind === "heic" || kind === "avif" || kind === "bmp" || kind === "unknown") return "jpeg";
-  if (kind === "png" || kind === "svg") return "png";
-  return "webp";
+/** Scan a decoded sample so the UI only offers a fill colour when alpha really exists. */
+export function hasTransparentPixel(data: Uint8ClampedArray): boolean {
+  for (let index = 3; index < data.length; index += 4) {
+    if (data[index] < 255) return true;
+  }
+  return false;
+}
+
+/**
+ * Draw a small sample and inspect its alpha channel. A tainted canvas (for
+ * example an SVG with external references) cannot be inspected, so we
+ * conservatively report transparency and let the user choose a fill colour.
+ */
+export function detectAlpha(loaded: LoadedImage, maxEdge = 256): boolean {
+  if (!sourceHasAlpha(loaded.kind)) return false;
+  try {
+    const size = fitDimensions(loaded.width, loaded.height, maxEdge, maxEdge);
+    const canvas = document.createElement("canvas");
+    canvas.width = size.width;
+    canvas.height = size.height;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context) return true;
+    context.drawImage(loaded.source, 0, 0, size.width, size.height);
+    return hasTransparentPixel(context.getImageData(0, 0, size.width, size.height).data);
+  } catch {
+    return true;
+  }
 }
 
 /** A HEIC/HEIF brand check from the first bytes of the file. AVIF is deliberately excluded. */
@@ -416,7 +467,9 @@ export async function loadImage(
 
     options.onStatus?.("heic-decoder");
     try {
-      const { heicTo } = await import("heic-to");
+      // The CSP entry point avoids string-eval based loading, so the decoder
+      // also works on deployments with a strict Content-Security-Policy.
+      const { heicTo } = await import("heic-to/csp");
       const bitmap = await heicTo({ blob: file, type: "bitmap" });
       if (!bitmap.width || !bitmap.height) {
         bitmap.close();
@@ -438,22 +491,8 @@ export async function loadImage(
   }
 }
 
-export async function readImageMeta(file: File): Promise<ImageMeta> {
-  const loaded = await loadImage(file);
-  try {
-    return {
-      width: loaded.width,
-      height: loaded.height,
-      kind: loaded.kind,
-      hasAlpha: sourceHasAlpha(loaded.kind),
-    };
-  } finally {
-    loaded.release();
-  }
-}
-
 /** A small data URL for the job panel. Keeps a 48 MP source out of the DOM. */
-export function createPreview(loaded: LoadedImage, maxEdge = 720): string {
+export function createPreview(loaded: LoadedImage, hasAlpha = sourceHasAlpha(loaded.kind), maxEdge = 720): string {
   const size = fitDimensions(loaded.width, loaded.height, maxEdge, maxEdge);
   const canvas = document.createElement("canvas");
   canvas.width = size.width;
@@ -462,13 +501,12 @@ export function createPreview(loaded: LoadedImage, maxEdge = 720): string {
   if (!context) return "";
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = "high";
-  const alpha = sourceHasAlpha(loaded.kind);
-  if (!alpha) {
+  if (!hasAlpha) {
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, size.width, size.height);
   }
   context.drawImage(loaded.source, 0, 0, size.width, size.height);
-  return alpha ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", 0.82);
+  return hasAlpha ? canvas.toDataURL("image/png") : canvas.toDataURL("image/jpeg", 0.82);
 }
 
 /** The quality-mode path used by resize and convert. */
@@ -481,10 +519,25 @@ function throwIfAborted(signal?: AbortSignal) {
   if (signal?.aborted) throw new DOMException("Cancelled", "AbortError");
 }
 
+const MAX_COMPRESS_ATTEMPTS = 7;
+const QUALITY_SEARCH_STEPS = 6;
+const ENCODES_PER_ATTEMPT = QUALITY_SEARCH_STEPS + 1;
+
+/** Map completed encodes to a capped, always-increasing progress value. */
+export function compressionProgress(completed: number, total: number): number {
+  const safeTotal = Math.max(1, total);
+  const safeCompleted = Math.min(safeTotal, Math.max(0, completed));
+  return Math.min(0.94, 0.05 + (safeCompleted / safeTotal) * 0.89);
+}
+
 /**
- * Hit a target byte size. Lossy formats binary-search quality first; if even
- * the minimum quality is too large, the image is downscaled in steps. PNG is
- * lossless, so it can only reach a target by reducing dimensions.
+ * Hit a target byte size.
+ *
+ * Lossy formats try the highest sensible quality first, which means a generous
+ * target finishes in one encode. If that fails, a bounded binary search finds
+ * the best lower quality, and dimensions are reduced only when quality alone
+ * cannot reach the target. PNG is lossless, so it can only reach a target by
+ * reducing dimensions.
  */
 export async function compressToTarget(
   loaded: LoadedImage,
@@ -501,9 +554,17 @@ export async function compressToTarget(
   let width = clamped.width;
   let height = clamped.height;
   let best: { blob: Blob; quality: number | null; width: number; height: number } | null = null;
-  let downscaled = clamped.scaled || fitted.scaled;
+  let downscaledForTarget = false;
+  let progress = 0;
 
-  for (let attempt = 0; attempt < 7; attempt += 1) {
+  const report = (attempt: number, step: number) => {
+    const total = MAX_COMPRESS_ATTEMPTS * ENCODES_PER_ATTEMPT;
+    const completed = Math.min(total, attempt * ENCODES_PER_ATTEMPT + step + 1);
+    progress = Math.max(progress, compressionProgress(completed, total));
+    options.onProgress?.(progress);
+  };
+
+  for (let attempt = 0; attempt < MAX_COMPRESS_ATTEMPTS; attempt += 1) {
     throwIfAborted(options.signal);
     const canvas = drawToCanvas(loaded, {
       width,
@@ -514,15 +575,22 @@ export async function compressToTarget(
     });
 
     if (lossy) {
+      const highest = await canvasToBlob(canvas, format, 0.95);
+      report(attempt, 0);
+      if (highest.size <= target) {
+        best = { blob: highest, quality: 0.95, width, height };
+        break;
+      }
+
       let low = 0.3;
       let high = 0.95;
       let candidate: { blob: Blob; quality: number } | null = null;
 
-      for (let step = 0; step < 7; step += 1) {
+      for (let step = 0; step < QUALITY_SEARCH_STEPS; step += 1) {
         throwIfAborted(options.signal);
         const quality = (low + high) / 2;
         const blob = await canvasToBlob(canvas, format, quality);
-        options.onProgress?.(Math.min(0.94, 0.2 + attempt * 0.1 + step * 0.09));
+        report(attempt, step + 1);
         if (blob.size <= target) {
           candidate = { blob, quality };
           low = quality;
@@ -537,7 +605,7 @@ export async function compressToTarget(
       }
     } else {
       const blob = await canvasToBlob(canvas, format);
-      options.onProgress?.(Math.min(0.94, 0.3 + attempt * 0.12));
+      report(attempt, 0);
       if (blob.size <= target) {
         best = { blob, quality: null, width, height };
         break;
@@ -548,7 +616,7 @@ export async function compressToTarget(
     if (Math.min(width, height) <= 320) break;
     width = Math.max(1, Math.round(width * 0.85));
     height = Math.max(1, Math.round(height * 0.85));
-    downscaled = true;
+    downscaledForTarget = true;
   }
 
   if (!best) {
@@ -556,22 +624,24 @@ export async function compressToTarget(
     const canvas = drawToCanvas(loaded, { width, height, fit: "stretch", background: options.background, format });
     const blob = await canvasToBlob(canvas, format, lossy ? 0.3 : undefined);
     best = { blob, quality: lossy ? 0.3 : null, width, height };
+    options.onProgress?.(1);
     return {
       ...best,
-      note: `The smallest version is ${Math.round(blob.size / 1024)} KB, above the ${Math.round(target / 1024)} KB target. Try a smaller output size, a different format, or a higher target.`,
+      note: `The smallest version is ${formatTargetSize(blob.size)}, above the ${formatTargetSize(target)} target. Try a smaller output size, a different format, or a higher target.`,
     };
   }
 
-  let note: string | undefined;
-  if (downscaled) {
-    note = `To reach ${Math.round(target / 1024)} KB, the output was reduced to ${width}×${height}.`;
-  }
-  if (!lossy && best.quality === null) {
-    note = `${note ? `${note} ` : ""}PNG is lossless, so the target was met by reducing dimensions, not by throwing away detail.`;
-  }
-
   options.onProgress?.(1);
-  return { ...best, note };
+  return {
+    ...best,
+    note: targetCompressNote({
+      targetBytes: target,
+      width,
+      height,
+      downscaledForTarget,
+      lossy,
+    }),
+  };
 }
 
 /** Human-readable savings for the result panel. */

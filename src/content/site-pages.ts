@@ -1,7 +1,14 @@
+export interface SiteLink {
+  label: string;
+  href: string;
+  description?: string;
+}
+
 export interface SiteSection {
   heading: string;
   paragraphs: string[];
   bullets?: string[];
+  links?: SiteLink[];
 }
 
 export interface SitePage {
@@ -332,10 +339,14 @@ export const SITE_PAGES: SitePage[] = [
           "Video decoding and encoding use FFmpeg, compiled to WebAssembly and delivered by the ffmpeg.wasm project. The @ffmpeg/core build used by ClipKit is licensed under the GNU General Public License version 2 or later (GPL-2.0-or-later).",
           "The corresponding source code is available from the FFmpeg project and the ffmpeg.wasm repository, including the scripts used to build the WebAssembly core. If you deploy a modified version of the core, you are responsible for providing the corresponding source under the GPL.",
         ],
-        bullets: [
-          "FFmpeg: https://ffmpeg.org/ — GPL-2.0-or-later for this build.",
-          "ffmpeg.wasm: https://github.com/ffmpegwasm/ffmpeg.wasm — build and packaging source.",
-          "@ffmpeg/ffmpeg and @ffmpeg/util: MIT.",
+        links: [
+          { label: "FFmpeg", href: "https://ffmpeg.org/", description: "GPL-2.0-or-later for this build." },
+          {
+            label: "ffmpeg.wasm",
+            href: "https://github.com/ffmpegwasm/ffmpeg.wasm",
+            description: "build and packaging source.",
+          },
+          { label: "@ffmpeg/ffmpeg and @ffmpeg/util", href: "https://github.com/ffmpegwasm/ffmpeg.wasm", description: "MIT." },
         ],
       },
       {
@@ -344,10 +355,10 @@ export const SITE_PAGES: SitePage[] = [
           "The HEIC converter uses the heic-to library, which bundles a WebAssembly build of libheif and the libde265 decoder. These components are licensed under the GNU Lesser General Public License version 3 (LGPL-3.0).",
           "The decoder is loaded lazily, only when a HEIC file is selected, and runs entirely in the browser. ClipKit does not modify the library. The upstream source is linked below so the corresponding source can be obtained.",
         ],
-        bullets: [
-          "heic-to by Hopper Gee: https://github.com/hoppergee/heic-to — LGPL-3.0.",
-          "libheif: https://github.com/strukturag/libheif — LGPL-3.0.",
-          "libde265: https://github.com/strukturag/libde265 — LGPL-3.0.",
+        links: [
+          { label: "heic-to by Hopper Gee", href: "https://github.com/hoppergee/heic-to", description: "LGPL-3.0." },
+          { label: "libheif", href: "https://github.com/strukturag/libheif", description: "LGPL-3.0." },
+          { label: "libde265", href: "https://github.com/strukturag/libde265", description: "LGPL-3.0." },
         ],
       },
       {
@@ -355,11 +366,11 @@ export const SITE_PAGES: SitePage[] = [
         paragraphs: [
           "The interface is built with React and React Router under the MIT licence. Icons come from Lucide under the ISC licence. The site is built with Vite under the MIT licence.",
         ],
-        bullets: [
-          "React and React DOM: https://github.com/facebook/react — MIT.",
-          "React Router: https://github.com/remix-run/react-router — MIT.",
-          "Lucide: https://github.com/lucide-icons/lucide — ISC.",
-          "Vite: https://github.com/vitejs/vite — MIT.",
+        links: [
+          { label: "React and React DOM", href: "https://github.com/facebook/react", description: "MIT." },
+          { label: "React Router", href: "https://github.com/remix-run/react-router", description: "MIT." },
+          { label: "Lucide", href: "https://github.com/lucide-icons/lucide", description: "ISC." },
+          { label: "Vite", href: "https://github.com/vitejs/vite", description: "MIT." },
         ],
       },
       {
@@ -367,10 +378,10 @@ export const SITE_PAGES: SitePage[] = [
         paragraphs: [
           "Fraunces and Manrope are served through Fontsource and are licensed under the SIL Open Font License 1.1. The fonts are self-hosted with the site, not fetched from a third-party font service.",
         ],
-        bullets: [
-          "Fraunces: https://github.com/undercasetype/Fraunces — OFL-1.1.",
-          "Manrope: https://github.com/sharanda/manrope — OFL-1.1.",
-          "Fontsource: https://github.com/fontsource/fontsource — MIT packaging.",
+        links: [
+          { label: "Fraunces", href: "https://github.com/undercasetype/Fraunces", description: "OFL-1.1." },
+          { label: "Manrope", href: "https://github.com/sharanda/manrope", description: "OFL-1.1." },
+          { label: "Fontsource", href: "https://github.com/fontsource/fontsource", description: "MIT packaging." },
         ],
       },
       {

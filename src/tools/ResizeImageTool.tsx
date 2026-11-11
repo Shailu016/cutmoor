@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Crop, RectangleHorizontal } from "lucide-react";
 import { FileDrop } from "../components/FileDrop";
 import { ImageJobPanel } from "../components/ImageJobPanel";
@@ -9,6 +9,7 @@ import {
   clampDimensions,
   formatExtension,
   renderImage,
+  sourceKindNote,
   sourceLabel,
   type ImageFit,
   type ImageFormat,
@@ -36,7 +37,7 @@ const PRESETS: Record<Exclude<PresetId, "custom">, Preset> = {
   "ig-post": { width: 1080, height: 1350, label: "Instagram post", note: "4:5 portrait" },
   "ig-square": { width: 1080, height: 1080, label: "Instagram square", note: "1:1 feed" },
   "ig-story": { width: 1080, height: 1920, label: "Story / Reel", note: "9:16 vertical" },
-  "yt-thumb": { width: 1280, height: 720, label: "YouTube thumbnail", note: "16:9 · under 2 MB" },
+  "yt-thumb": { width: 1280, height: 720, label: "YouTube thumbnail", note: "16:9 · JPG under 2 MB" },
   og: { width: 1200, height: 630, label: "Link preview", note: "Open Graph / Facebook" },
   "x-post": { width: 1600, height: 900, label: "X post", note: "16:9 timeline" },
   "li-post": { width: 1200, height: 1200, label: "LinkedIn post", note: "1:1 feed" },
@@ -46,7 +47,7 @@ const PRESETS: Record<Exclude<PresetId, "custom">, Preset> = {
 const FORMATS: { value: ImageFormat; label: string; note: string }[] = [
   { value: "jpeg", label: "JPG", note: "Safest for feeds and upload forms." },
   { value: "png", label: "PNG", note: "Lossless. Keeps transparency." },
-  { value: "webp", label: "WebP", note: "Smaller for the web. Not on Safari." },
+  { value: "webp", label: "WebP", note: "Smaller on the web. Safari can't export it from a canvas." },
 ];
 
 function shapeSize(width: number, height: number) {
@@ -67,6 +68,18 @@ export function ResizeImageTool() {
   const [background, setBackground] = useState("#ffffff");
   const [transparent, setTransparent] = useState(false);
 
+  useEffect(() => {
+    if (format === "webp" && !support.webp) setFormat("jpeg");
+  }, [format, support.webp]);
+
+  const choosePreset = (key: PresetId) => {
+    setPreset(key);
+    // These presets only work in one format: an app icon needs PNG for
+    // transparency, and a YouTube thumbnail should stay a small JPG.
+    if (key === "app-icon") setFormat("png");
+    else if (key === "yt-thumb") setFormat("jpeg");
+  };
+
   const width = preset === "custom" ? customWidth : PRESETS[preset].width;
   const height = preset === "custom" ? customHeight : PRESETS[preset].height;
   const outputSize = clampDimensions(width, height);
@@ -76,6 +89,7 @@ export function ResizeImageTool() {
 
   const run = () => {
     if (!job.file) return;
+    const kind = job.meta?.kind;
     job.run(async ({ loaded, onProgress, signal }) => {
       if (signal.aborted) throw new DOMException("Cancelled", "AbortError");
       onProgress(0.25);
@@ -99,6 +113,10 @@ export function ResizeImageTool() {
       }
       if (effectiveFormat === "png") notes.push("PNG is lossless, so the quality slider does not change the file.");
       if (effectiveFormat === "jpeg" && job.meta?.hasAlpha) notes.push("Any transparency in the source was filled with white.");
+      if (kind) {
+        const sourceNote = sourceKindNote(kind);
+        if (sourceNote) notes.push(sourceNote);
+      }
       return {
         blob,
         name: outputName,
@@ -144,7 +162,7 @@ export function ResizeImageTool() {
                     key={key}
                     type="button"
                     className={preset === key ? "preset active" : "preset"}
-                    onClick={() => setPreset(key)}
+                    onClick={() => choosePreset(key)}
                   >
                     <span className="image-preset-shape" style={shape} />
                     <strong>{item.label}</strong>
@@ -157,7 +175,7 @@ export function ResizeImageTool() {
               <button
                 type="button"
                 className={preset === "custom" ? "preset active" : "preset"}
-                onClick={() => setPreset("custom")}
+                onClick={() => choosePreset("custom")}
               >
                 <span className="image-preset-shape image-preset-custom" />
                 <strong>Custom</strong>
@@ -260,7 +278,7 @@ export function ResizeImageTool() {
             </div>
             <p className="settings-note">
               {FORMATS.find((item) => item.value === format)?.note}
-              {!support.webp && " WebP export is not available in Safari, so JPG and PNG stay available."}
+              {!support.webp && " WebP export is not available in this browser, so JPG and PNG stay available."}
             </p>
 
             {effectiveFormat !== "png" && (

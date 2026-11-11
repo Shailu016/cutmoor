@@ -28,8 +28,8 @@ export function ToolsIndexPage() {
           <span className="eyebrow eyebrow-lime">The toolkit</span>
           <h1>{TOOLS.length} small tools. One stubborn rule: no upload.</h1>
           <p>
-            Seven video tools and four image tools, each doing one job on your device. Choose by the problem you have, not
-            by the format list. Every export is clean, free, and watermark-free.
+            {VIDEO_TOOLS.length} video tools and {IMAGE_TOOLS.length} image tools, each doing one job on your device.
+            Choose by the problem you have, not by the format list. Every export is clean, free, and watermark-free.
           </p>
         </header>
 

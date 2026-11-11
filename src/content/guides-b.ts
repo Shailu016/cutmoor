@@ -13,6 +13,7 @@ export const GUIDES_B: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 6,
+    tools: ["trim", "compress"],
     sections: [
       {
         heading: "What a trim actually does",
@@ -145,6 +146,7 @@ export const GUIDES_B: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 6,
+    tools: ["audio", "convert"],
     sections: [
       {
         heading: "What extraction actually does",
@@ -266,6 +268,7 @@ export const GUIDES_B: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 5,
+    tools: ["captions"],
     sections: [
       {
         heading: "The short version",
@@ -390,6 +393,7 @@ export const GUIDES_B: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 6,
+    tools: ["resize", "compress"],
     sections: [
       {
         heading: "Why 1080x1920 is the baseline",
@@ -529,6 +533,7 @@ export const GUIDES_B: Guide[] = [
     published: "2026-11-11",
     modified: "2026-11-11",
     readingMinutes: 7,
+    tools: ["compress", "convert"],
     sections: [
       {
         heading: "Start with the bitrate",

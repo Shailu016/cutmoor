@@ -39,6 +39,18 @@ export function SitePageView() {
                   ))}
                 </ul>
               )}
+              {section.links && (
+                <ul className="legal-links">
+                  {section.links.map((link) => (
+                    <li key={`${link.href}-${link.label}`}>
+                      <a href={link.href} target="_blank" rel="noopener noreferrer">
+                        {link.label}
+                      </a>
+                      {link.description ? ` — ${link.description}` : ""}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {page.slug === "cookies" && section.heading === "How to change your choice" && (
                 <button className="button button-ghost" type="button" onClick={resetConsent}>
                   <RefreshCw size={15} /> Reset my cookie choice

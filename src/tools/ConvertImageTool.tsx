@@ -10,6 +10,7 @@ import {
   clampDimensions,
   formatExtension,
   renderImage,
+  sourceKindNote,
   sourceLabel,
   type ImageFormat,
 } from "../lib/image";
@@ -17,7 +18,7 @@ import {
 const FORMATS: { value: ImageFormat; label: string; note: string }[] = [
   { value: "jpeg", label: "JPG", note: "Universal. No transparency." },
   { value: "png", label: "PNG", note: "Lossless. Keeps transparency." },
-  { value: "webp", label: "WebP", note: "Smaller on the web. Not on Safari." },
+  { value: "webp", label: "WebP", note: "Smaller on the web. Safari can't export it from a canvas." },
 ];
 
 interface ConvertImageToolProps {
@@ -65,6 +66,8 @@ export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: C
         notes.push("Any transparency was filled with the chosen background color because JPG cannot store an alpha channel.");
       }
       if (effectiveFormat === "png") notes.push("PNG is lossless, so the quality slider does not change the file.");
+      const sourceNote = sourceKindNote(meta.kind);
+      if (sourceNote) notes.push(sourceNote);
       if (effectiveFormat === meta.kind && !heicMode) {
         notes.push("The image was re-encoded in the same format. If you only need a smaller file, the compress tool avoids a second quality loss.");
       }
@@ -141,7 +144,7 @@ export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: C
             </div>
             <p className="settings-note">
               {FORMATS.find((item) => item.value === format)?.note}
-              {!support.webp && " WebP export is not available in Safari, so JPG and PNG stay available."}
+              {!support.webp && " WebP export is not available in this browser, so JPG and PNG stay available."}
             </p>
 
             {effectiveFormat !== "png" && (

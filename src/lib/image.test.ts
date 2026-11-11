@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
   clampDimensions,
+  compressionProgress,
   computeDrawRect,
-  defaultOutputFormat,
   detectSourceKind,
   fitDimensions,
+  formatTargetSize,
+  hasTransparentPixel,
   isHeicHeader,
   savingsPercent,
   sourceHasAlpha,
+  sourceKindNote,
+  targetCompressNote,
 } from "./image";
 
 function fakeFile(name: string, type: string): Pick<File, "name" | "type"> {
@@ -29,18 +33,6 @@ describe("detectSourceKind", () => {
 
   it("returns unknown for a file it cannot identify", () => {
     expect(detectSourceKind(fakeFile("notes.txt", "text/plain"))).toBe("unknown");
-  });
-});
-
-describe("defaultOutputFormat", () => {
-  it("never emits HEIC or AVIF", () => {
-    expect(defaultOutputFormat("heic")).toBe("jpeg");
-    expect(defaultOutputFormat("avif")).toBe("jpeg");
-  });
-
-  it("keeps PNG and WebP sensible", () => {
-    expect(defaultOutputFormat("png")).toBe("png");
-    expect(defaultOutputFormat("webp")).toBe("webp");
   });
 });
 
@@ -175,5 +167,98 @@ describe("savingsPercent", () => {
 
   it("returns null for a missing source size", () => {
     expect(savingsPercent(0, 100)).toBeNull();
+  });
+});
+
+describe("compressionProgress", () => {
+  it("never moves backwards as encodes complete", () => {
+    let previous = 0;
+    for (let completed = 0; completed <= 49; completed += 1) {
+      const value = compressionProgress(completed, 49);
+      expect(value).toBeGreaterThanOrEqual(previous);
+      previous = value;
+    }
+  });
+
+  it("caps just below 100 percent until the job reports done", () => {
+    expect(compressionProgress(49, 49)).toBeCloseTo(0.94, 6);
+    expect(compressionProgress(999, 49)).toBeCloseTo(0.94, 6);
+  });
+});
+
+describe("formatTargetSize", () => {
+  it("formats kilobytes and whole megabytes", () => {
+    expect(formatTargetSize(200 * 1024)).toBe("200 KB");
+    expect(formatTargetSize(1024 * 1024)).toBe("1 MB");
+    expect(formatTargetSize(5120 * 1024)).toBe("5 MB");
+  });
+
+  it("keeps one decimal for fractional megabytes", () => {
+    expect(formatTargetSize(1536 * 1024)).toBe("1.5 MB");
+  });
+});
+
+describe("targetCompressNote", () => {
+  it("reports a target-driven downscale", () => {
+    const note = targetCompressNote({
+      targetBytes: 100 * 1024,
+      width: 800,
+      height: 600,
+      downscaledForTarget: true,
+      lossy: true,
+    });
+    expect(note).toContain("100 KB");
+    expect(note).toContain("800×600");
+  });
+
+  it("does not claim a PNG was reduced when it was not", () => {
+    const note = targetCompressNote({
+      targetBytes: 5 * 1024 * 1024,
+      width: 1200,
+      height: 1200,
+      downscaledForTarget: false,
+      lossy: false,
+    });
+    expect(note).toBe("PNG is lossless, so the pixels were not further compressed to meet the target.");
+  });
+
+  it("adds no note for a lossy image that met the target at full size", () => {
+    expect(
+      targetCompressNote({ targetBytes: 1024 * 1024, width: 1000, height: 1000, downscaledForTarget: false, lossy: true }),
+    ).toBeUndefined();
+  });
+});
+
+describe("hasTransparentPixel", () => {
+  const pixels = (...alphas: number[]) => {
+    const data = new Uint8ClampedArray(alphas.length * 4);
+    alphas.forEach((alpha, index) => {
+      data[index * 4 + 3] = alpha;
+    });
+    return data;
+  };
+
+  it("returns false for an opaque image", () => {
+    expect(hasTransparentPixel(pixels(255, 255, 255, 255))).toBe(false);
+  });
+
+  it("returns true when any pixel is translucent", () => {
+    expect(hasTransparentPixel(pixels(255, 254))).toBe(true);
+  });
+
+  it("returns false for an empty buffer", () => {
+    expect(hasTransparentPixel(new Uint8ClampedArray(0))).toBe(false);
+  });
+});
+
+describe("sourceKindNote", () => {
+  it("warns that GIF and SVG are flattened", () => {
+    expect(sourceKindNote("gif")).toContain("first frame");
+    expect(sourceKindNote("svg")).toContain("rasterized");
+  });
+
+  it("has nothing to say about a normal photo", () => {
+    expect(sourceKindNote("jpeg")).toBeUndefined();
+    expect(sourceKindNote("heic")).toBeUndefined();
   });
 });

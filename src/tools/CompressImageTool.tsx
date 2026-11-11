@@ -10,7 +10,9 @@ import {
   compressToTarget,
   fitDimensions,
   formatExtension,
+  formatTargetSize,
   renderImage,
+  sourceKindNote,
   sourceLabel,
   type ImageFormat,
 } from "../lib/image";
@@ -23,13 +25,9 @@ const TARGETS = [100, 200, 500, 1024, 2048, 5120];
 const FORMATS: { value: FormatChoice; label: string; note: string }[] = [
   { value: "auto", label: "Auto", note: "WebP when the browser can encode it, otherwise JPG." },
   { value: "jpeg", label: "JPG", note: "The safest photo format. No transparency." },
-  { value: "webp", label: "WebP", note: "Smaller than JPG on the web. Chrome, Edge, and Firefox." },
+  { value: "webp", label: "WebP", note: "Smaller than JPG on the web. Safari can't create it from a canvas." },
   { value: "png", label: "PNG", note: "Lossless. Best for screenshots and graphics." },
 ];
-
-function formatTarget(kb: number): string {
-  return kb >= 1024 ? `${(kb / 1024).toFixed(kb % 1024 === 0 ? 0 : 1)} MB` : `${kb} KB`;
-}
 
 export function CompressImageTool() {
   const job = useImageJob();
@@ -72,7 +70,7 @@ export function CompressImageTool() {
             width: meta.width,
             height: meta.height,
             format: effectiveFormat,
-            note: `The original is already ${formatTarget(Math.round(file.size / 1024))}, under your ${formatTarget(targetKb)} target. It was left untouched.`,
+            note: `The original is already ${formatTargetSize(file.size)}, under your ${formatTargetSize(targetKb * 1024)} target. It was left untouched.`,
           };
         }
 
@@ -85,13 +83,18 @@ export function CompressImageTool() {
           onProgress,
           signal,
         });
+        const notes: string[] = [];
+        if (effectiveFormat === "jpeg" && alpha) notes.push("Any transparency was filled with white for JPG.");
+        const sourceNote = sourceKindNote(meta.kind);
+        if (sourceNote) notes.push(sourceNote);
+        if (result.note) notes.push(result.note);
         return {
           blob: result.blob,
           name: outputName,
           width: result.width,
           height: result.height,
           format: effectiveFormat,
-          note: result.note,
+          note: notes.join(" ") || undefined,
         };
       }
 
@@ -116,6 +119,8 @@ export function CompressImageTool() {
       if (clamped.scaled) notes.push(`The output was capped at ${clamped.width}×${clamped.height} for browser canvas safety.`);
       if (effectiveFormat === "png") notes.push("PNG ignores the quality slider because it is lossless.");
       if (effectiveFormat === "jpeg" && alpha) notes.push("Any transparency was filled with white for JPG.");
+      const sourceNote = sourceKindNote(meta.kind);
+      if (sourceNote) notes.push(sourceNote);
       return {
         blob,
         name: outputName,
@@ -183,7 +188,7 @@ export function CompressImageTool() {
                       className={targetKb === size ? "chip active" : "chip"}
                       onClick={() => setTargetKb(size)}
                     >
-                      {formatTarget(size)}
+                      {formatTargetSize(size * 1024)}
                     </button>
                   ))}
                   <label className="chip chip-input">
@@ -202,7 +207,7 @@ export function CompressImageTool() {
                 </div>
                 <p className="settings-note">
                   ClipKit encodes the image at several quality levels and keeps the highest quality that fits under{" "}
-                  <strong>{formatTarget(targetKb)}</strong>. If even the lowest quality is too large, it reduces the
+                  <strong>{formatTargetSize(targetKb * 1024)}</strong>. If even the lowest quality is too large, it reduces the
                   dimensions in steps and tells you exactly what it did.
                 </p>
               </>
@@ -255,7 +260,7 @@ export function CompressImageTool() {
               {format === "auto"
                 ? `Auto uses ${effectiveFormat === "webp" ? "WebP" : effectiveFormat === "png" ? "PNG" : "JPG"} in this browser.`
                 : FORMATS.find((item) => item.value === format)?.note}
-              {!support.webp && " WebP export is not available in Safari, so JPG and PNG stay available."}
+              {!support.webp && " WebP export is not available in this browser, so JPG and PNG stay available."}
             </p>
 
             <div className="settings-head">
@@ -288,7 +293,7 @@ export function CompressImageTool() {
             </button>
             <p className="settings-footnote">
               Output: {sourceLabel(effectiveFormat)} ·{" "}
-              {mode === "size" ? `target ${formatTarget(targetKb)}` : `quality ${quality}%`} ·{" "}
+              {mode === "size" ? `target ${formatTargetSize(targetKb * 1024)}` : `quality ${quality}%`} ·{" "}
               {maxEdge === "original" ? "original dimensions" : `long edge ≤ ${maxEdge}px`}
             </p>
           </div>

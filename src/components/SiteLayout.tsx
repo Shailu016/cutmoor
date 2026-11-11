@@ -79,7 +79,13 @@ export function SiteLayout() {
 
   useEffect(() => {
     if (location.hash) {
-      const target = document.querySelector(location.hash);
+      let id = "";
+      try {
+        id = decodeURIComponent(location.hash.slice(1));
+      } catch {
+        id = location.hash.slice(1);
+      }
+      const target = id ? document.getElementById(id) : null;
       if (target) {
         target.scrollIntoView({ block: "start" });
         setOpen(false);
@@ -88,7 +94,7 @@ export function SiteLayout() {
     }
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     setOpen(false);
-  }, [location.pathname, location.hash]);
+  }, [location.pathname, location.hash, location.key]);
 
   return (
     <>
