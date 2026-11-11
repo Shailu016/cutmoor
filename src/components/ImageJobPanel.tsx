@@ -38,7 +38,7 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
             <span>{loadingNote}</span>
             <Loader2 size={15} className="spin" />
           </div>
-          <div className="progress-track" role="progressbar" aria-label={loadingNote}>
+          <div className="progress-track" role="progressbar" aria-label={loadingNote} aria-valuetext="Loading">
             <div className="progress-fill indeterminate" style={{ width: "42%" }} />
           </div>
           <p className="job-note">
@@ -87,6 +87,7 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
             aria-valuenow={percent}
             aria-valuemin={0}
             aria-valuemax={100}
+            aria-valuetext={`${percent} percent`}
           >
             <div className="progress-fill" style={{ width: `${Math.max(3, percent)}%` }} />
           </div>
@@ -153,7 +154,7 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
           <div className="result-badge result-badge-error">
             <AlertTriangle size={16} /> The image could not be read or processed
           </div>
-          <p className="job-error">{error}</p>
+          <p className="job-error" role="alert">{error}</p>
           <button className="button button-ghost button-block" type="button" onClick={clear}>
             <RotateCcw size={15} /> Try another image
           </button>

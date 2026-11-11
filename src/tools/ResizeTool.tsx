@@ -69,12 +69,13 @@ export function ResizeTool() {
                 </span>
               )}
             </div>
-            <div className="preset-grid">
+            <div className="preset-grid" role="group" aria-label="Output frame">
               {(Object.keys(PRESETS) as Exclude<Preset, "custom">[]).map((key) => (
                 <button
                   key={key}
                   type="button"
                   className={preset === key ? "preset active" : "preset"}
+                  aria-pressed={preset === key}
                   onClick={() => setPreset(key)}
                 >
                   <span className="preset-shape" data-shape={key} />
@@ -85,6 +86,7 @@ export function ResizeTool() {
               <button
                 type="button"
                 className={preset === "custom" ? "preset active" : "preset"}
+                aria-pressed={preset === "custom"}
                 onClick={() => setPreset("custom")}
               >
                 <span className="preset-shape" data-shape="custom" />
@@ -123,10 +125,11 @@ export function ResizeTool() {
             <div className="settings-head">
               <span className="mono-label">02 · Fit</span>
             </div>
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="Fit mode">
               <button
                 type="button"
                 className={fit === "crop" ? "segment active" : "segment"}
+                aria-pressed={fit === "crop"}
                 onClick={() => setFit("crop")}
               >
                 <Crop size={16} /> Crop to fill
@@ -134,6 +137,7 @@ export function ResizeTool() {
               <button
                 type="button"
                 className={fit === "pad" ? "segment active" : "segment"}
+                aria-pressed={fit === "pad"}
                 onClick={() => setFit("pad")}
               >
                 <RectangleHorizontal size={16} /> Pad with bars

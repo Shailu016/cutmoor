@@ -1,5 +1,6 @@
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Search, Sparkles } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
@@ -19,7 +20,27 @@ const CHOICES = [
   { need: "Windows will not open an iPhone photo", tool: "heic-to-jpg", answer: "Turn HEIC into a standard JPG." },
 ];
 
+type Filter = "all" | "video" | "image";
+
 export function ToolsIndexPage() {
+  const [filter, setFilter] = useState<Filter>("all");
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    return TOOLS.filter((tool) => {
+      if (filter !== "all" && tool.kind !== filter) return false;
+      if (!needle) return true;
+      const haystack = [tool.name, tool.short, tool.description, ...tool.keywords].join(" ").toLowerCase();
+      return haystack.includes(needle);
+    });
+  }, [filter, query]);
+
+  const groups = [
+    { kind: "video" as const, title: "Cut, shrink, and convert footage", tools: filtered.filter((tool) => tool.kind === "video") },
+    { kind: "image" as const, title: "Resize, compress, and fix the format", tools: filtered.filter((tool) => tool.kind === "image") },
+  ].filter((group) => group.tools.length > 0);
+
   return (
     <>
       <Seo path="/tools" />
@@ -29,55 +50,82 @@ export function ToolsIndexPage() {
           <h1>{TOOLS.length} small tools. One stubborn rule: no upload.</h1>
           <p>
             {VIDEO_TOOLS.length} video tools and {IMAGE_TOOLS.length} image tools, each doing one job on your device.
-            Choose by the problem you have, not by the format list. Every export is clean, free, and watermark-free.
+            Choose by the problem you have, not by the format list.
           </p>
         </header>
 
-        <div className="tool-group">
-          <div className="tool-group-head">
-            <span className="mono-label">Video · {VIDEO_TOOLS.length} tools</span>
-            <h2>Cut, shrink, and convert footage</h2>
-          </div>
-          <div className="tool-grid tool-grid-wide">
-            {VIDEO_TOOLS.map((tool) => (
-              <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
-                <span className={`tool-card-icon icon-${tool.accent}`}>
-                  <ToolIcon icon={tool.icon} />
-                </span>
-                <strong>{tool.name}</strong>
-                <p>{tool.short}</p>
-                <span className="tool-card-link">
-                  Open tool <ArrowRight size={14} />
-                </span>
-              </Link>
+        <div className="toolbar">
+          <div className="segmented" role="group" aria-label="Filter tools">
+            {(["all", "video", "image"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                className={filter === value ? "segment active" : "segment"}
+                aria-pressed={filter === value}
+                onClick={() => setFilter(value)}
+              >
+                {value === "all" ? "All" : value === "video" ? "Video" : "Images"}
+              </button>
             ))}
           </div>
+          <label className="search-field">
+            <Search size={16} aria-hidden="true" />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search tools"
+              aria-label="Search tools"
+            />
+          </label>
         </div>
 
-        <div className="tool-group" id="image-tools">
-          <div className="tool-group-head">
-            <span className="mono-label">Images · {IMAGE_TOOLS.length} tools</span>
-            <h2>Resize, compress, and fix the format</h2>
-          </div>
-          <div className="tool-grid tool-grid-wide">
-            {IMAGE_TOOLS.map((tool) => (
-              <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
-                <span className={`tool-card-icon icon-${tool.accent}`}>
-                  <ToolIcon icon={tool.icon} />
-                </span>
-                <strong>{tool.name}</strong>
-                <p>{tool.short}</p>
-                <span className="tool-card-link">
-                  Open tool <ArrowRight size={14} />
-                </span>
-              </Link>
-            ))}
-          </div>
-        </div>
+        {groups.length === 0 ? (
+          <p className="empty-state">No tools match “{query}”. Try a broader search.</p>
+        ) : (
+          groups.map((group) => (
+            <div className="tool-group" key={group.kind} id={group.kind === "image" ? "image-tools" : undefined}>
+              <div className="tool-group-head">
+                <div>
+                  <span className="mono-label">
+                    {group.kind === "video" ? "Video" : "Images"} · {group.tools.length} tools
+                  </span>
+                  <h2>{group.title}</h2>
+                </div>
+              </div>
+              <div className="tool-grid tool-grid-wide">
+                {group.tools.map((tool) => (
+                  <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
+                    <span className={`tool-card-icon icon-${tool.accent}`}>
+                      <ToolIcon icon={tool.icon} />
+                    </span>
+                    <strong>{tool.name}</strong>
+                    <p>{tool.short}</p>
+                    <span className="tool-card-link">
+                      Open tool <ArrowRight size={14} />
+                    </span>
+                  </Link>
+                ))}
+                {group.kind === "video" && (
+                  <a className="tool-card tool-card-cta" href="#choose">
+                    <span className="tool-card-icon">
+                      <Sparkles size={20} />
+                    </span>
+                    <strong>Not sure where to start?</strong>
+                    <p>Tell us the problem and the directory will point to the right tool.</p>
+                    <span className="tool-card-link">
+                      Choose by problem <ArrowRight size={14} />
+                    </span>
+                  </a>
+                )}
+              </div>
+            </div>
+          ))
+        )}
 
         <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_ARTICLE} className="ad-inline" />
 
-        <section className="choice-section">
+        <section className="choice-section" id="choose">
           <span className="mono-label">Choose by problem</span>
           <h2>What are you trying to fix?</h2>
           <div className="choice-table">

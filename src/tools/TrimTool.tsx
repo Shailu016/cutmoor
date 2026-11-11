@@ -68,6 +68,8 @@ export function TrimTool() {
                   onChange={(event) => setStart(event.target.value)}
                   placeholder="0:00"
                   aria-label="Start time"
+                  aria-invalid={!valid}
+                  aria-describedby={!valid ? "trim-error" : undefined}
                 />
               </label>
               <label>
@@ -79,6 +81,8 @@ export function TrimTool() {
                   onChange={(event) => setEnd(event.target.value)}
                   placeholder="0:30"
                   aria-label="End time"
+                  aria-invalid={!valid}
+                  aria-describedby={!valid ? "trim-error" : undefined}
                 />
               </label>
             </div>
@@ -87,7 +91,9 @@ export function TrimTool() {
               empty to keep the rest of the file.
             </p>
             {!valid && (start.trim() || end.trim()) && (
-              <p className="field-error">The end time must be after the start time.</p>
+              <p className="field-error" id="trim-error" role="alert">
+                The end time must be after the start time.
+              </p>
             )}
             {valid && (
               <div className="range-preview">

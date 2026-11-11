@@ -4,6 +4,7 @@ import { Seo } from "../components/Seo";
 import { resetConsent } from "../components/ConsentBanner";
 import { sitePageBySlug } from "../content/site-pages";
 import { SITE } from "../lib/seo";
+import { slugify } from "../lib/slug";
 import { NotFoundPage } from "./NotFoundPage";
 
 export function SitePageView() {
@@ -25,53 +26,68 @@ export function SitePageView() {
           <span className="page-updated">Last updated {page.updated}</span>
         </header>
 
-        <div className="legal-body">
-          {page.sections.map((section) => (
-            <section key={section.heading}>
-              <h2>{section.heading}</h2>
-              {section.paragraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-              {section.bullets && (
-                <ul>
-                  {section.bullets.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
-                  ))}
-                </ul>
-              )}
-              {section.links && (
-                <ul className="legal-links">
-                  {section.links.map((link) => (
-                    <li key={`${link.href}-${link.label}`}>
-                      <a href={link.href} target="_blank" rel="noopener noreferrer">
-                        {link.label}
-                      </a>
-                      {link.description ? ` — ${link.description}` : ""}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {page.slug === "cookies" && section.heading === "How to change your choice" && (
-                <button className="button button-ghost" type="button" onClick={resetConsent}>
-                  <RefreshCw size={15} /> Reset my cookie choice
-                </button>
-              )}
-            </section>
-          ))}
+        <div className="legal-layout">
+          <aside className="legal-aside">
+            <div className="aside-card">
+              <span className="mono-label">On this page</span>
+              <nav>
+                {page.sections.map((section) => (
+                  <a key={section.heading} href={`#${slugify(section.heading)}`}>
+                    {section.heading}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </aside>
 
-          {page.slug === "contact" && (
-            <a className="contact-card" href={`mailto:${SITE.email}`}>
-              <span className="feature-icon">
-                <Mail size={20} />
-              </span>
-              <div>
-                <strong>{SITE.email}</strong>
-                <span>Support, bug reports, and feature requests.</span>
-              </div>
-            </a>
-          )}
+          <div className="legal-body">
+            {page.sections.map((section) => (
+              <section key={section.heading} id={slugify(section.heading)}>
+                <h2>{section.heading}</h2>
+                {section.paragraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+                {section.bullets && (
+                  <ul>
+                    {section.bullets.map((bullet) => (
+                      <li key={bullet}>{bullet}</li>
+                    ))}
+                  </ul>
+                )}
+                {section.links && (
+                  <ul className="legal-links">
+                    {section.links.map((link) => (
+                      <li key={`${link.href}-${link.label}`}>
+                        <a href={link.href} target="_blank" rel="noopener noreferrer">
+                          {link.label}
+                        </a>
+                        {link.description ? ` — ${link.description}` : ""}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {page.slug === "cookies" && section.heading === "How to change your choice" && (
+                  <button className="button button-ghost" type="button" onClick={resetConsent}>
+                    <RefreshCw size={15} /> Reset my cookie choice
+                  </button>
+                )}
+              </section>
+            ))}
 
-          {page.footnote && <p className="legal-footnote">{page.footnote}</p>}
+            {page.slug === "contact" && (
+              <a className="contact-card" href={`mailto:${SITE.email}`}>
+                <span className="feature-icon">
+                  <Mail size={20} />
+                </span>
+                <div>
+                  <strong>{SITE.email}</strong>
+                  <span>Support, bug reports, and feature requests.</span>
+                </div>
+              </a>
+            )}
+
+            {page.footnote && <p className="legal-footnote">{page.footnote}</p>}
+          </div>
         </div>
       </div>
     </>

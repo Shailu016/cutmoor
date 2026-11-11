@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Lock, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Check, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
 import { HOME_FAQS } from "../lib/seo";
-import { IMAGE_TOOLS, VIDEO_TOOLS } from "../lib/tools";
+import { IMAGE_TOOLS, TOOLS, VIDEO_TOOLS } from "../lib/tools";
 
 const FEATURED_GUIDES = [
   "compress-video-for-whatsapp",
@@ -14,9 +14,14 @@ const FEATURED_GUIDES = [
   "png-vs-jpg-vs-webp",
 ];
 
+const FEATURED_TOOLS = ["compress", "resize", "convert", "compress-image", "resize-image", "heic-to-jpg"];
+
 export function HomePage() {
   const featuredGuides = FEATURED_GUIDES.map((slug) => GUIDES.find((guide) => guide.slug === slug)).filter(
     (guide): guide is (typeof GUIDES)[number] => Boolean(guide),
+  );
+  const featuredTools = FEATURED_TOOLS.map((slug) => TOOLS.find((tool) => tool.slug === slug)).filter(
+    (tool): tool is (typeof TOOLS)[number] => Boolean(tool),
   );
 
   return (
@@ -26,21 +31,20 @@ export function HomePage() {
         <div className="shell hero-grid">
           <div className="hero-copy">
             <span className="eyebrow eyebrow-lime">
-              <Sparkles size={15} /> The browser media toolkit
+              <Sparkles size={15} /> The local-first media toolkit
             </span>
             <h1>
-              Your video.
+              Your media,
               <br />
-              <em>Ready for every platform.</em>
+              <em>ready for every platform.</em>
             </h1>
             <p className="hero-lede">
-              Compress to a target size, crop to 9:16, trim the ends, convert the format, and pull out the audio. Resize a
-              photo for a feed, or turn an iPhone HEIC into a JPG. All in your browser. No upload, no account, no
-              watermark.
+              Compress video, crop to 9:16, resize photos, and convert HEIC to JPG. Every tool runs in your browser, so
+              the file never leaves your device. No upload, no account, no watermark.
             </p>
             <div className="hero-actions">
-              <Link className="button button-primary button-lg" to="/tools/compress">
-                Compress a video <ArrowRight size={18} />
+              <Link className="button button-primary button-lg" to="/tools">
+                Open the toolkit <ArrowRight size={18} />
               </Link>
               <Link className="button button-ghost button-lg" to="/tools#image-tools">
                 Browse image tools
@@ -59,44 +63,38 @@ export function HomePage() {
             </ul>
           </div>
 
-          <div className="hero-visual" aria-hidden="true">
-            <div className="phone-frame">
-              <div className="phone-screen">
-                <div className="phone-topbar">
-                  <span />
-                  <span />
-                </div>
-                <div className="phone-clip">
-                  <span className="phone-play">▶</span>
-                  <span className="phone-tag">9:16</span>
-                </div>
-                <div className="phone-caption">
-                  <strong>Reel ready</strong>
-                  <span>1080 × 1920 · 24.8 MB</span>
-                </div>
+          <div className="hero-visual">
+            <div className="tool-deck">
+              <div className="tool-deck-header">
+                <span className="tool-deck-title">Local toolbench</span>
+                <span className="tool-deck-count">{TOOLS.length} tools</span>
+              </div>
+              <div className="tool-deck-list">
+                {featuredTools.map((tool) => (
+                  <Link key={tool.slug} className="tool-deck-row" to={`/tools/${tool.slug}`}>
+                    <span className="tool-deck-icon">
+                      <ToolIcon icon={tool.icon} size={17} />
+                    </span>
+                    <span className="tool-deck-copy">
+                      <strong>{tool.name}</strong>
+                      <span>{tool.short}</span>
+                    </span>
+                    <ArrowRight className="tool-deck-arrow" size={15} />
+                  </Link>
+                ))}
+              </div>
+              <div className="tool-deck-footer">
+                <span>
+                  <strong>0</strong> uploads · <strong>0</strong> accounts
+                </span>
+                <Link to="/tools" className="text-link">
+                  All tools <ArrowRight size={13} />
+                </Link>
               </div>
             </div>
-            <div className="float-card float-card-a">
-              <span className="float-icon">
-                <Zap size={15} />
-              </span>
-              <div>
-                <strong>Compressed</strong>
-                <span>182 MB → 24.6 MB</span>
-              </div>
-            </div>
-            <div className="float-card float-card-b">
-              <span className="float-icon">
-                <Lock size={15} />
-              </span>
-              <div>
-                <strong>Never uploaded</strong>
-                <span>Processed in this tab</span>
-              </div>
-            </div>
-            <div className="float-pill">0 uploads · 0 accounts</div>
           </div>
         </div>
+
         <div className="shell hero-strip">
           <span>MP4</span>
           <span>MOV</span>
@@ -119,15 +117,17 @@ export function HomePage() {
             <h2>Two toolkits. One local-first rule.</h2>
           </div>
           <p>
-            No editor timeline. No sign-up wall. Choose the job you have, drop a file, and take the export. Every tool is
-            built to do one thing and tell you the truth about the result.
+            No editor timeline. No sign-up wall. Choose the job you have, drop a file, and take the export. Every tool
+            does one thing and tells you the truth about the result.
           </p>
         </div>
 
         <div className="tool-group">
           <div className="tool-group-head">
-            <span className="mono-label">Video · {VIDEO_TOOLS.length} tools</span>
-            <h3>Cut, shrink, and convert footage</h3>
+            <div>
+              <span className="mono-label">Video · {VIDEO_TOOLS.length} tools</span>
+              <h3>Cut, shrink, and convert footage</h3>
+            </div>
           </div>
           <div className="tool-grid">
             {VIDEO_TOOLS.map((tool) => (
@@ -142,13 +142,25 @@ export function HomePage() {
                 </span>
               </Link>
             ))}
+            <Link className="tool-card tool-card-cta" to="/tools">
+              <span className="tool-card-icon">
+                <Sparkles size={20} />
+              </span>
+              <strong>One directory for every job</strong>
+              <p>Browse all {TOOLS.length} video and image tools, or find the right one by the problem you have.</p>
+              <span className="tool-card-link">
+                Browse all tools <ArrowRight size={14} />
+              </span>
+            </Link>
           </div>
         </div>
 
         <div className="tool-group" id="image-tools">
           <div className="tool-group-head">
-            <span className="mono-label">Images · {IMAGE_TOOLS.length} tools</span>
-            <h3>Resize, compress, and fix the format</h3>
+            <div>
+              <span className="mono-label">Images · {IMAGE_TOOLS.length} tools</span>
+              <h3>Resize, compress, and fix the format</h3>
+            </div>
           </div>
           <div className="tool-grid">
             {IMAGE_TOOLS.map((tool) => (
@@ -167,51 +179,55 @@ export function HomePage() {
         </div>
       </section>
 
-      <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_HOME} className="ad-inline shell" />
+      <div className="shell">
+        <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_HOME} className="ad-inline" />
+      </div>
 
-      <section className="section shell why-section">
-        <div className="why-copy">
-          <span className="mono-label">Why local</span>
-          <h2>The upload is the slowest part. So we removed it.</h2>
-          <p>
-            Most converters take your file, put it on a server, queue it behind other jobs, and send back a link. ClipKit
-            opens the file in your browser, encodes it with WebAssembly or the canvas API, and saves the result straight
-            to your downloads folder.
-          </p>
-          <p>
-            That means no upload wait, no storage bucket, and no third party holding a copy of your footage or photos. It
-            also means the limits are honest: your device's memory is the ceiling, not a subscription tier.
-          </p>
-          <Link className="text-link" to="/about">
-            How ClipKit works <ArrowRight size={15} />
-          </Link>
-        </div>
-        <div className="feature-stack">
-          <div className="feature-card">
-            <span className="feature-icon">
-              <ShieldCheck size={20} />
-            </span>
-            <div>
-              <strong>Private by architecture</strong>
-              <p>There is no upload endpoint. The encoder runs in the page, and the file is released when you close it.</p>
-            </div>
+      <section className="shell section">
+        <div className="why-section">
+          <div className="why-copy">
+            <span className="mono-label">Why local</span>
+            <h2>The upload is the slowest part. So we removed it.</h2>
+            <p>
+              Most converters take your file, put it on a server, queue it behind other jobs, and send back a link.
+              ClipKit opens the file in your browser, encodes it with WebAssembly or the canvas API, and saves the
+              result straight to your downloads folder.
+            </p>
+            <p>
+              That means no upload wait, no storage bucket, and no third party holding a copy of your footage or photos.
+              It also means the limits are honest: your device's memory is the ceiling, not a subscription tier.
+            </p>
+            <Link className="text-link" to="/about">
+              How ClipKit works <ArrowRight size={15} />
+            </Link>
           </div>
-          <div className="feature-card">
-            <span className="feature-icon">
-              <Zap size={20} />
-            </span>
-            <div>
-              <strong>No queue, no account</strong>
-              <p>Open the page and start. The first video job loads the encoder once; the browser caches it for the next one.</p>
+          <div className="feature-stack">
+            <div className="feature-card">
+              <span className="feature-icon">
+                <ShieldCheck size={20} />
+              </span>
+              <div>
+                <strong>Private by architecture</strong>
+                <p>There is no upload endpoint. The encoder runs in the page, and the file is released when you close it.</p>
+              </div>
             </div>
-          </div>
-          <div className="feature-card">
-            <span className="feature-icon">
-              <MonitorPlay size={20} />
-            </span>
-            <div>
-              <strong>Built for feeds</strong>
-              <p>Presets for Reels, Shorts, TikTok, WhatsApp, Instagram posts, YouTube thumbnails, and link previews.</p>
+            <div className="feature-card">
+              <span className="feature-icon">
+                <Zap size={20} />
+              </span>
+              <div>
+                <strong>No queue, no account</strong>
+                <p>Open the page and start. The first video job loads the encoder once; the browser caches it for the next one.</p>
+              </div>
+            </div>
+            <div className="feature-card">
+              <span className="feature-icon">
+                <MonitorPlay size={20} />
+              </span>
+              <div>
+                <strong>Built for feeds</strong>
+                <p>Presets for Reels, Shorts, TikTok, WhatsApp, Instagram posts, YouTube thumbnails, and link previews.</p>
+              </div>
             </div>
           </div>
         </div>

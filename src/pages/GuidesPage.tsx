@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
@@ -6,6 +7,8 @@ import { GUIDES, guidesByCategory } from "../content/guides";
 
 export function GuidesPage() {
   const groups = guidesByCategory();
+  const [category, setCategory] = useState("All");
+  const visible = category === "All" ? groups : groups.filter((group) => group.category === category);
 
   return (
     <>
@@ -15,13 +18,37 @@ export function GuidesPage() {
           <span className="eyebrow eyebrow-sky">Guides</span>
           <h1>Sizes, limits, and settings that actually matter.</h1>
           <p>
-            Short, practical explanations for the parts of video publishing nobody enjoys: file limits, aspect ratios,
-            bitrates, and the settings that make a clean export. No filler, no invented benchmarks.
+            {GUIDES.length} practical guides for video and images: file limits, aspect ratios, bitrates, formats, and
+            the settings that make a clean export. No filler, no invented benchmarks.
           </p>
         </header>
 
+        <div className="toolbar">
+          <div className="chips" role="group" aria-label="Filter guides by category">
+            <button
+              type="button"
+              className={category === "All" ? "chip active" : "chip"}
+              aria-pressed={category === "All"}
+              onClick={() => setCategory("All")}
+            >
+              All
+            </button>
+            {groups.map((group) => (
+              <button
+                key={group.category}
+                type="button"
+                className={category === group.category ? "chip active" : "chip"}
+                aria-pressed={category === group.category}
+                onClick={() => setCategory(group.category)}
+              >
+                {group.category}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="guide-list">
-          {groups.map((group) => (
+          {visible.map((group) => (
             <section key={group.category} className="guide-group">
               <h2>{group.category}</h2>
               <div className="guide-grid">

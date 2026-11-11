@@ -89,11 +89,10 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Information stored in your browser",
         paragraphs: [
-          "ClipKit stores a small number of preferences in localStorage: your cookie choice, and interface settings such as the last tool you used. These stay on your device and are not sent to us.",
+          "ClipKit stores a single preference in localStorage: your cookie choice. It stays on your device and is not sent to us.",
         ],
         bullets: [
           "Consent choice: accepted or rejected advertising cookies.",
-          "Interface preferences: for example, a remembered output preset.",
           "No account, email, or payment information is required to use the tools.",
         ],
       },
@@ -211,7 +210,6 @@ export const SITE_PAGES: SitePage[] = [
         ],
         bullets: [
           "clipkit-consent — accepted or rejected.",
-          "clipkit-preference — an optional interface setting, such as a saved preset.",
         ],
       },
       {

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { FileAudio, FileImage, FileVideo, ShieldCheck, Upload, X } from "lucide-react";
+import { FileAudio, FileImage, FileText, FileVideo, ShieldCheck, Upload, X } from "lucide-react";
 import { formatBytes } from "../lib/format";
 
 export interface FileDropMeta {
@@ -16,7 +16,7 @@ interface FileDropProps {
   accept?: string;
   hint: string;
   disabled?: boolean;
-  kind?: "video" | "image" | "audio";
+  kind?: "video" | "image" | "audio" | "file";
 }
 
 export function FileDrop({
@@ -32,7 +32,7 @@ export function FileDrop({
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
 
-  const Icon = kind === "image" ? FileImage : kind === "audio" ? FileAudio : FileVideo;
+  const Icon = kind === "image" ? FileImage : kind === "audio" ? FileAudio : kind === "file" ? FileText : FileVideo;
 
   const take = (files: FileList | null) => {
     const next = files?.[0];
@@ -64,12 +64,14 @@ export function FileDrop({
 
   return (
     <div
-      className={`dropzone ${dragging ? "dragging" : ""} ${kind === "image" ? "dropzone-image" : ""}`}
+      className={`dropzone ${dragging ? "dragging" : ""}`}
       onDragOver={(event) => {
         event.preventDefault();
         if (!disabled) setDragging(true);
       }}
-      onDragLeave={() => setDragging(false)}
+      onDragLeave={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false);
+      }}
       onDrop={(event) => {
         event.preventDefault();
         setDragging(false);
@@ -83,7 +85,7 @@ export function FileDrop({
         }
       }}
       role="button"
-      tabIndex={0}
+      tabIndex={disabled ? -1 : 0}
       aria-disabled={disabled}
     >
       <input

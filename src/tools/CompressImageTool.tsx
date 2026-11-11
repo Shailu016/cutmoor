@@ -143,8 +143,8 @@ export function CompressImageTool() {
           meta={job.meta}
           onFile={job.selectFile}
           onClear={job.clear}
-          accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/heic,image/heif"
-          hint="JPG, PNG, WebP, AVIF, GIF, BMP, or HEIC. Up to ~50 MP on a desktop."
+          accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/svg+xml,image/heic,image/heif"
+          hint="JPG, PNG, WebP, AVIF, GIF, BMP, SVG, or HEIC. Up to ~50 MP on a desktop."
           disabled={busy}
           kind="image"
         />
@@ -157,10 +157,11 @@ export function CompressImageTool() {
                 {job.meta.width}×{job.meta.height} · {sourceLabel(job.meta.kind)}
               </span>
             </div>
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="Compression method">
               <button
                 type="button"
                 className={mode === "size" ? "segment active" : "segment"}
+                aria-pressed={mode === "size"}
                 onClick={() => setMode("size")}
               >
                 <Gauge size={16} /> Target size
@@ -168,6 +169,7 @@ export function CompressImageTool() {
               <button
                 type="button"
                 className={mode === "quality" ? "segment active" : "segment"}
+                aria-pressed={mode === "quality"}
                 onClick={() => setMode("quality")}
               >
                 <Sparkles size={16} /> Quality
@@ -180,12 +182,13 @@ export function CompressImageTool() {
                   <span className="mono-label">02 · Target file size</span>
                   <span className="settings-hint">binary search</span>
                 </div>
-                <div className="chips">
+                <div className="chips" role="group" aria-label="Target file size">
                   {TARGETS.map((size) => (
                     <button
                       key={size}
                       type="button"
                       className={targetKb === size ? "chip active" : "chip"}
+                      aria-pressed={targetKb === size}
                       onClick={() => setTargetKb(size)}
                     >
                       {formatTargetSize(size * 1024)}
@@ -239,7 +242,7 @@ export function CompressImageTool() {
             <div className="settings-head">
               <span className="mono-label">03 · Format</span>
             </div>
-            <div className="segmented segmented-wrap">
+            <div className="segmented segmented-wrap" role="group" aria-label="Output format">
               {FORMATS.map((item) => {
                 const disabled = item.value === "webp" && !support.webp;
                 return (
@@ -247,6 +250,7 @@ export function CompressImageTool() {
                     key={item.value}
                     type="button"
                     className={format === item.value ? "segment active" : "segment"}
+                    aria-pressed={format === item.value}
                     onClick={() => !disabled && setFormat(item.value)}
                     disabled={disabled}
                     title={disabled ? "This browser cannot encode WebP from a canvas." : undefined}
@@ -266,12 +270,13 @@ export function CompressImageTool() {
             <div className="settings-head">
               <span className="mono-label">04 · Maximum dimension</span>
             </div>
-            <div className="chips">
+            <div className="chips" role="group" aria-label="Maximum dimension">
               {(["original", "2560", "1920", "1280", "800"] as const).map((value) => (
                 <button
                   key={value}
                   type="button"
                   className={maxEdge === value ? "chip active" : "chip"}
+                  aria-pressed={maxEdge === value}
                   onClick={() => setMaxEdge(value)}
                 >
                   {value === "original" ? "Original" : `${value}px`}

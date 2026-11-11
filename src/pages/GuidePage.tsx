@@ -1,28 +1,75 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Calendar, ChevronRight, Clock } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { Seo } from "../components/Seo";
 import { relatedGuides, toolsForGuide } from "../content/guide-helpers";
 import { GUIDES, guideBySlug } from "../content/guides";
+import { slugify } from "../lib/slug";
 import { TOOLS } from "../lib/tools";
 import { NotFoundPage } from "./NotFoundPage";
-
-function slugify(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-}
 
 export function GuidePage() {
   const { slug = "" } = useParams();
   const guide = guideBySlug(slug);
+  const articleRef = useRef<HTMLElement>(null);
+  const [progress, setProgress] = useState(0);
+  const [activeId, setActiveId] = useState("");
+
+  const relatedTools = useMemo(() => (guide ? toolsForGuide(guide, TOOLS) : []), [guide]);
+  const moreGuides = useMemo(() => (guide ? relatedGuides(guide, GUIDES, TOOLS, 3) : []), [guide]);
+
+  useEffect(() => {
+    if (!guide) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const article = articleRef.current;
+      if (!article) return;
+      const rect = article.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      const scrolled = Math.min(Math.max(-rect.top, 0), Math.max(total, 1));
+      setProgress(total > 0 ? scrolled / total : 0);
+    };
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [guide]);
+
+  useEffect(() => {
+    if (!guide) return;
+    const sections = Array.from(document.querySelectorAll<HTMLElement>(".article-section[id]"));
+    if (sections.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActiveId(visible[0].target.id);
+      },
+      { rootMargin: "-25% 0px -65% 0px", threshold: 0 },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [guide]);
 
   if (!guide) return <NotFoundPage />;
-
-  const relatedTools = toolsForGuide(guide, TOOLS);
-  const moreGuides = relatedGuides(guide, GUIDES, TOOLS, 3);
 
   return (
     <>
       <Seo path={`/guides/${guide.slug}`} />
+      <div className="reading-progress" aria-hidden="true">
+        <span style={{ transform: `scaleX(${progress})` }} />
+      </div>
       <div className="shell page">
         <nav className="breadcrumb" aria-label="Breadcrumb">
           <Link to="/">Home</Link>
@@ -33,7 +80,7 @@ export function GuidePage() {
         </nav>
 
         <div className="article-layout">
-          <article className="article">
+          <article className="article" ref={articleRef}>
             <header className="article-head">
               <span className="eyebrow eyebrow-sky">{guide.category}</span>
               <h1>{guide.title}</h1>
@@ -137,11 +184,19 @@ export function GuidePage() {
             <div className="aside-card">
               <span className="mono-label">On this page</span>
               <nav>
-                {guide.sections.map((section) => (
-                  <a key={section.heading} href={`#${slugify(section.heading)}`}>
-                    {section.heading}
-                  </a>
-                ))}
+                {guide.sections.map((section) => {
+                  const id = slugify(section.heading);
+                  return (
+                    <a
+                      key={section.heading}
+                      href={`#${id}`}
+                      className={activeId === id ? "active" : undefined}
+                      aria-current={activeId === id ? "true" : undefined}
+                    >
+                      {section.heading}
+                    </a>
+                  );
+                })}
               </nav>
             </div>
             <div className="aside-card aside-cta">

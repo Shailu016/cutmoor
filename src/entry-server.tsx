@@ -44,6 +44,7 @@ export function headForPath(pathname: string): string {
   const robots = meta.noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large";
   const jsonLd = JSON.stringify(jsonLdForPath(pathname)).replace(/</g, "\\u003c");
   const adsenseClient = String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
+  const canonical = meta.noindex ? "" : `<link rel="canonical" href="${escapeHtml(url)}" />`;
 
   return [
     `<title>${escapeHtml(meta.title)}</title>`,
@@ -51,7 +52,7 @@ export function headForPath(pathname: string): string {
     tag("robots", robots),
     tag("theme-color", SITE.themeColor),
     adsenseClient ? tag("google-adsense-account", adsenseClient) : "",
-    `<link rel="canonical" href="${escapeHtml(url)}" />`,
+    canonical,
     tag("og:type", meta.type ?? "website", "property"),
     tag("og:site_name", SITE.name, "property"),
     tag("og:locale", SITE.locale, "property"),

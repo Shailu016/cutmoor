@@ -60,6 +60,7 @@ export function FrameTool() {
                 value={timestamp}
                 onChange={(event) => setTimestamp(event.target.value)}
                 placeholder="0:03"
+                aria-invalid={!valid}
               />
             </label>
             <p className="settings-note">
@@ -70,10 +71,11 @@ export function FrameTool() {
             <div className="settings-head">
               <span className="mono-label">02 · Image format</span>
             </div>
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="Image format">
               <button
                 type="button"
                 className={format === "png" ? "segment active" : "segment"}
+                aria-pressed={format === "png"}
                 onClick={() => setFormat("png")}
               >
                 PNG · sharp
@@ -81,6 +83,7 @@ export function FrameTool() {
               <button
                 type="button"
                 className={format === "jpg" ? "segment active" : "segment"}
+                aria-pressed={format === "jpg"}
                 onClick={() => setFormat("jpg")}
               >
                 JPG · small

@@ -65,12 +65,13 @@ export function ConvertTool() {
             <div className="settings-head">
               <span className="mono-label">01 · Output format</span>
             </div>
-            <div className="format-grid">
+            <div className="format-grid" role="group" aria-label="Output format">
               {FORMATS.map((item) => (
                 <button
                   key={item.value}
                   type="button"
                   className={format === item.value ? "format active" : "format"}
+                  aria-pressed={format === item.value}
                   onClick={() => setFormat(item.value)}
                 >
                   <strong>{item.label}</strong>

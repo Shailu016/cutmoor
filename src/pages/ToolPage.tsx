@@ -79,17 +79,20 @@ export function ToolPage() {
             <h1>{tool.title}</h1>
             <p>{tool.intro}</p>
           </div>
-          <ul className="trust-list">
-            <li>
-              <Lock size={16} /> No upload
-            </li>
-            <li>
-              <Zap size={16} /> No account
-            </li>
-            <li>
-              <ShieldCheck size={16} /> No watermark
-            </li>
-          </ul>
+          <aside className="trust-card">
+            <span className="mono-label">Every tool includes</span>
+            <ul className="trust-list">
+              <li>
+                <Lock size={16} /> No upload
+              </li>
+              <li>
+                <Zap size={16} /> No account
+              </li>
+              <li>
+                <ShieldCheck size={16} /> No watermark
+              </li>
+            </ul>
+          </aside>
         </header>
 
         <ToolRenderer slug={tool.slug} />

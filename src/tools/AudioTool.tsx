@@ -36,6 +36,7 @@ export function AudioTool() {
           accept="video/*,audio/*"
           hint="MP4, MOV, WebM, MKV, MP3, WAV, or M4A."
           disabled={job.phase === "working"}
+          kind="audio"
         />
 
         {job.file && (
@@ -43,12 +44,13 @@ export function AudioTool() {
             <div className="settings-head">
               <span className="mono-label">01 · Audio format</span>
             </div>
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="Audio format">
               {(["mp3", "m4a", "wav"] as const).map((value) => (
                 <button
                   key={value}
                   type="button"
                   className={format === value ? "segment active" : "segment"}
+                  aria-pressed={format === value}
                   onClick={() => setFormat(value)}
                 >
                   {value.toUpperCase()}
@@ -66,12 +68,13 @@ export function AudioTool() {
                 <div className="settings-head">
                   <span className="mono-label">02 · Bitrate</span>
                 </div>
-                <div className="chips">
+                <div className="chips" role="group" aria-label="Audio bitrate">
                   {[128, 192, 320].map((value) => (
                     <button
                       key={value}
                       type="button"
                       className={bitrate === value ? "chip active" : "chip"}
+                      aria-pressed={bitrate === value}
                       onClick={() => setBitrate(value)}
                     >
                       {value} kbps

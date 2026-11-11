@@ -18,6 +18,7 @@ export interface MediaJob {
   logs: string[];
   result: JobResult | null;
   error: string | null;
+  previewUrl: string | null;
   selectFile: (file: File) => Promise<void>;
   clear: () => void;
   run: (outputName: string, buildArgs: (inputName: string) => string[]) => Promise<void>;
@@ -37,8 +38,10 @@ export function useMediaJob(): MediaJob {
   const [logs, setLogs] = useState<string[]>([]);
   const [result, setResult] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const resultUrl = useRef<string | null>(null);
+  const previewUrlRef = useRef<string | null>(null);
   const subscriptions = useRef<Array<() => void>>([]);
   const cancelled = useRef(false);
 
@@ -49,6 +52,14 @@ export function useMediaJob(): MediaJob {
     }
   }, []);
 
+  const releasePreview = useCallback(() => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+    setPreviewUrl(null);
+  }, []);
+
   const unsubscribeAll = useCallback(() => {
     subscriptions.current.forEach((unsubscribe) => unsubscribe());
     subscriptions.current = [];
@@ -57,13 +68,15 @@ export function useMediaJob(): MediaJob {
   useEffect(() => {
     return () => {
       releaseResult();
+      releasePreview();
       unsubscribeAll();
     };
-  }, [releaseResult, unsubscribeAll]);
+  }, [releaseResult, releasePreview, unsubscribeAll]);
 
   const selectFile = useCallback(
     async (next: File) => {
       releaseResult();
+      releasePreview();
       unsubscribeAll();
       cancelled.current = false;
       setFile(next);
@@ -73,14 +86,18 @@ export function useMediaJob(): MediaJob {
       setLogs([]);
       setPhase("ready");
       setMeta(null);
+      const url = URL.createObjectURL(next);
+      previewUrlRef.current = url;
+      setPreviewUrl(url);
       const nextMeta = await readVideoMeta(next);
       setMeta(nextMeta);
     },
-    [releaseResult, unsubscribeAll],
+    [releaseResult, releasePreview, unsubscribeAll],
   );
 
   const clear = useCallback(() => {
     releaseResult();
+    releasePreview();
     unsubscribeAll();
     cancelled.current = true;
     setFile(null);
@@ -90,7 +107,7 @@ export function useMediaJob(): MediaJob {
     setLogs([]);
     setResult(null);
     setError(null);
-  }, [releaseResult, unsubscribeAll]);
+  }, [releaseResult, releasePreview, unsubscribeAll]);
 
   const run = useCallback(
     async (outputName: string, buildArgs: (inputName: string) => string[]) => {
@@ -157,5 +174,5 @@ export function useMediaJob(): MediaJob {
     setLogs((previous) => [...previous, "Job cancelled."]);
   }, [file, unsubscribeAll]);
 
-  return { file, meta, phase, progress, logs, result, error, selectFile, clear, run, cancel };
+  return { file, meta, phase, progress, logs, result, error, previewUrl, selectFile, clear, run, cancel };
 }

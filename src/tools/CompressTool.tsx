@@ -59,10 +59,11 @@ export function CompressTool() {
             <div className="settings-head">
               <span className="mono-label">01 · Method</span>
             </div>
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="Compression method">
               <button
                 type="button"
                 className={mode === "size" ? "segment active" : "segment"}
+                aria-pressed={mode === "size"}
                 onClick={() => setMode("size")}
               >
                 <Gauge size={16} /> Target size
@@ -70,6 +71,7 @@ export function CompressTool() {
               <button
                 type="button"
                 className={mode === "quality" ? "segment active" : "segment"}
+                aria-pressed={mode === "quality"}
                 onClick={() => setMode("quality")}
               >
                 <Sparkles size={16} /> Best quality
@@ -82,12 +84,13 @@ export function CompressTool() {
                   <span className="mono-label">02 · Target file size</span>
                   {duration > 0 && <span className="settings-hint">{Math.round(duration)}s source</span>}
                 </div>
-                <div className="chips">
+                <div className="chips" role="group" aria-label="Target file size">
                   {SIZES.map((size) => (
                     <button
                       key={size}
                       type="button"
                       className={target === size ? "chip active" : "chip"}
+                      aria-pressed={target === size}
                       onClick={() => setTarget(size)}
                     >
                       {size} MB
@@ -122,12 +125,13 @@ export function CompressTool() {
             <div className="settings-head">
               <span className="mono-label">03 · Resolution</span>
             </div>
-            <div className="chips">
+            <div className="chips" role="group" aria-label="Output resolution">
               {(["original", "1080", "720", "480"] as const).map((value) => (
                 <button
                   key={value}
                   type="button"
                   className={resolution === value ? "chip active" : "chip"}
+                  aria-pressed={resolution === value}
                   onClick={() => setResolution(value)}
                 >
                   {value === "original" ? "Original" : `${value}p`}

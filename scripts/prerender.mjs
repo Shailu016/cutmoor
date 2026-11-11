@@ -72,7 +72,7 @@ const sitemapEntries = INDEXABLE_PAGES.map((page) => {
   const lastmod = page.modified ? `\n    <lastmod>${page.modified}</lastmod>` : "";
   return `  <url>
     <loc>${loc}</loc>${lastmod}
-    <changefreq>${page.path.startsWith("/guides/") ? "monthly" : "monthly"}</changefreq>
+    <changefreq>${page.path.startsWith("/guides/") ? "weekly" : page.path.startsWith("/tools/") ? "monthly" : page.path === "/" ? "weekly" : "monthly"}</changefreq>
     <priority>${priority}</priority>
   </url>`;
 }).join("\n");

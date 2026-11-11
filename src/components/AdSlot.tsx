@@ -2,12 +2,20 @@ import { useEffect, useState } from "react";
 
 const CONSENT_KEY = "clipkit-consent";
 
+function readAllowed(): boolean {
+  try {
+    return localStorage.getItem(CONSENT_KEY) === "accepted";
+  } catch {
+    return false;
+  }
+}
+
 export function AdSlot({ slot, className = "" }: { slot?: string; className?: string }) {
   const client = String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    const read = () => setAllowed(localStorage.getItem(CONSENT_KEY) === "accepted");
+    const read = () => setAllowed(readAllowed());
     read();
     window.addEventListener("clipkit-consent-change", read);
     return () => window.removeEventListener("clipkit-consent-change", read);
@@ -37,21 +45,26 @@ export function AdSlot({ slot, className = "" }: { slot?: string; className?: st
     return (
       <div className={`ad-placeholder ${className}`.trim()}>
         <span>Advertisement</span>
-        <small>Set VITE_ADSENSE_CLIENT and VITE_ADSENSE_SLOT_ARTICLE to enable</small>
+        <small>Set VITE_ADSENSE_CLIENT and the matching VITE_ADSENSE_SLOT_* variable to enable this placement.</small>
       </div>
     );
   }
 
-  if (!allowed || !slot) return null;
-
   return (
-    <ins
-      className={`adsbygoogle ${className}`.trim()}
-      style={{ display: "block" }}
-      data-ad-client={client}
-      data-ad-slot={slot}
-      data-ad-format="auto"
-      data-full-width-responsive="true"
-    />
+    <div className={`ad-slot ${className}`.trim()} role="region" aria-label="Advertisement">
+      <span className="ad-label">Advertisement</span>
+      {allowed && slot ? (
+        <ins
+          className="adsbygoogle"
+          style={{ display: "block" }}
+          data-ad-client={client}
+          data-ad-slot={slot}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+      ) : (
+        <div className="ad-empty">Ads load after you accept advertising cookies.</div>
+      )}
+    </div>
   );
 }

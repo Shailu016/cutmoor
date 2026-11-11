@@ -3,8 +3,9 @@ import { formatBytes } from "../lib/format";
 import type { MediaJob } from "../hooks/useMediaJob";
 
 export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string }) {
-  const { phase, progress, result, error, logs, file, cancel, clear } = job;
+  const { phase, progress, result, error, logs, file, meta, previewUrl, cancel, clear } = job;
   const loadingEncoder = phase === "working" && progress === 0;
+  const hasVideoPreview = Boolean(previewUrl && meta && meta.width > 0 && meta.height > 0);
 
   return (
     <aside className="job-panel" aria-live="polite">
@@ -31,6 +32,17 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
 
       {phase === "ready" && (
         <div className="job-body">
+          {hasVideoPreview && (
+            <video
+              className="video-preview"
+              src={previewUrl ?? undefined}
+              controls
+              muted
+              playsInline
+              preload="metadata"
+              aria-label="Video preview"
+            />
+          )}
           <p className="job-idle">
             {file ? "File ready. Choose your settings, then run the tool." : "Choose a file to begin."}
           </p>
@@ -47,7 +59,14 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
             <span>{loadingEncoder ? "Loading the encoder…" : "Encoding…"}</span>
             <span>{Math.round(progress * 100)}%</span>
           </div>
-          <div className="progress-track" role="progressbar" aria-valuenow={Math.round(progress * 100)} aria-valuemin={0} aria-valuemax={100}>
+          <div
+            className="progress-track"
+            role="progressbar"
+            aria-valuenow={Math.round(progress * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuetext={`${Math.round(progress * 100)} percent`}
+          >
             <div className={`progress-fill ${loadingEncoder ? "indeterminate" : ""}`} style={{ width: `${Math.max(2, progress * 100)}%` }} />
           </div>
           <p className="job-note">
@@ -85,7 +104,7 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
           <div className="result-badge result-badge-error">
             <AlertTriangle size={16} /> The job did not finish
           </div>
-          <p className="job-error">{error}</p>
+          <p className="job-error" role="alert">{error}</p>
           <button className="button button-ghost button-block" type="button" onClick={clear}>
             <RotateCcw size={15} /> Try another file
           </button>

@@ -333,7 +333,7 @@ export const TOOLS: ToolDef[] = [
     short: "Hit a target file size without turning the photo to mud.",
     title: "Compress an image online — target a file size, no upload",
     description:
-      "Compress JPG, PNG, WebP, HEIC, and AVIF images to a target size in your browser. Cap the dimensions, keep the best quality that fits, and download. No upload, no account, no watermark.",
+      "Compress JPG, PNG, WebP, HEIC, AVIF, SVG, and more to a target size in your browser. Cap the dimensions, keep the best quality that fits, and download. No upload, no account, no watermark.",
     intro:
       "An upload form says the photo must be under 200 KB. A website is slow because every image is 4 MB. Pick a target size and ClipKit searches for the highest quality that fits, reducing the dimensions only when quality alone cannot get there. The file never leaves your device.",
     icon: "image-compress",
@@ -349,7 +349,7 @@ export const TOOLS: ToolDef[] = [
     steps: [
       {
         name: "Choose the image",
-        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, or BMP file. ClipKit reads its dimensions and size locally.",
+        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, or SVG file. ClipKit reads its dimensions and size locally.",
       },
       {
         name: "Set a target",
@@ -412,7 +412,7 @@ export const TOOLS: ToolDef[] = [
     steps: [
       {
         name: "Load the image",
-        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, or BMP file. ClipKit shows the source dimensions.",
+        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, or SVG file. ClipKit shows the source dimensions.",
       },
       {
         name: "Pick a preset or exact size",
@@ -479,7 +479,7 @@ export const TOOLS: ToolDef[] = [
     steps: [
       {
         name: "Add an image",
-        text: "Drop a JPG, PNG, WebP, AVIF, GIF, BMP, HEIC, or HEIF file. The source format and dimensions are detected locally.",
+        text: "Drop a JPG, PNG, WebP, AVIF, GIF, BMP, SVG, HEIC, or HEIF file. The source format and dimensions are detected locally.",
       },
       {
         name: "Choose the output",

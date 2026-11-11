@@ -96,11 +96,11 @@ export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: C
           meta={job.meta}
           onFile={job.selectFile}
           onClear={job.clear}
-          accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/heic,image/heif"
+          accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/svg+xml,image/heic,image/heif"
           hint={
             heicMode
               ? "HEIC or HEIF from an iPhone. Decoded locally; the photo is never uploaded."
-              : "JPG, PNG, WebP, AVIF, GIF, BMP, or HEIC. Transparency is handled in the browser."
+              : "JPG, PNG, WebP, AVIF, GIF, BMP, SVG, or HEIC. Transparency is handled in the browser."
           }
           disabled={busy}
           kind="image"
@@ -125,7 +125,7 @@ export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: C
                 Source {sourceLabel(job.meta.kind)} · {job.meta.width}×{job.meta.height}
               </span>
             </div>
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="Output format">
               {FORMATS.map((item) => {
                 const disabled = item.value === "webp" && !support.webp;
                 return (
@@ -133,6 +133,7 @@ export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: C
                     key={item.value}
                     type="button"
                     className={format === item.value ? "segment active" : "segment"}
+                    aria-pressed={format === item.value}
                     onClick={() => !disabled && setFormat(item.value)}
                     disabled={disabled}
                     title={disabled ? "This browser cannot encode WebP from a canvas." : undefined}

@@ -139,8 +139,8 @@ export function ResizeImageTool() {
           meta={job.meta}
           onFile={job.selectFile}
           onClear={job.clear}
-          accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/heic,image/heif"
-          hint="JPG, PNG, WebP, AVIF, GIF, BMP, or HEIC. The source dimensions are read locally."
+          accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/svg+xml,image/heic,image/heif"
+          hint="JPG, PNG, WebP, AVIF, GIF, BMP, SVG, or HEIC. The source dimensions are read locally."
           disabled={busy}
           kind="image"
         />
@@ -153,7 +153,7 @@ export function ResizeImageTool() {
                 Source {job.meta.width}×{job.meta.height} · {sourceLabel(job.meta.kind)}
               </span>
             </div>
-            <div className="preset-grid">
+            <div className="preset-grid" role="group" aria-label="Output preset">
               {(Object.keys(PRESETS) as Exclude<PresetId, "custom">[]).map((key) => {
                 const item = PRESETS[key];
                 const shape = shapeSize(item.width, item.height);
@@ -162,6 +162,7 @@ export function ResizeImageTool() {
                     key={key}
                     type="button"
                     className={preset === key ? "preset active" : "preset"}
+                    aria-pressed={preset === key}
                     onClick={() => choosePreset(key)}
                   >
                     <span className="image-preset-shape" style={shape} />
@@ -175,6 +176,7 @@ export function ResizeImageTool() {
               <button
                 type="button"
                 className={preset === "custom" ? "preset active" : "preset"}
+                aria-pressed={preset === "custom"}
                 onClick={() => choosePreset("custom")}
               >
                 <span className="image-preset-shape image-preset-custom" />
@@ -213,10 +215,11 @@ export function ResizeImageTool() {
             <div className="settings-head">
               <span className="mono-label">02 · Fit</span>
             </div>
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="Fit mode">
               <button
                 type="button"
                 className={fit === "crop" ? "segment active" : "segment"}
+                aria-pressed={fit === "crop"}
                 onClick={() => setFit("crop")}
               >
                 <Crop size={16} /> Crop to fill
@@ -224,6 +227,7 @@ export function ResizeImageTool() {
               <button
                 type="button"
                 className={fit === "pad" ? "segment active" : "segment"}
+                aria-pressed={fit === "pad"}
                 onClick={() => setFit("pad")}
               >
                 <RectangleHorizontal size={16} /> Pad to fit
@@ -259,7 +263,7 @@ export function ResizeImageTool() {
             <div className="settings-head">
               <span className="mono-label">03 · Format</span>
             </div>
-            <div className="segmented">
+            <div className="segmented" role="group" aria-label="Output format">
               {FORMATS.map((item) => {
                 const disabled = item.value === "webp" && !support.webp;
                 return (
@@ -267,6 +271,7 @@ export function ResizeImageTool() {
                     key={item.value}
                     type="button"
                     className={format === item.value ? "segment active" : "segment"}
+                    aria-pressed={format === item.value}
                     onClick={() => !disabled && setFormat(item.value)}
                     disabled={disabled}
                     title={disabled ? "This browser cannot encode WebP from a canvas." : undefined}

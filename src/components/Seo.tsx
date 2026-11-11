@@ -11,6 +11,10 @@ function upsertMeta(attribute: "name" | "property", key: string, content: string
   tag.setAttribute("content", content);
 }
 
+function removeMeta(attribute: "name" | "property", key: string) {
+  document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`)?.remove();
+}
+
 function upsertLink(rel: string, href: string) {
   let tag = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
   if (!tag) {
@@ -21,22 +25,33 @@ function upsertLink(rel: string, href: string) {
   tag.href = href;
 }
 
+function removeLink(rel: string) {
+  document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`)?.remove();
+}
+
 /**
  * Client-side head updates for navigation. The first paint is already correct
  * because the build prerenders every indexable route; this keeps the title,
- * canonical, social tags, and JSON-LD correct when the visitor moves between
- * pages without a reload.
+ * canonical, social tags, article metadata, and JSON-LD correct when the
+ * visitor moves between pages without a reload.
  */
 export function Seo({ path }: { path: string }) {
   useEffect(() => {
     const meta = metaForPath(path);
     const url = canonicalFor(path);
     const image = new URL(meta.image ?? SITE.ogImage, SITE.url).toString();
+    const adsenseClient = String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
 
     document.title = meta.title;
     upsertMeta("name", "description", meta.description);
     upsertMeta("name", "robots", meta.noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large");
-    upsertLink("canonical", url);
+    upsertMeta("name", "theme-color", SITE.themeColor);
+
+    if (meta.noindex) {
+      removeLink("canonical");
+    } else {
+      upsertLink("canonical", url);
+    }
 
     upsertMeta("property", "og:type", meta.type ?? "website");
     upsertMeta("property", "og:site_name", SITE.name);
@@ -49,6 +64,21 @@ export function Seo({ path }: { path: string }) {
     upsertMeta("name", "twitter:title", meta.title);
     upsertMeta("name", "twitter:description", meta.description);
     upsertMeta("name", "twitter:image", image);
+    upsertMeta("name", "twitter:image:alt", SITE.ogImageAlt);
+
+    if (meta.type === "article" && meta.published && meta.modified) {
+      upsertMeta("property", "article:published_time", `${meta.published}T00:00:00Z`);
+      upsertMeta("property", "article:modified_time", `${meta.modified}T00:00:00Z`);
+    } else {
+      removeMeta("property", "article:published_time");
+      removeMeta("property", "article:modified_time");
+    }
+
+    if (adsenseClient) {
+      upsertMeta("name", "google-adsense-account", adsenseClient);
+    } else {
+      removeMeta("name", "google-adsense-account");
+    }
 
     let script = document.getElementById("clipkit-structured-data");
     if (!script) {
