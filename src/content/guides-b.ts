@@ -89,7 +89,7 @@ export const GUIDES_B: Guide[] = [
         paragraphs: [
           "A single re-encode at a sane setting is hard to see. H.264 at CRF 18 to 20 is visually near-lossless for most footage; CRF 23 is the common default and still good; CRF 28 starts to smooth skin, gradients, and fine grain. The damage comes from stacking generations: trim, then compress, then add captions, then resize, with a fresh encode each time.",
           "Other avoidable losses: exporting at a higher resolution than the source, forcing a frame rate change, and using a bitrate below what the content needs. A static interview survives 3 Mbps at 1080p. Fast motion, confetti, and water need far more.",
-          "In a command-line tool, a stream copy looks like this: ffmpeg -ss 00:01:23.500 -i input.mp4 -t 12 -c copy output.mp4. Remove -c copy and the same command re-encodes, which makes the start frame accurate. In browser tools such as ClipKit, the export dialog usually exposes the same choice as a speed or quality setting.",
+          "In a command-line tool, a stream copy looks like this: ffmpeg -ss 00:01:23.500 -i input.mp4 -t 12 -c copy output.mp4. Remove -c copy and the same command re-encodes, which makes the start frame accurate. In browser tools such as Cutmoor, the export dialog usually exposes the same choice as a speed or quality setting.",
         ],
       },
       {
@@ -215,7 +215,7 @@ export const GUIDES_B: Guide[] = [
         paragraphs: [
           "For spoken-word delivery, export a clean master and a compressed release. Master: WAV, 48 kHz, 24-bit, mono or stereo as recorded. Release: MP3 or M4A, 44.1 or 48 kHz, mono for a solo show, 96-128 kbps.",
           "Normalize loudness rather than peaks. Podcast platforms commonly normalize around -16 LUFS for stereo and -19 LUFS for mono; Spotify targets about -14 LUFS. A high-pass filter at 80-100 Hz removes rumble, and light compression evens out levels before the final limiter.",
-          "A voiceover for video should match the video's sample rate, usually 48 kHz. Export WAV to the editor, then let the video export handle the final AAC encode. ClipKit extracts audio locally in the browser, so the file never leaves your machine; pick M4A for a copy-friendly result or MP3 for a universal one.",
+          "A voiceover for video should match the video's sample rate, usually 48 kHz. Export WAV to the editor, then let the video export handle the final AAC encode. Cutmoor extracts audio locally in the browser, so the file never leaves your machine; pick M4A for a copy-friendly result or MP3 for a universal one.",
         ],
       },
       {

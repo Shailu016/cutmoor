@@ -67,7 +67,7 @@ export function headForPath(pathname: string): string {
     tag("twitter:description", meta.description),
     tag("twitter:image", image),
     tag("twitter:image:alt", SITE.ogImageAlt),
-    `<script id="clipkit-structured-data" type="application/ld+json">${jsonLd}</script>`,
+    `<script id="cutmoor-structured-data" type="application/ld+json">${jsonLd}</script>`,
   ]
     .filter(Boolean)
     .join("\n    ");

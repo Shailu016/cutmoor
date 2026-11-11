@@ -80,10 +80,10 @@ export function Seo({ path }: { path: string }) {
       removeMeta("name", "google-adsense-account");
     }
 
-    let script = document.getElementById("clipkit-structured-data");
+    let script = document.getElementById("cutmoor-structured-data");
     if (!script) {
       script = document.createElement("script");
-      script.id = "clipkit-structured-data";
+      script.id = "cutmoor-structured-data";
       script.setAttribute("type", "application/ld+json");
       document.head.appendChild(script);
     }

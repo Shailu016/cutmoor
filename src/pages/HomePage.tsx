@@ -190,7 +190,7 @@ export function HomePage() {
             <h2>The upload is the slowest part. So we removed it.</h2>
             <p>
               Most converters take your file, put it on a server, queue it behind other jobs, and send back a link.
-              ClipKit opens the file in your browser, encodes it with WebAssembly or the canvas API, and saves the
+              Cutmoor opens the file in your browser, encodes it with WebAssembly or the canvas API, and saves the
               result straight to your downloads folder.
             </p>
             <p>
@@ -198,7 +198,7 @@ export function HomePage() {
               It also means the limits are honest: your device's memory is the ceiling, not a subscription tier.
             </p>
             <Link className="text-link" to="/about">
-              How ClipKit works <ArrowRight size={15} />
+              How Cutmoor works <ArrowRight size={15} />
             </Link>
           </div>
           <div className="feature-stack">

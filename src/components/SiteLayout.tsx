@@ -49,14 +49,14 @@ const FOOTER = [
 
 function Logo() {
   return (
-    <Link className="logo" to="/" aria-label="ClipKit home">
+    <Link className="logo" to="/" aria-label="Cutmoor home">
       <span className="logo-mark" aria-hidden="true">
         <svg viewBox="0 0 32 32" width="28" height="28">
           <rect width="32" height="32" rx="8" fill="currentColor" />
           <path d="M10 9v10a4 4 0 1 0 2 3.46V14h8v5a4 4 0 1 0 2 3.46V9H10Z" fill="#c9f24b" />
         </svg>
       </span>
-      <span className="logo-word">ClipKit</span>
+      <span className="logo-word">Cutmoor</span>
     </Link>
   );
 }
@@ -297,7 +297,7 @@ export function SiteLayout() {
           ))}
         </div>
         <div className="shell footer-bottom">
-          <span>© 2026 ClipKit. Tools are free; ads keep them free.</span>
+          <span>© 2026 Cutmoor. Tools are free; ads keep them free.</span>
           <div className="footer-legal">
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>

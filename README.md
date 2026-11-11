@@ -1,4 +1,4 @@
-# ClipKit
+# Cutmoor
 
 The browser video and image toolkit. Compress, crop, trim, convert, extract
 audio, save a frame, and convert subtitles — plus compress, resize, and convert
@@ -45,7 +45,10 @@ npm run preview  # serve the built dist/ with pretty URLs
 
 Copy `.env.example` to `.env` and set:
 
-- `VITE_SITE_URL` — canonical origin, no trailing slash.
+- `VITE_SITE_URL` — canonical origin, no trailing slash. The built-in default is
+  `https://cutmoor.com`, the planned launch origin. Until that domain is
+  purchased and connected, set this to the real deployment URL so canonical
+  links, the sitemap, and JSON-LD never point at a domain you do not control.
 - `VITE_ADSENSE_CLIENT` — AdSense client ID. Empty disables ads completely.
 - `VITE_ADSENSE_SLOT_HOME`, `VITE_ADSENSE_SLOT_ARTICLE`, `VITE_ADSENSE_SLOT_FOOTER` — ad unit IDs.
 
@@ -62,8 +65,11 @@ will not authorize a publisher.
 
 Before going live:
 
-1. Set `VITE_SITE_URL` to the real domain.
-2. Replace `hello@clipkit.tools` in `src/lib/seo.ts` and `src/content/site-pages.ts`.
+1. Buy `cutmoor.com`, connect it to the host, and set `VITE_SITE_URL` to the
+   live origin. Until then, point `VITE_SITE_URL` at the temporary deployment
+   URL instead of the unowned domain.
+2. Confirm `hello@cutmoor.com` in `src/lib/seo.ts` and `src/content/site-pages.ts`
+   once mail for the domain is set up, or replace it with the real address.
 3. Replace `public/og-image.png` and `public/icon-512.png` if the branding changes.
 4. Configure `VITE_ADSENSE_CLIENT` and the slot IDs, or leave ads off.
 5. Review `privacy`, `terms`, and `cookies` for your jurisdiction.

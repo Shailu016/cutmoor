@@ -209,7 +209,7 @@ export function CompressImageTool() {
                   </label>
                 </div>
                 <p className="settings-note">
-                  ClipKit encodes the image at several quality levels and keeps the highest quality that fits under{" "}
+                  Cutmoor encodes the image at several quality levels and keeps the highest quality that fits under{" "}
                   <strong>{formatTargetSize(targetKb * 1024)}</strong>. If even the lowest quality is too large, it reduces the
                   dimensions in steps and tells you exactly what it did.
                 </p>
@@ -307,7 +307,7 @@ export function CompressImageTool() {
 
       <ImageJobPanel
         job={job}
-        idleHint="Choose a photo or screenshot. ClipKit reads the dimensions locally, then finds the highest quality that fits your target size."
+        idleHint="Choose a photo or screenshot. Cutmoor reads the dimensions locally, then finds the highest quality that fits your target size."
       />
     </div>
   );

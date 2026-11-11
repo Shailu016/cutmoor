@@ -166,7 +166,7 @@ export const GUIDES_C: Guide[] = [
             ["HEIC", "Lossy, HEVC-based", "No", "iPhone photo storage", "Poor compatibility outside Apple devices"],
           ],
           caption:
-            "Browser support for displaying a format is not the same as support for creating it. ClipKit can display AVIF but cannot encode it from a canvas.",
+            "Browser support for displaying a format is not the same as support for creating it. Cutmoor can display AVIF but cannot encode it from a canvas.",
         },
       },
       {
@@ -195,7 +195,7 @@ export const GUIDES_C: Guide[] = [
         heading: "Where WebP fits",
         paragraphs: [
           "WebP was designed for the web. In lossy mode it typically produces a file 25–35 percent smaller than JPG at comparable visual quality. In lossless mode it usually beats PNG on graphics, and it supports transparency in both modes. Every current major browser can display it.",
-          "The catch is creation, not display. Safari can render WebP but cannot encode it from a canvas; asking for image/webp silently returns a PNG. That is why ClipKit probes the encoder at runtime and hides WebP export where it is unavailable. Use JPG or PNG in Safari, or convert in Chrome, Edge, or Firefox.",
+          "The catch is creation, not display. Safari can render WebP but cannot encode it from a canvas; asking for image/webp silently returns a PNG. That is why Cutmoor probes the encoder at runtime and hides WebP export where it is unavailable. Use JPG or PNG in Safari, or convert in Chrome, Edge, or Firefox.",
         ],
         bullets: [
           "WebP is a good default for website images when your audience uses modern browsers.",
@@ -208,7 +208,7 @@ export const GUIDES_C: Guide[] = [
         heading: "Transparency, metadata, and colour",
         paragraphs: [
           "Transparency is the clearest dividing line. PNG and WebP support an alpha channel. JPG does not. If a logo with a transparent background is exported to JPG, the empty pixels become white or whatever colour the encoder chooses, and the result cannot be placed on a dark page without a visible box.",
-          "Metadata is the second difference. JPG files often carry EXIF data: camera model, exposure, capture time, and sometimes GPS coordinates. PNG carries less by default. WebP can carry metadata too. A canvas re-encode, as used by ClipKit, strips most metadata and applies orientation to the pixels, which is good for privacy but removes copyright and colour-profile fields as well.",
+          "Metadata is the second difference. JPG files often carry EXIF data: camera model, exposure, capture time, and sometimes GPS coordinates. PNG carries less by default. WebP can carry metadata too. A canvas re-encode, as used by Cutmoor, strips most metadata and applies orientation to the pixels, which is good for privacy but removes copyright and colour-profile fields as well.",
           "Colour profiles matter for print and for wide-gamut displays. A browser re-encode usually works in sRGB. If exact colour is critical, keep the original and use a colour-managed editor rather than a quick web conversion.",
         ],
       },
@@ -268,12 +268,12 @@ export const GUIDES_C: Guide[] = [
       {
         question: "Does converting an image remove EXIF and GPS data?",
         answer:
-          "A canvas-based conversion such as ClipKit's does, because the image is redrawn and re-encoded rather than copied. The pixels remain, but camera, GPS, and most other metadata are not carried over. Orientation is applied before export so the image still appears upright.",
+          "A canvas-based conversion such as Cutmoor's does, because the image is redrawn and re-encoded rather than copied. The pixels remain, but camera, GPS, and most other metadata are not carried over. Orientation is applied before export so the image still appears upright.",
       },
       {
         question: "Why can't Safari export WebP?",
         answer:
-          "Safari can display WebP but its canvas implementation cannot encode it. When asked for image/webp, it returns a PNG instead. ClipKit checks the actual blob type and disables WebP export rather than producing a mislabeled file.",
+          "Safari can display WebP but its canvas implementation cannot encode it. When asked for image/webp, it returns a PNG instead. Cutmoor checks the actual blob type and disables WebP export rather than producing a mislabeled file.",
       },
     ],
   },
@@ -321,7 +321,7 @@ export const GUIDES_C: Guide[] = [
       {
         heading: "Target-size compression, explained",
         paragraphs: [
-          "A target size is a constraint, not a setting. To hit it, the tool has to search. For JPG and WebP, ClipKit encodes the image at several quality levels and narrows in on the highest one that stays under the target. If even the lowest sensible quality is too large, it reduces the dimensions in steps and tries again.",
+          "A target size is a constraint, not a setting. To hit it, the tool has to search. For JPG and WebP, Cutmoor encodes the image at several quality levels and narrows in on the highest one that stays under the target. If even the lowest sensible quality is too large, it reduces the dimensions in steps and tries again.",
           "That is why a target-size result sometimes says the output was reduced to a smaller size. It is not a failure; it is the honest way to meet the constraint. The alternative, returning a file over the target and calling it done, would be worse.",
           "PNG is lossless, so the quality slider does not apply. A PNG can only reach a target by reducing dimensions or by using a palette. For photographs, converting to JPG or WebP is usually the better move.",
         ],
@@ -455,7 +455,7 @@ export const GUIDES_C: Guide[] = [
             ["iPhone Settings → Camera → Formats → Most Compatible", "Nowhere; future photos are captured as JPG", "Full camera quality", "Preventing the problem before it starts"],
             ["Share sheet → Save to Files / Mail", "Nowhere, but export options are limited", "Usually full quality", "A few photos on the phone"],
             ["Photos app on Mac → Export", "Nowhere", "Good; choose JPEG quality", "Mac users with a library"],
-            ["Browser converter such as ClipKit", "Stays in the browser tab", "Quality slider and preview", "Windows, Android, Chromebooks, cross-platform"],
+            ["Browser converter such as Cutmoor", "Stays in the browser tab", "Quality slider and preview", "Windows, Android, Chromebooks, cross-platform"],
             ["Upload-and-download website", "Uploaded to an unknown server", "Varies", "Avoid for personal photos"],
           ],
           caption:
@@ -518,7 +518,7 @@ export const GUIDES_C: Guide[] = [
       {
         question: "Is it safe to convert HEIC to JPG online?",
         answer:
-          "Only if the converter processes the file in your browser. A traditional upload-and-download site sends the photo to a server you do not control. ClipKit decodes HEIC locally with the system decoder on Safari or a lazily loaded open-source decoder on other browsers, so the photo never leaves the device.",
+          "Only if the converter processes the file in your browser. A traditional upload-and-download site sends the photo to a server you do not control. Cutmoor decodes HEIC locally with the system decoder on Safari or a lazily loaded open-source decoder on other browsers, so the photo never leaves the device.",
       },
       {
         question: "Does converting HEIC to JPG reduce quality?",

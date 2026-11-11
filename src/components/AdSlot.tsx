@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const CONSENT_KEY = "clipkit-consent";
+const CONSENT_KEY = "cutmoor-consent";
 
 function readAllowed(): boolean {
   try {
@@ -17,18 +17,18 @@ export function AdSlot({ slot, className = "" }: { slot?: string; className?: st
   useEffect(() => {
     const read = () => setAllowed(readAllowed());
     read();
-    window.addEventListener("clipkit-consent-change", read);
-    return () => window.removeEventListener("clipkit-consent-change", read);
+    window.addEventListener("cutmoor-consent-change", read);
+    return () => window.removeEventListener("cutmoor-consent-change", read);
   }, []);
 
   useEffect(() => {
     if (!client || !allowed || !slot) return;
-    const existing = document.querySelector<HTMLScriptElement>("script[data-clipkit-ads]");
+    const existing = document.querySelector<HTMLScriptElement>("script[data-cutmoor-ads]");
     if (!existing) {
       const script = document.createElement("script");
       script.async = true;
       script.crossOrigin = "anonymous";
-      script.dataset.clipkitAds = "true";
+      script.dataset.cutmoorAds = "true";
       script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(client)}`;
       document.head.appendChild(script);
     }

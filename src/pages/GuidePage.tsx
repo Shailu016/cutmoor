@@ -92,7 +92,7 @@ export function GuidePage() {
                 <span>
                   <Clock size={14} /> {guide.readingMinutes} min read
                 </span>
-                <span>By the ClipKit Team</span>
+                <span>By the Cutmoor Team</span>
               </div>
             </header>
 
@@ -169,7 +169,7 @@ export function GuidePage() {
             <div className="author-box">
               <span className="author-mark">CK</span>
               <div>
-                <strong>The ClipKit Team</strong>
+                <strong>The Cutmoor Team</strong>
                 <p>
                   We write and test the guides against the tools on this site. Read the{" "}
                   <Link to="/editorial">editorial policy</Link> to see how limits and recommendations are checked.

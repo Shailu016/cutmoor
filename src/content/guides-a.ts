@@ -109,7 +109,7 @@ export const GUIDES_A: Guide[] = [
       {
         question: "Can I compress a video on my phone without installing an app?",
         answer:
-          "Yes. Trim in Photos or Gallery, then use a browser-based compressor. ClipKit does the encoding on your device, so the file is never uploaded.",
+          "Yes. Trim in Photos or Gallery, then use a browser-based compressor. Cutmoor does the encoding on your device, so the file is never uploaded.",
       },
     ],
   },
@@ -333,7 +333,7 @@ export const GUIDES_A: Guide[] = [
         heading: "Quality and reach",
         paragraphs: [
           "Instagram does not publish a formula that maps bitrate to reach, and anyone who claims otherwise is guessing. What the platform does say is that Reels are ranked on signals such as watch time and completion. A blurry, stuttering video loses viewers in the first second, and that shows up in those signals. Clean motion and readable captions are worth more than a marginally higher resolution.",
-          "Upload once, from the master. Downloading a Reel and re-uploading it stacks another generation of compression, and the drop is visible. ClipKit can do the trim, crop, and encode in the browser without sending the file anywhere.",
+          "Upload once, from the master. Downloading a Reel and re-uploading it stacks another generation of compression, and the drop is visible. Cutmoor can do the trim, crop, and encode in the browser without sending the file anywhere.",
         ],
       },
     ],
@@ -455,7 +455,7 @@ export const GUIDES_A: Guide[] = [
         heading: "Platform differences",
         paragraphs: [
           "TikTok, Reels, and Shorts all want 9:16 and 1080x1920, but they do not treat the frame the same. TikTok's interface is the most intrusive at the bottom and right. Reels puts the caption and audio name across the lower third. Shorts keeps the bottom cleaner but overlays the title and channel name at the top.",
-          "Duration caps differ too. Reels and Shorts top out at 3 minutes, while TikTok accepts much longer uploads. A single 9:16 export is reusable across all three, but re-check caption placement and the first frame, since each app chooses its own thumbnail. ClipKit can crop and export the vertical file locally, so you can compare the framing in each app before posting.",
+          "Duration caps differ too. Reels and Shorts top out at 3 minutes, while TikTok accepts much longer uploads. A single 9:16 export is reusable across all three, but re-check caption placement and the first frame, since each app chooses its own thumbnail. Cutmoor can crop and export the vertical file locally, so you can compare the framing in each app before posting.",
         ],
       },
     ],
@@ -574,7 +574,7 @@ export const GUIDES_A: Guide[] = [
           "4. Match the audio to the source. Do not turn mono into stereo for no reason.",
           "5. Export, then play the result in a different player than the one you used to convert.",
           "6. Check duration, audio sync, and rotation before you delete the original.",
-          "7. Keep the MOV until the MP4 is verified. ClipKit converts in the browser, so the file stays on your machine.",
+          "7. Keep the MOV until the MP4 is verified. Cutmoor converts in the browser, so the file stays on your machine.",
         ],
       },
       {

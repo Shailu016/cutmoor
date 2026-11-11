@@ -3,18 +3,18 @@ import { SITE_PAGES } from "../content/site-pages";
 import { TOOLS } from "./tools";
 
 export const SITE = {
-  name: "ClipKit",
-  legalName: "ClipKit",
-  url: (import.meta.env.VITE_SITE_URL || "https://clipkit.tools").replace(/\/$/, ""),
-  tagline: "Your media. Ready for every platform.",
+  name: "Cutmoor",
+  legalName: "Cutmoor",
+  url: (import.meta.env.VITE_SITE_URL || "https://cutmoor.com").replace(/\/$/, ""),
+  tagline: "Cut more. Upload less.",
   description:
     "Compress, crop, trim, convert, and extract audio from video — or compress, resize, convert, and HEIC-to-JPG your images. Everything runs in your browser. No upload, no account, no watermark.",
-  email: "hello@clipkit.tools",
+  email: "hello@cutmoor.com",
   locale: "en_US",
   language: "en",
   themeColor: "#101311",
   ogImage: "/og-image.png",
-  ogImageAlt: "ClipKit — browser video and image tools for every platform",
+  ogImageAlt: "Cutmoor — browser video and image tools for every platform",
 };
 
 export type PageType = "website" | "article";
@@ -31,29 +31,29 @@ export interface PageMeta {
 }
 
 const home: PageMeta = {
-  title: "ClipKit — compress video and images in your browser",
+  title: "Cutmoor — compress video and images in your browser",
   description:
     "Free browser tools for video and images: compress to a target size, crop to 9:16, trim, convert, extract audio, resize photos, and turn HEIC into JPG. Your files never leave your device.",
   path: "/",
 };
 
 const toolsIndex: PageMeta = {
-  title: "Free video and image tools — compress, crop, convert | ClipKit",
+  title: "Free video and image tools — compress, crop, convert | Cutmoor",
   description:
-    "Every ClipKit tool runs locally in your browser. Compress a video, crop it to 9:16, trim the ends, convert the format, extract audio, resize an image, or convert HEIC to JPG.",
+    "Every Cutmoor tool runs locally in your browser. Compress a video, crop it to 9:16, trim the ends, convert the format, extract audio, resize an image, or convert HEIC to JPG.",
   path: "/tools",
 };
 
 const guidesIndex: PageMeta = {
-  title: "Video and image guides — sizes, limits, and settings | ClipKit",
+  title: "Video and image guides — sizes, limits, and settings | Cutmoor",
   description:
     "Practical guides for short-form video and social images: compress for WhatsApp and Discord, crop to 9:16, choose the right image size, convert HEIC, and pick between PNG, JPG, and WebP.",
   path: "/guides",
 };
 
 const notFound: PageMeta = {
-  title: "Page not found — ClipKit",
-  description: "That page does not exist. Browse the video and image tools or the ClipKit guides instead.",
+  title: "Page not found — Cutmoor",
+  description: "That page does not exist. Browse the video and image tools or the Cutmoor guides instead.",
   path: "/404",
   noindex: true,
 };
@@ -65,7 +65,7 @@ const toolPages: PageMeta[] = TOOLS.map((tool) => ({
 }));
 
 const guidePages: PageMeta[] = GUIDES.map((guide) => ({
-  title: `${guide.title} — ClipKit`,
+  title: `${guide.title} — Cutmoor`,
   description: guide.description,
   path: `/guides/${guide.slug}`,
   type: "article",
@@ -197,7 +197,7 @@ export function articleJsonLd(guide: {
     timeRequired: `PT${guide.readingMinutes}M`,
     mainEntityOfPage: canonicalFor(`/guides/${guide.slug}`),
     image: [absoluteUrl(SITE.ogImage)],
-    author: { "@type": "Organization", name: "ClipKit Team", url: `${SITE.url}/editorial/` },
+    author: { "@type": "Organization", name: "Cutmoor Team", url: `${SITE.url}/editorial/` },
     publisher: { "@id": `${SITE.url}/#organization` },
     isAccessibleForFree: true,
   };
@@ -234,7 +234,7 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
     if (tool) {
       graph.push({
         "@type": "HowTo",
-        name: `How to use ${tool.name} with ClipKit`,
+        name: `How to use ${tool.name} with Cutmoor`,
         description: tool.intro,
         step: tool.steps.map((step, index) => ({
           "@type": "HowToStep",
@@ -301,12 +301,12 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
 
 export const HOME_FAQS = [
   {
-    question: "Does ClipKit upload my video or image?",
+    question: "Does Cutmoor upload my video or image?",
     answer:
-      "No. Video is encoded inside your browser with WebAssembly, and images are decoded and re-encoded with the canvas API. Files are read from your device, processed in memory, and saved back to your device. There is no ClipKit server that receives them.",
+      "No. Video is encoded inside your browser with WebAssembly, and images are decoded and re-encoded with the canvas API. Files are read from your device, processed in memory, and saved back to your device. There is no Cutmoor server that receives them.",
   },
   {
-    question: "Is ClipKit really free?",
+    question: "Is Cutmoor really free?",
     answer:
       "Yes. Every video and image tool is free, with no account, watermark, or export limit. The site is supported by advertising, which only loads if you accept advertising cookies.",
   },
@@ -316,9 +316,9 @@ export const HOME_FAQS = [
       "Video inputs include MP4, MOV, WebM, MKV, and AVI. Image inputs include JPG, PNG, WebP, AVIF, GIF, BMP, HEIC, and HEIF. Exports include MP4, WebM, GIF, MP3, WAV, M4A, JPG, PNG, and WebP, depending on the tool and your browser.",
   },
   {
-    question: "Can ClipKit download a video from YouTube or Instagram?",
+    question: "Can Cutmoor download a video from YouTube or Instagram?",
     answer:
-      "No. ClipKit only works with files you already have. It does not fetch URLs or download content from streaming platforms, and it cannot bypass a platform player.",
+      "No. Cutmoor only works with files you already have. It does not fetch URLs or download content from streaming platforms, and it cannot bypass a platform player.",
   },
   {
     question: "How big can a file be?",
@@ -328,11 +328,11 @@ export const HOME_FAQS = [
   {
     question: "Do I need to install anything?",
     answer:
-      "No. ClipKit runs in a modern browser on desktop, tablet, and phone. The first video job downloads the encoder once and the browser caches it. iPhone HEIC files may download a separate 3 MB local decoder on Chrome, Edge, and Firefox; Safari uses the system decoder.",
+      "No. Cutmoor runs in a modern browser on desktop, tablet, and phone. The first video job downloads the encoder once and the browser caches it. iPhone HEIC files may download a separate 3 MB local decoder on Chrome, Edge, and Firefox; Safari uses the system decoder.",
   },
   {
     question: "Why can't I export WebP in Safari?",
     answer:
-      "Safari can display WebP but cannot encode it from a canvas, and it silently returns a PNG instead. ClipKit tests the encoder at runtime and disables WebP export when it is unavailable, so a file with a .webp extension is never actually a PNG. JPG and PNG remain available.",
+      "Safari can display WebP but cannot encode it from a canvas, and it silently returns a PNG instead. Cutmoor tests the encoder at runtime and disables WebP export when it is unavailable, so a file with a .webp extension is never actually a PNG. JPG and PNG remain available.",
   },
 ];

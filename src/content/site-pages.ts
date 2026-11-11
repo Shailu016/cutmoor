@@ -27,13 +27,13 @@ const UPDATED = "2026-11-11";
 export const SITE_PAGES: SitePage[] = [
   {
     slug: "about",
-    title: "About ClipKit — the browser media toolkit",
+    title: "About Cutmoor — the browser media toolkit",
     description:
-      "ClipKit is a free, local-first toolkit for video and images. Compress, crop, trim, convert, resize, and extract audio without uploading your files.",
+      "Cutmoor is a free, local-first toolkit for video and images. Compress, crop, trim, convert, resize, and extract audio without uploading your files.",
     eyebrow: "About",
     updated: UPDATED,
     intro: [
-      "ClipKit is a small set of video and image tools that run in your browser. It exists because the everyday jobs around short-form media are boring, repetitive, and usually require a trip through an upload form on someone else's server.",
+      "Cutmoor is a small set of video and image tools that run in your browser. It exists because the everyday jobs around short-form media are boring, repetitive, and usually require a trip through an upload form on someone else's server.",
       "Drop a file, choose a preset, get a clean export. The file is processed on your device. There is no account, no storage bucket, and no queue.",
     ],
     sections: [
@@ -41,20 +41,20 @@ export const SITE_PAGES: SitePage[] = [
         heading: "Who it is for",
         paragraphs: [
           "Creators who need a Reel to fit a size limit. Small teams making product clips and social images on a laptop. Anyone who has recorded a video and discovered it is 180 MB when the app accepts 25 MB, or exported a photo that a job portal refuses because it is 6 MB.",
-          "The tools are deliberately narrow. ClipKit is not an editor, a timeline, or a replacement for Premiere, Final Cut, CapCut, or Photoshop. It is the step after editing: make the file fit, make it the right shape, and get it out.",
+          "The tools are deliberately narrow. Cutmoor is not an editor, a timeline, or a replacement for Premiere, Final Cut, CapCut, or Photoshop. It is the step after editing: make the file fit, make it the right shape, and get it out.",
         ],
       },
       {
         heading: "Why local processing",
         paragraphs: [
           "Uploading a video or photo is slow, costs the operator bandwidth, and creates a copy of your file on a machine you do not control. Running the encoder in the browser avoids all three.",
-          "Video is handled by a WebAssembly build of FFmpeg. Images are decoded and re-encoded with the browser's canvas API, with a lazily loaded HEIC decoder where the operating system does not provide one. The tradeoff is honest: browser processing is limited by the memory of your device. Very large files, especially on phones, can fail. ClipKit shows the limit before you start and never pretends a job succeeded when it did not.",
+          "Video is handled by a WebAssembly build of FFmpeg. Images are decoded and re-encoded with the browser's canvas API, with a lazily loaded HEIC decoder where the operating system does not provide one. The tradeoff is honest: browser processing is limited by the memory of your device. Very large files, especially on phones, can fail. Cutmoor shows the limit before you start and never pretends a job succeeded when it did not.",
         ],
       },
       {
-        heading: "What ClipKit does not do",
+        heading: "What Cutmoor does not do",
         paragraphs: [
-          "ClipKit does not download videos from YouTube, Instagram, TikTok, or any other platform. It only works with files you already have and have the right to use.",
+          "Cutmoor does not download videos from YouTube, Instagram, TikTok, or any other platform. It only works with files you already have and have the right to use.",
           "It does not upload, store, or share your files. It does not require an account, and it does not add a watermark.",
         ],
       },
@@ -69,19 +69,19 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     slug: "privacy",
-    title: "Privacy policy — ClipKit",
+    title: "Privacy policy — Cutmoor",
     description:
-      "How ClipKit handles your files, what stays in your browser, what advertising partners may collect, and how to control it.",
+      "How Cutmoor handles your files, what stays in your browser, what advertising partners may collect, and how to control it.",
     eyebrow: "Privacy",
     updated: UPDATED,
     intro: [
-      "ClipKit is designed so that the most sensitive thing you bring — the video or photo itself — never leaves your device. This page explains exactly what that means, and what is still collected when you visit the site.",
+      "Cutmoor is designed so that the most sensitive thing you bring — the video or photo itself — never leaves your device. This page explains exactly what that means, and what is still collected when you visit the site.",
     ],
     sections: [
       {
         heading: "Your video and image files",
         paragraphs: [
-          "Video and audio files are read by your browser and processed in the page using WebAssembly. Images are decoded and re-encoded with the canvas API. They are not uploaded to a ClipKit server. ClipKit does not operate a media storage service and does not keep a copy of your file.",
+          "Video and audio files are read by your browser and processed in the page using WebAssembly. Images are decoded and re-encoded with the canvas API. They are not uploaded to a Cutmoor server. Cutmoor does not operate a media storage service and does not keep a copy of your file.",
           "HEIC photos are decoded locally. Safari uses the operating system decoder. Chrome, Edge, and Firefox download an open-source libheif decoder once, only when a HEIC file is selected; it runs in the page and does not send the photo anywhere.",
           "When you close or reload the tab, the working copy in memory is released by the browser. The exported file is saved wherever your browser saves downloads.",
         ],
@@ -89,7 +89,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Information stored in your browser",
         paragraphs: [
-          "ClipKit stores a single preference in localStorage: your cookie choice. It stays on your device and is not sent to us.",
+          "Cutmoor stores a single preference in localStorage: your cookie choice. It stays on your device and is not sent to us.",
         ],
         bullets: [
           "Consent choice: accepted or rejected advertising cookies.",
@@ -100,8 +100,8 @@ export const SITE_PAGES: SitePage[] = [
         heading: "Advertising and cookies",
         paragraphs: [
           "The free site may show Google AdSense ads. When advertising cookies are accepted, Google and its partners may use cookies or device identifiers to serve and measure ads, as described in Google's own privacy policy.",
-          "If you reject advertising cookies, ClipKit does not load the ad script. A non-personalized fallback may be used only where permitted, and no advertising cookies are set by ClipKit.",
-          "For visitors in the EEA, the UK, and Switzerland, ad serving requires a Google-certified consent management platform. The operator of a deployed copy of ClipKit must configure one before enabling ads in those regions.",
+          "If you reject advertising cookies, Cutmoor does not load the ad script. A non-personalized fallback may be used only where permitted, and no advertising cookies are set by Cutmoor.",
+          "For visitors in the EEA, the UK, and Switzerland, ad serving requires a Google-certified consent management platform. The operator of a deployed copy of Cutmoor must configure one before enabling ads in those regions.",
         ],
       },
       {
@@ -113,8 +113,8 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Your rights",
         paragraphs: [
-          "Because ClipKit does not create an account or store your files, there is usually no personal profile to export or delete. You can clear the stored preferences at any time through your browser's site data settings.",
-          "If you believe a deployed copy of ClipKit is processing personal data unlawfully, contact the operator of that site. The contact address for this project is listed on the contact page.",
+          "Because Cutmoor does not create an account or store your files, there is usually no personal profile to export or delete. You can clear the stored preferences at any time through your browser's site data settings.",
+          "If you believe a deployed copy of Cutmoor is processing personal data unlawfully, contact the operator of that site. The contact address for this project is listed on the contact page.",
         ],
       },
       {
@@ -129,29 +129,29 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     slug: "terms",
-    title: "Terms of use — ClipKit",
+    title: "Terms of use — Cutmoor",
     description:
-      "The rules for using ClipKit, including acceptable use, intellectual property, warranties, and liability.",
+      "The rules for using Cutmoor, including acceptable use, intellectual property, warranties, and liability.",
     eyebrow: "Terms",
     updated: UPDATED,
     intro: [
-      "These terms apply when you use ClipKit. By using the site, you agree to them. If you do not agree, do not use the tools.",
+      "These terms apply when you use Cutmoor. By using the site, you agree to them. If you do not agree, do not use the tools.",
     ],
     sections: [
       {
         heading: "The service",
         paragraphs: [
-          "ClipKit provides browser-based tools that transform media files you supply. The tools are provided free of charge, as-is, and may change or be removed at any time.",
-          "ClipKit is not affiliated with YouTube, Instagram, TikTok, Meta, Google, or any other platform. Platform names are used only to describe common file sizes and aspect ratios.",
+          "Cutmoor provides browser-based tools that transform media files you supply. The tools are provided free of charge, as-is, and may change or be removed at any time.",
+          "Cutmoor is not affiliated with YouTube, Instagram, TikTok, Meta, Google, or any other platform. Platform names are used only to describe common file sizes and aspect ratios.",
         ],
       },
       {
         heading: "Acceptable use",
         paragraphs: [
-          "You may use ClipKit for files you own or have permission to modify. You are responsible for the content you process and for how you use the result.",
+          "You may use Cutmoor for files you own or have permission to modify. You are responsible for the content you process and for how you use the result.",
         ],
         bullets: [
-          "Do not use ClipKit to infringe copyright, privacy, or other rights.",
+          "Do not use Cutmoor to infringe copyright, privacy, or other rights.",
           "Do not use it to circumvent a platform's terms, paywall, or technical protection measure.",
           "Do not attempt to overload, probe, or break the site or its hosting.",
           "Do not resell the service as your own without permission.",
@@ -160,14 +160,14 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "No downloading of third-party content",
         paragraphs: [
-          "ClipKit does not provide a downloader for YouTube, Instagram, TikTok, or other streaming services. It cannot fetch a URL or bypass a platform's player. Any claim that it does is false.",
+          "Cutmoor does not provide a downloader for YouTube, Instagram, TikTok, or other streaming services. It cannot fetch a URL or bypass a platform's player. Any claim that it does is false.",
           "If you need a copy of your own upload, use the export or download feature provided by the platform that hosts it.",
         ],
       },
       {
         heading: "Intellectual property",
         paragraphs: [
-          "You keep all rights to the files you process. ClipKit claims no ownership over your input or output. The ClipKit name, design, copy, and code are protected by the operator's rights and may not be copied for a competing service without permission.",
+          "You keep all rights to the files you process. Cutmoor claims no ownership over your input or output. The Cutmoor name, design, copy, and code are protected by the operator's rights and may not be copied for a competing service without permission.",
         ],
       },
       {
@@ -194,29 +194,29 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     slug: "cookies",
-    title: "Cookie and advertising settings — ClipKit",
+    title: "Cookie and advertising settings — Cutmoor",
     description:
-      "What ClipKit stores in your browser, how advertising cookies work, and how to change your choice.",
+      "What Cutmoor stores in your browser, how advertising cookies work, and how to change your choice.",
     eyebrow: "Cookies",
     updated: UPDATED,
     intro: [
-      "ClipKit uses the smallest amount of browser storage it can and still remember your choice. This page lists what is stored and how to change it.",
+      "Cutmoor uses the smallest amount of browser storage it can and still remember your choice. This page lists what is stored and how to change it.",
     ],
     sections: [
       {
         heading: "Essential storage",
         paragraphs: [
-          "ClipKit stores your cookie choice in localStorage under a single key. Without it, the banner would reappear on every page. This storage contains no personal information and is not shared.",
+          "Cutmoor stores your cookie choice in localStorage under a single key. Without it, the banner would reappear on every page. This storage contains no personal information and is not shared.",
         ],
         bullets: [
-          "clipkit-consent — accepted or rejected.",
+          "cutmoor-consent — accepted or rejected.",
         ],
       },
       {
         heading: "Advertising cookies",
         paragraphs: [
-          "When ads are enabled and you accept, Google AdSense may set cookies to select, deliver, and measure advertising. Those cookies are controlled by Google, not by ClipKit.",
-          "When you reject, ClipKit does not load the AdSense script. You can change your choice at any time using the button below.",
+          "When ads are enabled and you accept, Google AdSense may set cookies to select, deliver, and measure advertising. Those cookies are controlled by Google, not by Cutmoor.",
+          "When you reject, Cutmoor does not load the AdSense script. You can change your choice at any time using the button below.",
         ],
       },
       {
@@ -229,7 +229,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Third-party policies",
         paragraphs: [
-          "Google's use of advertising cookies is described at policies.google.com/technologies/ads. ClipKit does not control those cookies and cannot delete them on your behalf; use your browser or Google's ad settings.",
+          "Google's use of advertising cookies is described at policies.google.com/technologies/ads. Cutmoor does not control those cookies and cannot delete them on your behalf; use your browser or Google's ad settings.",
         ],
       },
     ],
@@ -238,19 +238,19 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     slug: "contact",
-    title: "Contact ClipKit — support and feedback",
+    title: "Contact Cutmoor — support and feedback",
     description:
-      "Report a bug, ask a question, or suggest a tool. The real contact details for ClipKit.",
+      "Report a bug, ask a question, or suggest a tool. The real contact details for Cutmoor.",
     eyebrow: "Contact",
     updated: UPDATED,
     intro: [
-      "ClipKit is a small project. Messages are read, and bug reports with a file description are the fastest way to get a fix.",
+      "Cutmoor is a small project. Messages are read, and bug reports with a file description are the fastest way to get a fix.",
     ],
     sections: [
       {
         heading: "Email",
         paragraphs: [
-          "Write to hello@clipkit.tools. Include the tool you used and a short description of the file if you are reporting a bug.",
+          "Write to hello@cutmoor.com. Include the tool you used and a short description of the file if you are reporting a bug.",
         ],
       },
       {
@@ -274,26 +274,26 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Copyright",
         paragraphs: [
-          "ClipKit does not host or index third-party video. If you believe a deployed copy of the site is being used to infringe your rights, contact the operator of that copy with the URL, the work, and a description of the use. Do not send a video file by email.",
+          "Cutmoor does not host or index third-party video. If you believe a deployed copy of the site is being used to infringe your rights, contact the operator of that copy with the URL, the work, and a description of the use. Do not send a video file by email.",
         ],
       },
     ],
   },
   {
     slug: "editorial",
-    title: "Editorial policy — how ClipKit guides are made",
+    title: "Editorial policy — how Cutmoor guides are made",
     description:
-      "How ClipKit researches, writes, tests, and updates its video and image guides, and how corrections are handled.",
+      "How Cutmoor researches, writes, tests, and updates its video and image guides, and how corrections are handled.",
     eyebrow: "Editorial",
     updated: UPDATED,
     intro: [
-      "ClipKit publishes guides because a tool without context is hard to trust. This page explains how the guides are produced and what they are based on.",
+      "Cutmoor publishes guides because a tool without context is hard to trust. This page explains how the guides are produced and what they are based on.",
     ],
     sections: [
       {
         heading: "Who writes the guides",
         paragraphs: [
-          "Guides are written and edited by the ClipKit team. Each guide is checked against the behavior of the tools on this site: the presets, the limits, the output formats, and the error messages a visitor will actually see.",
+          "Guides are written and edited by the Cutmoor team. Each guide is checked against the behavior of the tools on this site: the presets, the limits, the output formats, and the error messages a visitor will actually see.",
           "The team has hands-on experience preparing short-form video and social images for publishing. Where a recommendation depends on a platform's current rules, the guide says so and links to the platform's own documentation when possible.",
         ],
       },
@@ -321,20 +321,20 @@ export const SITE_PAGES: SitePage[] = [
   },
   {
     slug: "licences",
-    title: "Third-party licences — ClipKit",
+    title: "Third-party licences — Cutmoor",
     description:
-      "The open-source components that power ClipKit, including FFmpeg, heic-to, libheif, React, Lucide, and the site fonts, with links to their licences.",
+      "The open-source components that power Cutmoor, including FFmpeg, heic-to, libheif, React, Lucide, and the site fonts, with links to their licences.",
     eyebrow: "Licences",
     updated: UPDATED,
     intro: [
-      "ClipKit is built on open-source software. The browser does the heavy lifting, and several of those components carry obligations that are worth stating plainly.",
+      "Cutmoor is built on open-source software. The browser does the heavy lifting, and several of those components carry obligations that are worth stating plainly.",
       "The list below covers the components that are distributed to visitors as part of the site, plus the libraries used to build it. Full licence texts are available at the linked upstream projects and in the repository's THIRD_PARTY_NOTICES.md.",
     ],
     sections: [
       {
         heading: "FFmpeg and ffmpeg.wasm",
         paragraphs: [
-          "Video decoding and encoding use FFmpeg, compiled to WebAssembly and delivered by the ffmpeg.wasm project. The @ffmpeg/core build used by ClipKit is licensed under the GNU General Public License version 2 or later (GPL-2.0-or-later).",
+          "Video decoding and encoding use FFmpeg, compiled to WebAssembly and delivered by the ffmpeg.wasm project. The @ffmpeg/core build used by Cutmoor is licensed under the GNU General Public License version 2 or later (GPL-2.0-or-later).",
           "The corresponding source code is available from the FFmpeg project and the ffmpeg.wasm repository, including the scripts used to build the WebAssembly core. If you deploy a modified version of the core, you are responsible for providing the corresponding source under the GPL.",
         ],
         links: [
@@ -351,7 +351,7 @@ export const SITE_PAGES: SitePage[] = [
         heading: "HEIC decoding",
         paragraphs: [
           "The HEIC converter uses the heic-to library, which bundles a WebAssembly build of libheif and the libde265 decoder. These components are licensed under the GNU Lesser General Public License version 3 (LGPL-3.0).",
-          "The decoder is loaded lazily, only when a HEIC file is selected, and runs entirely in the browser. ClipKit does not modify the library. The upstream source is linked below so the corresponding source can be obtained.",
+          "The decoder is loaded lazily, only when a HEIC file is selected, and runs entirely in the browser. Cutmoor does not modify the library. The upstream source is linked below so the corresponding source can be obtained.",
         ],
         links: [
           { label: "heic-to by Hopper Gee", href: "https://github.com/hoppergee/heic-to", description: "LGPL-3.0." },
@@ -390,7 +390,7 @@ export const SITE_PAGES: SitePage[] = [
       },
     ],
     footnote:
-      "If you deploy ClipKit commercially, review the GPL and LGPL obligations with your own counsel and keep the linked source and notices available to visitors.",
+      "If you deploy Cutmoor commercially, review the GPL and LGPL obligations with your own counsel and keep the linked source and notices available to visitors.",
   },
 ];
 

@@ -119,7 +119,7 @@ export function TrimTool() {
 
       <JobPanel
         job={job}
-        idleHint="Choose a video. ClipKit shows its duration, then cuts the exact range you enter."
+        idleHint="Choose a video. Cutmoor shows its duration, then cuts the exact range you enter."
       />
     </div>
   );

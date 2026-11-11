@@ -1,6 +1,6 @@
 # Third-party notices
 
-ClipKit distributes some third-party code to visitors as part of the static
+Cutmoor distributes some third-party code to visitors as part of the static
 site. This file lists the components, their licences, and where to obtain the
 corresponding source. It is a notice, not legal advice; the upstream licence
 texts control.
@@ -19,7 +19,7 @@ Last updated: 2026-11-11
 - ffmpeg.wasm source and build scripts: https://github.com/ffmpegwasm/ffmpeg.wasm
 - Source for the packaged core: https://github.com/ffmpegwasm/ffmpeg.wasm/tree/main/packages/core
 - The local copy is installed from npm and copied verbatim by
-  `scripts/copy-ffmpeg.mjs`. ClipKit does not modify the core.
+  `scripts/copy-ffmpeg.mjs`. Cutmoor does not modify the core.
 - If you deploy a modified core, you are responsible for publishing the
   corresponding source under the GPL and keeping the licence notice intact.
 
@@ -33,7 +33,7 @@ Last updated: 2026-11-11
 - Bundled upstream libraries:
   - libheif — https://github.com/strukturag/libheif — LGPL-3.0.
   - libde265 — https://github.com/strukturag/libde265 — LGPL-3.0.
-- ClipKit does not modify `heic-to` or its bundled libraries. The package is
+- Cutmoor does not modify `heic-to` or its bundled libraries. The package is
   installed from npm and included by Vite as a lazy chunk.
 - LGPL source and relinking information is available at the upstream links
   above. The unmodified npm package is also present in `node_modules/heic-to`

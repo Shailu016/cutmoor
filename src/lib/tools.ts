@@ -40,7 +40,7 @@ export const TOOLS: ToolDef[] = [
     description:
       "Compress MP4, MOV, and WebM videos to a target size for WhatsApp, Discord, Instagram, or email. Runs locally in your browser, so the file never leaves your device.",
     intro:
-      "Pick a target size and ClipKit calculates a video bitrate that fits. The file is decoded and re-encoded on your device, not on a server. Use it when an app rejects a video for being too large, or when a 4K clip is 400 MB and you only need a clean 1080p share.",
+      "Pick a target size and Cutmoor calculates a video bitrate that fits. The file is decoded and re-encoded on your device, not on a server. Use it when an app rejects a video for being too large, or when a 4K clip is 400 MB and you only need a clean 1080p share.",
     icon: "compress",
     accent: "lime",
     keywords: ["compress video", "video compressor", "reduce video size", "video under 25mb"],
@@ -53,7 +53,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Will compression make my video blurry?",
         answer:
-          "Some quality loss is unavoidable when the file gets smaller. ClipKit keeps the original resolution unless you lower it, and it reserves 128 kbps for audio so dialogue stays clear. For a mild reduction, use the Balanced preset instead of an aggressive target size.",
+          "Some quality loss is unavoidable when the file gets smaller. Cutmoor keeps the original resolution unless you lower it, and it reserves 128 kbps for audio so dialogue stays clear. For a mild reduction, use the Balanced preset instead of an aggressive target size.",
       },
       {
         question: "What is the best target size for WhatsApp?",
@@ -61,7 +61,7 @@ export const TOOLS: ToolDef[] = [
           "WhatsApp compresses videos again when you send them as media, so aim below the app limit and keep the resolution at 720p or 1080p. If you need the exact file, send it as a document instead of a video.",
       },
       {
-        question: "Does ClipKit upload my video?",
+        question: "Does Cutmoor upload my video?",
         answer:
           "No. The encoder is WebAssembly running inside the page. The file is read from your disk, processed in memory, and saved back to your device. You can disconnect from the internet after the page loads and the tool still works.",
       },
@@ -82,12 +82,12 @@ export const TOOLS: ToolDef[] = [
     description:
       "Resize a horizontal video for Reels, Shorts, TikTok, or a square feed post. Crop to fill or pad with black bars. Runs entirely in your browser.",
     intro:
-      "A horizontal clip does not fit a vertical feed. Choose an aspect ratio and ClipKit scales the video to cover the frame, then crops the overflow from the center. Choose Pad instead if you need the whole frame visible, for example a screen recording or a wide shot you cannot lose.",
+      "A horizontal clip does not fit a vertical feed. Choose an aspect ratio and Cutmoor scales the video to cover the frame, then crops the overflow from the center. Choose Pad instead if you need the whole frame visible, for example a screen recording or a wide shot you cannot lose.",
     icon: "crop",
     accent: "sky",
     keywords: ["crop video 9:16", "video resizer", "16:9 to 9:16", "instagram reel size"],
     steps: [
-      { name: "Load the clip", text: "Drop a video and ClipKit reads its dimensions." },
+      { name: "Load the clip", text: "Drop a video and Cutmoor reads its dimensions." },
       { name: "Choose the frame", text: "Pick 9:16 for Reels and Shorts, 1:1 for a square post, 4:5 for a portrait feed, or a custom size." },
       { name: "Pick crop or pad", text: "Crop fills the frame and trims the edges. Pad keeps the whole frame and adds bars." },
       { name: "Download", text: "The new video is encoded at the chosen resolution and saved locally." },
@@ -125,12 +125,12 @@ export const TOOLS: ToolDef[] = [
     description:
       "Cut a video to the exact start and end time you need. Frame-accurate re-encoding in your browser. No account, no watermark, no upload.",
     intro:
-      "Enter a start time, an end time, or both. ClipKit re-encodes the selected range rather than copying whole keyframes, so the cut lands where you asked instead of a second or two earlier. That matters for short-form video, where the first frame is the hook.",
+      "Enter a start time, an end time, or both. Cutmoor re-encodes the selected range rather than copying whole keyframes, so the cut lands where you asked instead of a second or two earlier. That matters for short-form video, where the first frame is the hook.",
     icon: "trim",
     accent: "peach",
     keywords: ["trim video online", "cut video", "video trimmer", "trim mp4"],
     steps: [
-      { name: "Drop the video", text: "ClipKit shows the duration so you can choose the range." },
+      { name: "Drop the video", text: "Cutmoor shows the duration so you can choose the range." },
       { name: "Set start and end", text: "Type a timecode such as 0:04 or 1:02:10. Leave end empty to keep the rest." },
       { name: "Trim", text: "The selected range is re-encoded for an accurate cut and saved to your device." },
     ],
@@ -138,12 +138,12 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Is the cut frame-accurate?",
         answer:
-          "Yes. ClipKit re-encodes the range, so it does not snap to the nearest keyframe. The tradeoff is speed: a re-encode takes longer than a stream copy, especially on a phone.",
+          "Yes. Cutmoor re-encodes the range, so it does not snap to the nearest keyframe. The tradeoff is speed: a re-encode takes longer than a stream copy, especially on a phone.",
       },
       {
         question: "Can I remove the middle of a video?",
         answer:
-          "Not in this version. ClipKit trims from the start, the end, or both. To remove a section in the middle, export the two remaining pieces and join them in an editor.",
+          "Not in this version. Cutmoor trims from the start, the end, or both. To remove a section in the middle, export the two remaining pieces and join them in an editor.",
       },
       {
         question: "Does trimming change the resolution?",
@@ -167,7 +167,7 @@ export const TOOLS: ToolDef[] = [
     description:
       "Convert MOV to MP4, MP4 to WebM, video to GIF, or video to MP3 in your browser. No upload, no account, no watermark.",
     intro:
-      "Different platforms want different containers. MP4 with H.264 plays everywhere. WebM is smaller for the web. GIF loops without a player. MP3 is the audio track on its own. Pick a format and ClipKit encodes it locally.",
+      "Different platforms want different containers. MP4 with H.264 plays everywhere. WebM is smaller for the web. GIF loops without a player. MP3 is the audio track on its own. Pick a format and Cutmoor encodes it locally.",
     icon: "convert",
     accent: "violet",
     keywords: ["convert mov to mp4", "mp4 to webm", "video to gif", "video converter"],
@@ -195,7 +195,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Can I convert without losing quality?",
         answer:
-          "A re-encode always loses a little. To keep the original quality, use a stream copy when the codecs already match, or export at a high bitrate. ClipKit re-encodes because it needs to guarantee compatibility.",
+          "A re-encode always loses a little. To keep the original quality, use a stream copy when the codecs already match, or export at a high bitrate. Cutmoor re-encodes because it needs to guarantee compatibility.",
       },
     ],
     related: ["compress", "audio", "resize"],
@@ -214,7 +214,7 @@ export const TOOLS: ToolDef[] = [
     accent: "gold",
     keywords: ["extract audio from video", "video to mp3", "mp4 to mp3", "video to wav"],
     steps: [
-      { name: "Add the video", text: "ClipKit reads the file and shows its duration." },
+      { name: "Add the video", text: "Cutmoor reads the file and shows its duration." },
       { name: "Choose audio settings", text: "Pick MP3, WAV, or M4A and a bitrate. 192 kbps is a good default for music and speech." },
       { name: "Extract", text: "The audio track is encoded and saved to your device." },
     ],
@@ -232,7 +232,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Can I extract audio from a video I do not own?",
         answer:
-          "Only if you have permission or the licence allows it. ClipKit is a tool, not a rights grant. Downloading or reusing someone else's audio can infringe copyright even when the file is for personal use.",
+          "Only if you have permission or the licence allows it. Cutmoor is a tool, not a rights grant. Downloading or reusing someone else's audio can infringe copyright even when the file is for personal use.",
       },
       {
         question: "Why is the audio out of sync?",
@@ -274,7 +274,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Why is the frame black?",
         answer:
-          "The timestamp may be before the first decodable frame or after the end. Try a second later. Some codecs need a keyframe before the requested time, and ClipKit seeks to the nearest decodable frame.",
+          "The timestamp may be before the first decodable frame or after the end. Try a second later. Some codecs need a keyframe before the requested time, and Cutmoor seeks to the nearest decodable frame.",
       },
       {
         question: "Can I use the frame as a YouTube thumbnail?",
@@ -311,7 +311,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Why do my subtitles show the wrong characters?",
         answer:
-          "The file is probably not UTF-8. Re-save it as UTF-8 in a text editor, then convert again. ClipKit reads the text as UTF-8 in the browser.",
+          "The file is probably not UTF-8. Re-save it as UTF-8 in a text editor, then convert again. Cutmoor reads the text as UTF-8 in the browser.",
       },
       {
         question: "How do I shift subtitles?",
@@ -321,7 +321,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Does converting change the caption text?",
         answer:
-          "No. ClipKit changes the header, timestamp separators, and cue numbering only. The spoken text is preserved. Cue settings that SRT cannot represent are removed when converting from VTT.",
+          "No. Cutmoor changes the header, timestamp separators, and cue numbering only. The spoken text is preserved. Cue settings that SRT cannot represent are removed when converting from VTT.",
       },
     ],
     related: ["trim", "audio", "compress"],
@@ -335,7 +335,7 @@ export const TOOLS: ToolDef[] = [
     description:
       "Compress JPG, PNG, WebP, HEIC, AVIF, SVG, and more to a target size in your browser. Cap the dimensions, keep the best quality that fits, and download. No upload, no account, no watermark.",
     intro:
-      "An upload form says the photo must be under 200 KB. A website is slow because every image is 4 MB. Pick a target size and ClipKit searches for the highest quality that fits, reducing the dimensions only when quality alone cannot get there. The file never leaves your device.",
+      "An upload form says the photo must be under 200 KB. A website is slow because every image is 4 MB. Pick a target size and Cutmoor searches for the highest quality that fits, reducing the dimensions only when quality alone cannot get there. The file never leaves your device.",
     icon: "image-compress",
     accent: "lime",
     keywords: [
@@ -349,7 +349,7 @@ export const TOOLS: ToolDef[] = [
     steps: [
       {
         name: "Choose the image",
-        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, or SVG file. ClipKit reads its dimensions and size locally.",
+        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, or SVG file. Cutmoor reads its dimensions and size locally.",
       },
       {
         name: "Set a target",
@@ -364,7 +364,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "How does target-size compression work?",
         answer:
-          "For JPG and WebP, ClipKit encodes the image repeatedly and binary-searches the quality setting until the file is just under your target. If even the lowest quality is still too large, it reduces the dimensions in steps. PNG is lossless, so it can only reach a target by reducing dimensions.",
+          "For JPG and WebP, Cutmoor encodes the image repeatedly and binary-searches the quality setting until the file is just under your target. If even the lowest quality is still too large, it reduces the dimensions in steps. PNG is lossless, so it can only reach a target by reducing dimensions.",
       },
       {
         question: "Will compressing an image make it blurry?",
@@ -377,7 +377,7 @@ export const TOOLS: ToolDef[] = [
           "PNG is the right choice for screenshots, logos, and images with transparency. For photographs, JPG or WebP reaches a much smaller size at the same visible quality. If the PNG has no transparency, converting it to JPG first is often the single biggest saving.",
       },
       {
-        question: "Does ClipKit upload my image?",
+        question: "Does Cutmoor upload my image?",
         answer:
           "No. The image is decoded and re-encoded by your browser using the canvas API. There is no upload endpoint, no account, and no server-side copy. You can disconnect from the internet after the page loads and the tool still works.",
       },
@@ -412,7 +412,7 @@ export const TOOLS: ToolDef[] = [
     steps: [
       {
         name: "Load the image",
-        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, or SVG file. ClipKit shows the source dimensions.",
+        text: "Drop a JPG, PNG, WebP, HEIC, AVIF, GIF, BMP, or SVG file. Cutmoor shows the source dimensions.",
       },
       {
         name: "Pick a preset or exact size",
@@ -436,7 +436,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "What size should a YouTube thumbnail be?",
         answer:
-          "YouTube recommends 1280 × 720 (16:9), at least 1280 px wide, and under 2 MB. The preset in ClipKit uses those exact dimensions. Keep important text away from the bottom-right corner, where the duration badge sits.",
+          "YouTube recommends 1280 × 720 (16:9), at least 1280 px wide, and under 2 MB. The preset in Cutmoor uses those exact dimensions. Keep important text away from the bottom-right corner, where the duration badge sits.",
       },
       {
         question: "What does crop to fill mean?",
@@ -465,7 +465,7 @@ export const TOOLS: ToolDef[] = [
     description:
       "Convert JPG to PNG, PNG to JPG, WebP to JPG, or HEIC to JPG in your browser. Control quality, handle transparency, and strip metadata. No upload, no account, no watermark.",
     intro:
-      "Formats are a compatibility problem, not a quality problem. A screenshot saved as JPG picks up artifacts around text. A photo saved as PNG is needlessly large. A WebP downloaded from a website will not open in an older editor. Pick the output that fits the destination, and ClipKit encodes it locally.",
+      "Formats are a compatibility problem, not a quality problem. A screenshot saved as JPG picks up artifacts around text. A photo saved as PNG is needlessly large. A WebP downloaded from a website will not open in an older editor. Pick the output that fits the destination, and Cutmoor encodes it locally.",
     icon: "image-convert",
     accent: "violet",
     keywords: [
@@ -508,7 +508,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Can I convert WebP to JPG?",
         answer:
-          "Yes. ClipKit decodes WebP with the browser and exports JPG or PNG. This is useful when an older editor, a print shop, or an upload form rejects WebP. Converting to JPG flattens transparency, so choose a background colour first.",
+          "Yes. Cutmoor decodes WebP with the browser and exports JPG or PNG. This is useful when an older editor, a print shop, or an upload form rejects WebP. Converting to JPG flattens transparency, so choose a background colour first.",
       },
       {
         question: "Does the converted file keep EXIF and GPS data?",
@@ -518,7 +518,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Why can't I choose WebP in Safari?",
         answer:
-          "Safari can display WebP but cannot encode it from a canvas; it silently returns a PNG instead. ClipKit probes the browser at runtime and disables WebP export when the encoder is missing, so you never download a file with the wrong extension. Use JPG or PNG in Safari, or convert in Chrome, Edge, or Firefox.",
+          "Safari can display WebP but cannot encode it from a canvas; it silently returns a PNG instead. Cutmoor probes the browser at runtime and disables WebP export when the encoder is missing, so you never download a file with the wrong extension. Use JPG or PNG in Safari, or convert in Chrome, Edge, or Firefox.",
       },
     ],
     related: ["compress-image", "resize-image", "heic-to-jpg"],
@@ -532,7 +532,7 @@ export const TOOLS: ToolDef[] = [
     description:
       "Convert iPhone HEIC and HEIF photos to JPG in your browser. No upload, no account, no watermark. Works on Windows, Android, Mac, and Chromebooks.",
     intro:
-      "iPhones save photos as HEIC: smaller than JPG, but many Windows apps, Android phones, and upload forms still refuse to open it. Drop the photo here and ClipKit decodes it on your device, applies the orientation, and exports a standard JPG that works everywhere.",
+      "iPhones save photos as HEIC: smaller than JPG, but many Windows apps, Android phones, and upload forms still refuse to open it. Drop the photo here and Cutmoor decodes it on your device, applies the orientation, and exports a standard JPG that works everywhere.",
     icon: "heic",
     accent: "gold",
     keywords: [

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-const CONSENT_KEY = "clipkit-consent";
+const CONSENT_KEY = "cutmoor-consent";
 
 function readConsent(): string | null {
   try {
@@ -37,7 +37,7 @@ export function ConsentBanner() {
   const decide = useCallback((value: "accepted" | "rejected") => {
     writeConsent(value);
     setChoice(value);
-    window.dispatchEvent(new Event("clipkit-consent-change"));
+    window.dispatchEvent(new Event("cutmoor-consent-change"));
     window.setTimeout(() => previousFocus.current?.focus(), 0);
   }, []);
 
@@ -116,6 +116,6 @@ export function resetConsent() {
   } catch {
     // Ignore storage failures and still reload so the banner can reappear.
   }
-  window.dispatchEvent(new Event("clipkit-consent-change"));
+  window.dispatchEvent(new Event("cutmoor-consent-change"));
   window.location.reload();
 }

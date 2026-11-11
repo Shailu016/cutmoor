@@ -217,7 +217,7 @@ export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: C
         job={job}
         idleHint={
           heicMode
-            ? "Choose an iPhone HEIC photo. ClipKit decodes it locally and exports a standard JPG for Windows, Android, or an upload form."
+            ? "Choose an iPhone HEIC photo. Cutmoor decodes it locally and exports a standard JPG for Windows, Android, or an upload form."
             : "Choose an image and pick the format you need. The conversion runs on your device, with no upload step."
         }
       />

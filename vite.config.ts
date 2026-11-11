@@ -11,7 +11,7 @@ import type { Plugin } from "vite";
  */
 function prettyUrlPreview(): Plugin {
   return {
-    name: "clipkit-pretty-url-preview",
+    name: "cutmoor-pretty-url-preview",
     apply: "serve",
     configurePreviewServer(server) {
       server.middlewares.use(async (req, res, next) => {

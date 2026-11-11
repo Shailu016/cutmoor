@@ -21,7 +21,7 @@ const env = { ...loadEnv("production", root, ""), ...process.env };
 const entryUrl = `${pathToFileURL(join(ssrDir, "entry-server.js")).href}?t=${Date.now()}`;
 const { INDEXABLE_PAGES, SITE_URL, headForPath, render } = await import(entryUrl);
 
-const HEAD_MARKER = "<!--clipkit-head-->";
+const HEAD_MARKER = "<!--cutmoor-head-->";
 const ROOT_MARKER = '<div id="root"></div>';
 
 const template = await readFile(join(dist, "index.html"), "utf8");

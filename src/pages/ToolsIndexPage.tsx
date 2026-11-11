@@ -172,7 +172,7 @@ export function ToolsIndexPage() {
             <details className="faq">
               <summary>We cannot download from YouTube or Instagram.</summary>
               <p>
-                ClipKit only works with files you already have. It does not fetch a URL, bypass a platform player, or
+                Cutmoor only works with files you already have. It does not fetch a URL, bypass a platform player, or
                 download third-party content. Use the platform's own export for your own uploads.
               </p>
             </details>

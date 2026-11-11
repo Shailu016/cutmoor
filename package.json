@@ -1,9 +1,9 @@
 {
-  "name": "clipkit",
+  "name": "cutmoor",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "ClipKit — the browser video and image toolkit. Compress, crop, trim, convert, extract audio, resize images, and convert HEIC to JPG without uploading.",
+  "description": "Cutmoor — the browser video and image toolkit. Compress, crop, trim, convert, extract audio, resize images, and convert HEIC to JPG without uploading.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",

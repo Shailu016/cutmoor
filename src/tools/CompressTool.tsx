@@ -158,7 +158,7 @@ export function CompressTool() {
 
       <JobPanel
         job={job}
-        idleHint="Choose a video. ClipKit reads its duration locally, then calculates a bitrate that fits your target size."
+        idleHint="Choose a video. Cutmoor reads its duration locally, then calculates a bitrate that fits your target size."
       />
     </div>
   );
