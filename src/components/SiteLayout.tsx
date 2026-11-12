@@ -313,7 +313,7 @@ export function SiteLayout() {
         </div>
       </footer>
 
-      <ConsentBanner />
+      {import.meta.env.VITE_ADSENSE_CLIENT ? <ConsentBanner /> : null}
     </>
   );
 }
