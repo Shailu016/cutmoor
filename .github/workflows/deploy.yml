@@ -39,7 +39,8 @@ jobs:
 
       - name: Check the pinned ffmpeg version matches the installed core
         run: |
-          installed=$(node -p "require('@ffmpeg/core/package.json').version")
+          # Read the file directly: @ffmpeg/core's "exports" map does not expose package.json to require().
+          installed=$(node -p "JSON.parse(require('fs').readFileSync('node_modules/@ffmpeg/core/package.json','utf8')).version")
           case "$VITE_FFMPEG_BASE_URL" in
             *"@ffmpeg/core@${installed}/"*) echo "ffmpeg core ${installed} matches." ;;
             *) echo "::error::VITE_FFMPEG_BASE_URL does not point at @ffmpeg/core@${installed}. Update it in this workflow."; exit 1 ;;
