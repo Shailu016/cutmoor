@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { AdSlot } from "./AdSlot";
-import { ConsentBanner } from "./ConsentBanner";
 import { ToolIcon } from "./ToolIcon";
 import { IMAGE_TOOLS, VIDEO_TOOLS } from "../lib/tools";
 
@@ -313,7 +312,6 @@ export function SiteLayout() {
         </div>
       </footer>
 
-      {import.meta.env.VITE_ADSENSE_CLIENT ? <ConsentBanner /> : null}
     </>
   );
 }

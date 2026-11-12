@@ -1,28 +1,10 @@
-import { useEffect, useState } from "react";
-
-const CONSENT_KEY = "cutmoor-consent";
-
-function readAllowed(): boolean {
-  try {
-    return localStorage.getItem(CONSENT_KEY) === "accepted";
-  } catch {
-    return false;
-  }
-}
+import { useEffect } from "react";
 
 export function AdSlot({ slot, className = "" }: { slot?: string; className?: string }) {
   const client = String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
-  const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    const read = () => setAllowed(readAllowed());
-    read();
-    window.addEventListener("cutmoor-consent-change", read);
-    return () => window.removeEventListener("cutmoor-consent-change", read);
-  }, []);
-
-  useEffect(() => {
-    if (!client || !allowed || !slot) return;
+    if (!client || !slot) return;
     const existing = document.querySelector<HTMLScriptElement>("script[data-cutmoor-ads]");
     if (!existing) {
       const script = document.createElement("script");
@@ -38,7 +20,7 @@ export function AdSlot({ slot, className = "" }: { slot?: string; className?: st
     } catch {
       // Ad blockers and script failures should never break a tool.
     }
-  }, [client, allowed, slot]);
+  }, [client, slot]);
 
   if (!client) {
     if (!import.meta.env.DEV) return null;
@@ -53,7 +35,7 @@ export function AdSlot({ slot, className = "" }: { slot?: string; className?: st
   return (
     <div className={`ad-slot ${className}`.trim()} role="region" aria-label="Advertisement">
       <span className="ad-label">Advertisement</span>
-      {allowed && slot ? (
+      {slot ? (
         <ins
           className="adsbygoogle"
           style={{ display: "block" }}
@@ -63,7 +45,7 @@ export function AdSlot({ slot, className = "" }: { slot?: string; className?: st
           data-full-width-responsive="true"
         />
       ) : (
-        <div className="ad-empty">Ads load after you accept advertising cookies.</div>
+        <div className="ad-empty">Ad slot is missing.</div>
       )}
     </div>
   );
