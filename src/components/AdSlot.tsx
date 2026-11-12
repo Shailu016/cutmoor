@@ -32,21 +32,20 @@ export function AdSlot({ slot, className = "" }: { slot?: string; className?: st
     );
   }
 
+  // No unit ID yet (e.g. during AdSense review, or Auto ads only): render nothing rather than an empty box.
+  if (!slot) return null;
+
   return (
     <div className={`ad-slot ${className}`.trim()} role="region" aria-label="Advertisement">
       <span className="ad-label">Advertisement</span>
-      {slot ? (
-        <ins
-          className="adsbygoogle"
-          style={{ display: "block" }}
-          data-ad-client={client}
-          data-ad-slot={slot}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
-      ) : (
-        <div className="ad-empty">Ad slot is missing.</div>
-      )}
+      <ins
+        className="adsbygoogle"
+        style={{ display: "block" }}
+        data-ad-client={client}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
     </div>
   );
 }

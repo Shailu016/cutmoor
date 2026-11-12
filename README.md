@@ -109,6 +109,12 @@ failing check never ships. It needs:
 - Repository secret `CLOUDFLARE_API_TOKEN`: an API token with the account
   permission **Cloudflare Pages: Edit**.
 - Repository variable `CLOUDFLARE_ACCOUNT_ID`.
+- Optional repository variables for ads: `ADSENSE_CLIENT` (`ca-pub-…`), and
+  `ADSENSE_SLOT_HOME`, `ADSENSE_SLOT_ARTICLE`, `ADSENSE_SLOT_FOOTER`. Setting
+  only `ADSENSE_CLIENT` is the right state for AdSense review: every page gets
+  the verification meta tag and the AdSense loader (which also enables Auto
+  ads), `ads.txt` gets the authorization line, and no empty ad boxes render.
+  Add the slot IDs after approval for manual placements.
 
 The ffmpeg core is served from unpkg (`VITE_FFMPEG_BASE_URL` in the
 workflow). When `@ffmpeg/core` is upgraded, update the version in that URL;
