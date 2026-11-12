@@ -69,6 +69,8 @@ const GUIDE_SEO_TITLES: Record<string, string> = {
   "trim-video-online": "How to trim a video online without re-encoding",
   "social-media-image-sizes": "Social media image sizes for 2026: every platform",
   "heic-to-jpg-guide": "HEIC to JPG: why iPhone photos need converting",
+  "convert-video-to-gif": "Convert video to GIF: small files that still look good",
+  "extract-frame-from-video": "Save a frame from a video as a high-quality image",
 };
 
 function guideSeoTitle(guide: { slug: string; title: string }): string {
