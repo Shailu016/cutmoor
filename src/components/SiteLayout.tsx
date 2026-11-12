@@ -52,8 +52,15 @@ function Logo() {
     <Link className="logo" to="/" aria-label="Cutmoor home">
       <span className="logo-mark" aria-hidden="true">
         <svg viewBox="0 0 32 32" width="28" height="28">
-          <rect width="32" height="32" rx="8" fill="currentColor" />
-          <path d="M10 9v10a4 4 0 1 0 2 3.46V14h8v5a4 4 0 1 0 2 3.46V9H10Z" fill="#c9f24b" />
+          <rect width="32" height="32" rx="8" fill="#173f31" />
+          <path
+            d="M21.3 9.7A8.2 8.2 0 1 0 21.3 22.3"
+            fill="none"
+            stroke="#f7f5ef"
+            strokeWidth="2.6"
+            strokeLinecap="round"
+          />
+          <path d="M8 25h16" stroke="#b7791f" strokeWidth="2.2" strokeLinecap="round" />
         </svg>
       </span>
       <span className="logo-word">Cutmoor</span>
