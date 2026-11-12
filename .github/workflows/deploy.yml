@@ -1,0 +1,61 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# One deploy at a time; a newer push replaces a queued one.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VITE_SITE_URL: https://cutmoor.com
+      # Cloudflare Pages rejects files over 25 MiB; the ffmpeg core is served from
+      # unpkg and verified in the browser against the SHA-256 pinned at build time.
+      VITE_FFMPEG_BASE_URL: https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm
+      STRICT_DEPLOY: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck, test, build
+        run: npm run check
+
+      - name: Check the pinned ffmpeg version matches the installed core
+        run: |
+          installed=$(node -p "require('@ffmpeg/core/package.json').version")
+          case "$VITE_FFMPEG_BASE_URL" in
+            *"@ffmpeg/core@${installed}/"*) echo "ffmpeg core ${installed} matches." ;;
+            *) echo "::error::VITE_FFMPEG_BASE_URL does not point at @ffmpeg/core@${installed}. Update it in this workflow."; exit 1 ;;
+          esac
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message || 'Manual deploy' }}
+        # Run from an empty directory: Wrangler 4 otherwise auto-configures the
+        # repo as a Worker project instead of deploying the static Pages build.
+        working-directory: ${{ runner.temp }}
+        run: >
+          npx --yes wrangler@4 pages deploy "$GITHUB_WORKSPACE/dist"
+          --project-name cutmoor
+          --branch master
+          --commit-hash "$GITHUB_SHA"
+          --commit-message "${COMMIT_MESSAGE%%$'\n'*}"
