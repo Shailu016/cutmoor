@@ -26,8 +26,8 @@ describe("guide data", () => {
   });
 
   it("keeps image guides on image tools and video guides on video tools", () => {
-    const imageGuides = ["social-media-image-sizes", "png-vs-jpg-vs-webp", "compress-image-without-visible-quality-loss", "heic-to-jpg-guide"];
-    const videoGuides = ["compress-video-for-whatsapp", "trim-video-online", "extract-audio-from-video", "convert-srt-to-vtt"];
+    const imageGuides = ["social-media-image-sizes", "png-vs-jpg-vs-webp", "compress-image-without-visible-quality-loss", "heic-to-jpg-guide", "resize-image-without-losing-quality"];
+    const videoGuides = ["compress-video-for-whatsapp", "trim-video-online", "extract-audio-from-video", "convert-srt-to-vtt", "convert-video-to-gif", "extract-frame-from-video"];
 
     for (const slug of imageGuides) {
       const guide = GUIDES.find((item) => item.slug === slug);

@@ -38,7 +38,7 @@ npm run preview  # serve the built dist/ with pretty URLs
 | `/tools/resize-image` | Social presets, crop or pad, transparency |
 | `/tools/convert-image` | JPG, PNG, WebP conversion with quality control |
 | `/tools/heic-to-jpg` | iPhone HEIC/HEIF to JPG, decoded locally |
-| `/guides` | 14 practical video and image guides |
+| `/guides` | 17 practical video and image guides |
 | `/about`, `/privacy`, `/terms`, `/cookies`, `/contact`, `/editorial`, `/licences` | Trust and licence pages |
 
 ## Configuration
