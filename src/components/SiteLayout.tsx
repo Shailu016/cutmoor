@@ -47,7 +47,9 @@ const FOOTER = [
 ];
 
 /* The footer ad wrapper adds bottom padding, so only render it when ads can load (or in dev, for the placeholder). */
-const SHOW_FOOTER_AD = Boolean(String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim()) || import.meta.env.DEV;
+const SHOW_FOOTER_AD =
+  (Boolean(String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim()) && Boolean(import.meta.env.VITE_ADSENSE_SLOT_FOOTER)) ||
+  import.meta.env.DEV;
 
 function Logo() {
   return (

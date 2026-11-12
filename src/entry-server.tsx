@@ -70,6 +70,10 @@ export function headForPath(pathname: string): string {
     `<link rel="alternate" type="application/rss+xml" title="${escapeHtml(SITE.name)} guides" href="/feed.xml" />`,
     `<link rel="apple-touch-icon" href="/apple-touch-icon.png" />`,
     adsenseClient ? tag("google-adsense-account", adsenseClient) : "",
+    // The AdSense loader on every page: verifies the site for review and enables Auto ads.
+    adsenseClient
+      ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}" crossorigin="anonymous" data-cutmoor-ads="true"></script>`
+      : "",
     canonical,
     tag("og:type", meta.type ?? "website", "property"),
     tag("og:site_name", SITE.name, "property"),

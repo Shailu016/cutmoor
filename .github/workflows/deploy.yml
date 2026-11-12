@@ -23,6 +23,12 @@ jobs:
       # unpkg and verified in the browser against the SHA-256 pinned at build time.
       VITE_FFMPEG_BASE_URL: https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm
       STRICT_DEPLOY: "1"
+      # AdSense IDs are public (they appear in every page). Set them as repository
+      # variables; leaving ADSENSE_CLIENT empty keeps ads off and ads.txt a placeholder.
+      VITE_ADSENSE_CLIENT: ${{ vars.ADSENSE_CLIENT }}
+      VITE_ADSENSE_SLOT_HOME: ${{ vars.ADSENSE_SLOT_HOME }}
+      VITE_ADSENSE_SLOT_ARTICLE: ${{ vars.ADSENSE_SLOT_ARTICLE }}
+      VITE_ADSENSE_SLOT_FOOTER: ${{ vars.ADSENSE_SLOT_FOOTER }}
     steps:
       - uses: actions/checkout@v4
 
