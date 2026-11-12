@@ -1,5 +1,5 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { fetchFile } from "@ffmpeg/util";
 import { extensionOf, mimeForName } from "./format";
 
 /**
@@ -25,6 +25,40 @@ export function onFFmpegProgress(listener: (progress: number) => void): () => vo
   return () => progressListeners.delete(listener);
 }
 
+/**
+ * Same origin by default. VITE_FFMPEG_BASE_URL moves the core to R2 or a CDN
+ * for hosts with a per-file limit. Only the encoder is fetched from there;
+ * the visitor's files still never leave the browser.
+ */
+export function ffmpegBaseUrl(): string {
+  const configured = String(import.meta.env.VITE_FFMPEG_BASE_URL ?? "").trim().replace(/\/+$/, "");
+  return configured || `${import.meta.env.BASE_URL}ffmpeg`;
+}
+
+function toBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(binary);
+}
+
+/**
+ * Fetch a core file and refuse to run it unless its SHA-256 matches the hash
+ * pinned at build time. This keeps a CDN copy from being swapped underneath us.
+ */
+async function verifiedBlobURL(url: string, type: string, expected: string | undefined): Promise<string> {
+  const response = await fetch(url, { credentials: "omit" });
+  if (!response.ok) throw new Error(`The video engine could not be downloaded (${response.status}). Check your connection and try again.`);
+  const buffer = await response.arrayBuffer();
+  if (expected && globalThis.crypto?.subtle) {
+    const actual = toBase64(await crypto.subtle.digest("SHA-256", buffer));
+    if (actual !== expected) throw new Error("The video engine failed its integrity check and was not loaded.");
+  }
+  return URL.createObjectURL(new Blob([buffer], { type }));
+}
+
 async function load(): Promise<FFmpeg> {
   if (instance) return instance;
   if (loading) return loading;
@@ -39,11 +73,12 @@ async function load(): Promise<FFmpeg> {
       for (const listener of progressListeners) listener(value);
     });
 
-    const base = `${import.meta.env.BASE_URL}ffmpeg`;
-    await ffmpeg.load({
-      coreURL: await toBlobURL(`${base}/ffmpeg-core.js`, "text/javascript"),
-      wasmURL: await toBlobURL(`${base}/ffmpeg-core.wasm`, "application/wasm"),
-    });
+    const base = ffmpegBaseUrl();
+    const [coreURL, wasmURL] = await Promise.all([
+      verifiedBlobURL(`${base}/ffmpeg-core.js`, "text/javascript", __FFMPEG_CORE_SHA256__?.js),
+      verifiedBlobURL(`${base}/ffmpeg-core.wasm`, "application/wasm", __FFMPEG_CORE_SHA256__?.wasm),
+    ]);
+    await ffmpeg.load({ coreURL, wasmURL });
 
     instance = ffmpeg;
     return ffmpeg;

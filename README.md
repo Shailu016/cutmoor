@@ -45,10 +45,14 @@ npm run preview  # serve the built dist/ with pretty URLs
 
 Copy `.env.example` to `.env` and set:
 
-- `VITE_SITE_URL` — canonical origin, no trailing slash. The built-in default is
-  `https://cutmoor.com`, the planned launch origin. Until that domain is
-  purchased and connected, set this to the real deployment URL so canonical
-  links, the sitemap, and JSON-LD never point at a domain you do not control.
+- `VITE_SITE_URL` — canonical origin, no trailing slash. Leave it empty until
+  `https://cutmoor.com` is connected: the build then uses the host's own URL
+  (`CF_PAGES_URL` normalised to `<project>.pages.dev`, Netlify's `URL`, or
+  Vercel's production URL), and `http://localhost:4173` for local builds. It
+  never falls back to a domain you do not control. The build prints which
+  origin it used.
+- `VITE_FFMPEG_BASE_URL` — where the browser loads the ffmpeg core from. Empty
+  means same origin (`/ffmpeg`). Required on Cloudflare Pages; see Deploying.
 - `VITE_ADSENSE_CLIENT` — AdSense client ID. Empty disables ads completely.
 - `VITE_ADSENSE_SLOT_HOME`, `VITE_ADSENSE_SLOT_ARTICLE`, `VITE_ADSENSE_SLOT_FOOTER` — ad unit IDs.
 
@@ -66,9 +70,9 @@ will not authorize a publisher.
 
 Before going live:
 
-1. Buy `cutmoor.com`, connect it to the host, and set `VITE_SITE_URL` to the
-   live origin. Until then, point `VITE_SITE_URL` at the temporary deployment
-   URL instead of the unowned domain.
+1. Buy `cutmoor.com`, connect it to the host, and set
+   `VITE_SITE_URL=https://cutmoor.com`. Until then leave it empty; the host URL
+   is used automatically.
 2. Confirm `hello@cutmoor.com` in `src/lib/seo.ts` and `src/content/site-pages.ts`
    once mail for the domain is set up, or replace it with the real address.
 3. Replace `public/og-image.png` and `public/icon-512.png` if the branding changes.
@@ -83,7 +87,11 @@ Before going live:
   canonical, Open Graph, Twitter, and JSON-LD.
 - `dist/404.html` is the not-found shell.
 - `dist/sitemap.xml`, `dist/robots.txt`, and `dist/ads.txt` are generated.
-- `dist/ffmpeg/` contains the ~32 MB encoder core, served from your origin.
+- `dist/ffmpeg/` contains the ~32 MB encoder core, served from your origin,
+  unless `VITE_FFMPEG_BASE_URL` is set (then it is left out of `dist/`).
+- The last step (`scripts/finalize-dist.mjs`) fails the build on Cloudflare
+  Pages (or with `STRICT_DEPLOY=1`) if any file exceeds 25 MiB, so a bad deploy
+  is caught at build time.
 - `dist/assets/` includes a lazy ~3.2 MB HEIC decoder chunk, fetched only when a
   HEIC file cannot be decoded by the browser.
 
@@ -91,9 +99,28 @@ Netlify, Vercel, or any static server works. Pretty URLs need folder-index
 resolution, which all of those provide. For Netlify add nothing; for a bare
 nginx use `try_files $uri $uri/ $uri.html =404`.
 
-Cloudflare Pages currently rejects files above 25 MiB, and the ffmpeg wasm core
-is ~32 MB. Use Netlify, Vercel, GitHub Pages, or a VPS for this build, or host
-`/ffmpeg/*` on a separate origin and change the base URL in `src/lib/ffmpeg.ts`.
+### Cloudflare Pages + R2
+
+Cloudflare Pages rejects files above 25 MiB and the ffmpeg wasm core is ~31 MiB,
+so the core is served from R2:
+
+1. Create an R2 bucket (for example `cutmoor-assets`) and connect a custom
+   domain to it (for example `assets.cutmoor.com`), under R2 > bucket >
+   Settings > Custom Domains. Until you own a domain, the bucket's
+   `r2.dev` public URL works for testing.
+2. Allow cross-origin reads: `npx wrangler r2 bucket cors set cutmoor-assets --file r2-cors.json`
+   (or paste the same rule in the dashboard under CORS policy).
+3. Upload: `R2_BUCKET=cutmoor-assets npm run upload:ffmpeg`. Files go to a
+   versioned path (`ffmpeg/<@ffmpeg/core version>/`) with an immutable cache
+   header, so upgrades never overwrite what a live deploy uses.
+4. In Pages > Settings > Environment variables, set
+   `VITE_FFMPEG_BASE_URL=https://assets.cutmoor.com/ffmpeg/<version>` (the
+   upload script prints it). Build command `npm run build`, output `dist`.
+
+The build pins the SHA-256 of both core files into the bundle, and the browser
+refuses to run a downloaded core whose hash does not match. Re-run the upload
+whenever `@ffmpeg/core` is upgraded. Only the encoder is fetched from R2;
+visitors' files still never leave the browser.
 
 The encoder is large but cached by the browser after the first job. Serve
 `/ffmpeg/*` with long cache headers and Brotli/gzip where possible. The transfer
@@ -103,7 +130,8 @@ If you add a Content-Security-Policy, allow WebAssembly in `script-src`
 (`'wasm-unsafe-eval'` in Chromium) for ffmpeg.wasm and the HEIC decoder. The
 HEIC import already uses `heic-to/csp`, which avoids string-eval loading, but
 WASM compilation still needs to be permitted, and the AdSense script hosts must
-be allowed too.
+be allowed too. With `VITE_FFMPEG_BASE_URL` set, add the asset origin to
+`connect-src`.
 
 ## Notes on limits
 

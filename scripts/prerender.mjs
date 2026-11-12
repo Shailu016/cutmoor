@@ -34,7 +34,7 @@ if (!template.includes(ROOT_MARKER)) {
 
 // Preload the one font file every page needs, so text paints without a swap.
 const assetFiles = await readdir(join(dist, "assets"));
-const bodyFont = assetFiles.find((name) => /^manrope-latin-wght-normal-.*\.woff2$/.test(name));
+const bodyFont = assetFiles.find((name) => /^geist-latin-wght-normal-.*\.woff2$/.test(name));
 const fontPreload = bodyFont
   ? `<link rel="preload" href="/assets/${bodyFont}" as="font" type="font/woff2" crossorigin />\n    `
   : "";

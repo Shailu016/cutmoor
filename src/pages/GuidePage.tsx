@@ -191,7 +191,7 @@ export function GuidePage() {
                       key={section.heading}
                       href={`#${id}`}
                       className={activeId === id ? "active" : undefined}
-                      aria-current={activeId === id ? "true" : undefined}
+                      aria-current={activeId === id ? "location" : undefined}
                     >
                       {section.heading}
                     </a>

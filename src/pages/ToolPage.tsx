@@ -81,7 +81,7 @@ export function ToolPage() {
             <h1>{tool.title}</h1>
             <p>{tool.intro}</p>
           </div>
-          <aside className="trust-card">
+          <aside className="trust-card" aria-label="What every tool includes">
             <span className="mono-label">Every tool includes</span>
             <ul className="trust-list">
               <li>
@@ -116,7 +116,7 @@ export function ToolPage() {
             </ol>
           </section>
 
-          <aside className="tool-side-card">
+          <aside className="tool-side-card" aria-label="Good to know">
             <h3>Good to know</h3>
             {tool.kind === "image" ? (
               <p>

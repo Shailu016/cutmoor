@@ -1,8 +1,8 @@
 /**
  * Copy the single-thread ffmpeg core into public/ffmpeg so the app can load it
- * from its own origin. Self-hosting matters here: the core is ~31 MB, it must
- * be cached once, and the tool promises that video files never leave the
- * browser. A CDN would break that promise for the runtime itself.
+ * from its own origin, or upload it to R2 (`npm run upload:ffmpeg`) for hosts
+ * with a per-file limit. Either way the core is first-party, pinned by
+ * SHA-256 at build time, and video files never leave the browser.
  *
  * @ffmpeg/ffmpeg creates its worker with `{ type: "module" }`. Module workers
  * cannot use importScripts, so the worker dynamic-imports the core instead.

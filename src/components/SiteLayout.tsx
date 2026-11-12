@@ -46,6 +46,9 @@ const FOOTER = [
   },
 ];
 
+/* The footer ad wrapper adds bottom padding, so only render it when ads can load (or in dev, for the placeholder). */
+const SHOW_FOOTER_AD = Boolean(String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim()) || import.meta.env.DEV;
+
 function Logo() {
   return (
     <Link className="logo" to="/" aria-label="Cutmoor home">
@@ -277,9 +280,11 @@ export function SiteLayout() {
         <Outlet />
       </main>
 
-      <div className="shell footer-ad">
-        <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_FOOTER} />
-      </div>
+      {SHOW_FOOTER_AD && (
+        <div className="shell footer-ad">
+          <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_FOOTER} />
+        </div>
+      )}
 
       <footer className="site-footer">
         <div className="shell footer-grid">
@@ -303,7 +308,7 @@ export function SiteLayout() {
           ))}
         </div>
         <div className="shell footer-bottom">
-          <span>© 2026 Cutmoor. Tools are free; ads keep them free.</span>
+          <span>© 2026 Cutmoor. Free to use — no account, no upload.</span>
           <div className="footer-legal">
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>

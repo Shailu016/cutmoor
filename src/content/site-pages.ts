@@ -113,7 +113,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Your rights",
         paragraphs: [
-          "Because Cutmoor does not create an account or store your files, there is usually no personal profile to export or delete. You can clear the stored preferences at any time through your browser's site data settings.",
+          "Because Cutmoor does not create an account or store your files, there is usually no personal profile to export or delete. Cutmoor does not keep cookies or local storage of its own; your browser may cache the site's files, which you can clear at any time through your browser's site data settings.",
           "If you believe a deployed copy of Cutmoor is processing personal data unlawfully, contact the operator of that site. The contact address for this project is listed on the contact page.",
         ],
       },
@@ -374,10 +374,11 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Fonts",
         paragraphs: [
-          "Manrope is served through Fontsource and is licensed under the SIL Open Font License 1.1. The fonts are self-hosted with the site, not fetched from a third-party font service.",
+          "Geist and Geist Mono are served through Fontsource and are licensed under the SIL Open Font License 1.1. The fonts are self-hosted with the site, not fetched from a third-party font service.",
         ],
         links: [
-          { label: "Manrope", href: "https://github.com/sharanda/manrope", description: "OFL-1.1." },
+          { label: "Geist", href: "https://github.com/vercel/geist-font", description: "OFL-1.1." },
+          { label: "Geist Mono", href: "https://github.com/vercel/geist-font", description: "OFL-1.1." },
           { label: "Fontsource", href: "https://github.com/fontsource/fontsource", description: "MIT packaging." },
         ],
       },

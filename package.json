@@ -3,16 +3,17 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Cutmoor — the browser video and image toolkit. Compress, crop, trim, convert, extract audio, resize images, and convert HEIC to JPG without uploading.",
+  "description": "Cutmoor \u2014 the browser video and image toolkit. Compress, crop, trim, convert, extract audio, resize images, and convert HEIC to JPG without uploading.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
+    "build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/prerender.mjs && node scripts/finalize-dist.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",
     "check": "npm run typecheck && npm test && npm run build",
     "copy:ffmpeg": "node scripts/copy-ffmpeg.mjs",
-    "postinstall": "node scripts/copy-ffmpeg.mjs"
+    "postinstall": "node scripts/copy-ffmpeg.mjs",
+    "upload:ffmpeg": "node scripts/upload-ffmpeg.mjs"
   },
   "dependencies": {
     "@ffmpeg/core": "^0.12.10",

@@ -1,8 +1,10 @@
 import { defineConfig } from "vitest/config";
+import { loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import type { Plugin } from "vite";
+import { ffmpegCoreHashes, resolveFfmpegBase, resolveSiteUrl } from "./scripts/deploy-env.mjs";
 
 /**
  * vite preview does not map /tools/compress to dist/tools/compress/index.html
@@ -49,7 +51,19 @@ function prettyUrlPreview(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(async ({ mode }) => {
+  const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
+  const site = resolveSiteUrl(env);
+  const ffmpegBase = resolveFfmpegBase(env);
+  const ffmpegHashes = await ffmpegCoreHashes(process.cwd());
+
+  return {
+  define: {
+    // Resolved here so host-provided URLs (Cloudflare, Netlify, Vercel) reach the bundle without a VITE_ prefix.
+    "import.meta.env.VITE_SITE_URL": JSON.stringify(site.url),
+    "import.meta.env.VITE_FFMPEG_BASE_URL": JSON.stringify(ffmpegBase),
+    __FFMPEG_CORE_SHA256__: JSON.stringify(ffmpegHashes),
+  },
   build: {
     rollupOptions: {
       output: {
@@ -70,4 +84,5 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
   },
+  };
 });

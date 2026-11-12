@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Seo } from "../components/Seo";
+import { TOOLS } from "../lib/tools";
 
 export function NotFoundPage() {
   return (
@@ -18,6 +19,16 @@ export function NotFoundPage() {
             Browse guides
           </Link>
         </div>
+        <section className="not-found-popular" aria-labelledby="not-found-popular">
+          <h2 id="not-found-popular">Popular pages</h2>
+          <ul>
+            {TOOLS.slice(0, 6).map((tool) => (
+              <li key={tool.slug}>
+                <Link to={`/tools/${tool.slug}`}>{tool.name}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </>
   );

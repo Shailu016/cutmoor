@@ -5,7 +5,7 @@ import { TOOLS } from "./tools";
 export const SITE = {
   name: "Cutmoor",
   legalName: "Cutmoor",
-  url: (import.meta.env.VITE_SITE_URL || "https://cutmoor.com").replace(/\/$/, ""),
+  url: String(import.meta.env.VITE_SITE_URL || "http://localhost:4173").replace(/\/$/, ""),
   tagline: "Cut more. Upload less.",
   description:
     "Compress, crop, trim, convert, and extract audio from video — or compress, resize, convert, and HEIC-to-JPG your images. Everything runs in your browser. No upload, no account, no watermark.",
