@@ -99,6 +99,25 @@ Netlify, Vercel, or any static server works. Pretty URLs need folder-index
 resolution, which all of those provide. For Netlify add nothing; for a bare
 nginx use `try_files $uri $uri/ $uri.html =404`.
 
+### Production deploys (cutmoor.com)
+
+`.github/workflows/deploy.yml` builds and deploys to the Cloudflare Pages
+project `cutmoor` on every push to `master` (or run it by hand from the
+Actions tab). It runs typecheck, tests, and the strict build first, so a
+failing check never ships. It needs:
+
+- Repository secret `CLOUDFLARE_API_TOKEN`: an API token with the account
+  permission **Cloudflare Pages: Edit**.
+- Repository variable `CLOUDFLARE_ACCOUNT_ID`.
+
+The ffmpeg core is served from unpkg (`VITE_FFMPEG_BASE_URL` in the
+workflow). When `@ffmpeg/core` is upgraded, update the version in that URL;
+the workflow fails if they differ.
+
+Deploy manually with Wrangler from an empty directory, not the repo root
+(Wrangler 4 otherwise tries to convert the project into a Worker):
+`npx wrangler@4 pages deploy <repo>/dist --project-name cutmoor --branch master`.
+
 ### Cloudflare Pages + R2
 
 Cloudflare Pages rejects files above 25 MiB and the ffmpeg wasm core is ~31 MiB,
