@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
+import { PixelStage } from "../components/PixelStage";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
@@ -12,6 +13,26 @@ const FEATURED_GUIDES = [
   "social-media-image-sizes",
   "heic-to-jpg-guide",
   "png-vs-jpg-vs-webp",
+];
+
+const POPULAR_TASKS = [
+  { label: "Compress video for WhatsApp", to: "/guides/compress-video-for-whatsapp" },
+  { label: "Compress video for Discord", to: "/guides/compress-video-for-discord" },
+  { label: "Crop video to 9:16", to: "/guides/crop-video-to-9-16" },
+  { label: "Convert MOV to MP4", to: "/guides/convert-mov-to-mp4" },
+  { label: "HEIC to JPG", to: "/tools/heic-to-jpg" },
+  { label: "Extract audio from video", to: "/guides/extract-audio-from-video" },
+  { label: "Compress image to a target size", to: "/tools/compress-image" },
+  { label: "Social media image sizes", to: "/guides/social-media-image-sizes" },
+  { label: "Trim a video online", to: "/guides/trim-video-online" },
+  { label: "SRT to VTT", to: "/guides/convert-srt-to-vtt" },
+];
+
+const TRUST_STATS = [
+  { value: "0", label: "bytes uploaded" },
+  { value: "11", label: "free tools" },
+  { value: "No", label: "watermark or sign-up" },
+  { value: "100%", label: "runs in your browser" },
 ];
 
 const FEATURED_TOOLS = ["compress", "resize", "convert", "compress-image", "resize-image", "heic-to-jpg"];
@@ -27,87 +48,75 @@ export function HomePage() {
   return (
     <>
       <Seo path="/" />
-      <section className="hero">
-        <div className="shell hero-grid">
-          <div className="hero-copy">
-            <span className="eyebrow eyebrow-lime">
-              <Sparkles size={15} /> Cut more. Upload less.
-            </span>
-            <h1>
-              Your media,
-              <br />
-              <em>ready for every platform.</em>
-            </h1>
-            <p className="hero-lede">
-              Compress video, crop to 9:16, resize photos, and convert HEIC to JPG. Every tool runs in your browser, so
-              the file never leaves your device. No upload, no account, no watermark.
-            </p>
-            <div className="hero-actions">
-              <Link className="button button-primary button-lg" to="/tools">
-                Open the toolkit <ArrowRight size={18} />
-              </Link>
-              <Link className="button button-ghost button-lg" to="/tools#image-tools">
-                Browse image tools
-              </Link>
-            </div>
-            <ul className="hero-points">
-              <li>
-                <Check size={15} /> Free forever
-              </li>
-              <li>
-                <Check size={15} /> Files stay on your device
-              </li>
-              <li>
-                <Check size={15} /> Works on phone and desktop
-              </li>
-            </ul>
+      <section className="hero hero-v3">
+        <div className="hero-glow" aria-hidden="true" />
+        <div className="shell hero-split">
+        <div className="hero-center">
+          <span className="hero-badge">
+            <Sparkles size={14} /> 100% local · files never leave your device
+          </span>
+          <h1>
+            Edit video &amp; photos.{" "}
+            <br />
+            <span className="grad-text">Never upload a thing.</span>
+          </h1>
+          <p className="hero-lede">
+            Compress video, crop to 9:16, resize photos and turn HEIC into JPG in seconds. Free, no sign-up, no
+            watermark — your files never leave your device.
+          </p>
+          <div className="hero-actions">
+            <Link className="button button-primary button-lg" to="/tools">
+              Start for free <ArrowRight size={18} />
+            </Link>
+            <Link className="button button-ghost button-lg" to="/guides">
+              Read the guides
+            </Link>
           </div>
+          <ul className="hero-points">
+            <li>
+              <Check size={15} /> Free forever
+            </li>
+            <li>
+              <Check size={15} /> No account
+            </li>
+            <li>
+              <Check size={15} /> Phone &amp; desktop
+            </li>
+          </ul>
+        </div>
+        <div className="hero-art">
+          <PixelStage />
+        </div>
+        </div>
 
-          <div className="hero-visual">
-            <div className="tool-deck">
-              <div className="tool-deck-header">
-                <span className="tool-deck-title">Local toolbench</span>
-                <span className="tool-deck-count">{TOOLS.length} tools</span>
-              </div>
-              <div className="tool-deck-list">
-                {featuredTools.map((tool) => (
-                  <Link key={tool.slug} className="tool-deck-row" to={`/tools/${tool.slug}`}>
-                    <span className="tool-deck-icon">
-                      <ToolIcon icon={tool.icon} size={17} />
-                    </span>
-                    <span className="tool-deck-copy">
-                      <strong>{tool.name}</strong>
-                      <span>{tool.short}</span>
-                    </span>
-                    <ArrowRight className="tool-deck-arrow" size={15} />
-                  </Link>
-                ))}
-              </div>
-              <div className="tool-deck-footer">
-                <span>
-                  <strong>0</strong> uploads · <strong>0</strong> accounts
+        <div className="shell">
+          <div className="hero-tiles">
+            {featuredTools.map((tool, index) => (
+              <Link key={tool.slug} className={`hero-tile tile-${index % 6}`} to={`/tools/${tool.slug}`}>
+                <span className="hero-tile-icon">
+                  <ToolIcon icon={tool.icon} size={22} />
                 </span>
-                <Link to="/tools" className="text-link">
-                  All tools <ArrowRight size={13} />
-                </Link>
-              </div>
-            </div>
+                <strong>{tool.name}</strong>
+                <span>{tool.short}</span>
+                <ArrowRight className="hero-tile-arrow" size={16} />
+              </Link>
+            ))}
+          </div>
+          <div className="hero-strip">
+            {["MP4", "MOV", "WebM", "MKV", "AVI", "GIF", "JPG", "PNG", "WebP", "HEIC"].map((f) => (
+              <span key={f}>{f}</span>
+            ))}
           </div>
         </div>
+      </section>
 
-        <div className="shell hero-strip">
-          <span>MP4</span>
-          <span>MOV</span>
-          <span>WebM</span>
-          <span>MKV</span>
-          <span>AVI</span>
-          <span>GIF</span>
-          <span>JPG</span>
-          <span>PNG</span>
-          <span>WebP</span>
-          <span>HEIC</span>
-          <span className="strip-note">Files stay local. No upload bar.</span>
-        </div>
+      <section className="shell trust-band" aria-label="Cutmoor at a glance">
+        {TRUST_STATS.map((stat) => (
+          <div key={stat.label}>
+            <strong>{stat.value}</strong>
+            <span>{stat.label}</span>
+          </div>
+        ))}
       </section>
 
       <section className="section shell" id="tools">
@@ -182,6 +191,25 @@ export function HomePage() {
       <div className="shell">
         <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_HOME} className="ad-inline" />
       </div>
+
+      <section className="shell section popular-section">
+        <div className="section-head">
+          <div>
+            <span className="mono-label">Popular right now</span>
+            <h2>Start with the job you came for.</h2>
+          </div>
+          <p>The most common things people need to do with a video or photo, one click away.</p>
+        </div>
+        <ul className="popular-list">
+          {POPULAR_TASKS.map((task) => (
+            <li key={task.to}>
+              <Link to={task.to}>
+                {task.label} <ArrowRight size={14} />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="shell section">
         <div className="why-section">

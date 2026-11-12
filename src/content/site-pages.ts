@@ -61,7 +61,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "How it is funded",
         paragraphs: [
-          "The free tools are supported by advertising. Ads are only loaded if you accept advertising cookies. There is no paywall on the tools and no plan to add one to the features described on this site.",
+          "The free tools are supported by advertising served by Google AdSense. There is no paywall on the tools and no plan to add one to the features described on this site.",
           "If you have a question, a bug, or a feature request, use the contact page. Real messages are read.",
         ],
       },
@@ -89,19 +89,19 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Information stored in your browser",
         paragraphs: [
-          "Cutmoor stores a single preference in localStorage: your cookie choice. It stays on your device and is not sent to us.",
+          "Cutmoor itself sets no tracking cookies and keeps no account data. The tools work without storing anything about you in the browser.",
         ],
         bullets: [
-          "Consent choice: accepted or rejected advertising cookies.",
+          "Advertising cookies, where used, are set by Google and its partners, not by Cutmoor. They are described in the next section.",
           "No account, email, or payment information is required to use the tools.",
         ],
       },
       {
         heading: "Advertising and cookies",
         paragraphs: [
-          "The free site may show Google AdSense ads. When advertising cookies are accepted, Google and its partners may use cookies or device identifiers to serve and measure ads, as described in Google's own privacy policy.",
-          "If you reject advertising cookies, Cutmoor does not load the ad script. A non-personalized fallback may be used only where permitted, and no advertising cookies are set by Cutmoor.",
-          "For visitors in the EEA, the UK, and Switzerland, ad serving requires a Google-certified consent management platform. The operator of a deployed copy of Cutmoor must configure one before enabling ads in those regions.",
+          "The site shows ads served by Google AdSense. Third-party vendors, including Google, use cookies and device identifiers to serve and measure ads based on your prior visits to this website and other websites.",
+          "Google's use of advertising cookies enables it and its partners to serve ads based on your visits to this site and other sites on the internet. You can opt out of personalised advertising at any time in Google's Ads Settings (adssettings.google.com), or opt out of many third-party vendors at aboutads.info/choices.",
+          "Google requires consent before personalised ads are shown to visitors in the EEA, the UK, and Switzerland. Where it applies, that consent is collected by Google's own certified consent message, and you can change your answer from the same message. Your files are never part of advertising: ad partners cannot see the videos or images you process.",
         ],
       },
       {
@@ -131,7 +131,7 @@ export const SITE_PAGES: SitePage[] = [
     slug: "terms",
     title: "Terms of use — Cutmoor",
     description:
-      "The rules for using Cutmoor, including acceptable use, intellectual property, warranties, and liability.",
+      "The rules for using Cutmoor, including acceptable use, intellectual property, warranties, and liability, written in plain language.",
     eyebrow: "Terms",
     updated: UPDATED,
     intro: [
@@ -196,33 +196,33 @@ export const SITE_PAGES: SitePage[] = [
     slug: "cookies",
     title: "Cookie and advertising settings — Cutmoor",
     description:
-      "What Cutmoor stores in your browser, how advertising cookies work, and how to change your choice.",
+      "What Cutmoor stores in your browser, how Google advertising cookies work on this site, and how to control personalised ads or clear stored data.",
     eyebrow: "Cookies",
     updated: UPDATED,
     intro: [
-      "Cutmoor uses the smallest amount of browser storage it can and still remember your choice. This page lists what is stored and how to change it.",
+      "Cutmoor uses as little browser storage as it can. This page lists what is stored, who stores it, and how you control it.",
     ],
     sections: [
       {
         heading: "Essential storage",
         paragraphs: [
-          "Cutmoor stores your cookie choice in localStorage under a single key. Without it, the banner would reappear on every page. This storage contains no personal information and is not shared.",
+          "The tools need no cookies of their own. Your browser caches the video encoder and, if you convert a HEIC photo, the HEIC decoder, so later jobs start faster. That cache holds program files only, never your media.",
         ],
         bullets: [
-          "cutmoor-consent — accepted or rejected.",
+          "Browser cache — the encoder and decoder program files, stored by your browser and cleared with your site data.",
         ],
       },
       {
         heading: "Advertising cookies",
         paragraphs: [
-          "When ads are enabled and you accept, Google AdSense may set cookies to select, deliver, and measure advertising. Those cookies are controlled by Google, not by Cutmoor.",
-          "When you reject, Cutmoor does not load the AdSense script. You can change your choice at any time using the button below.",
+          "Google AdSense and its partners set cookies to select, deliver, and measure advertising, including ads based on your earlier visits to this and other websites. Those cookies are controlled by Google, not by Cutmoor.",
+          "In the EEA, the UK, and Switzerland, Google requires consent before personalised ads are shown and collects it through its own consent message. Everywhere, you can turn off personalised ads in Google's Ads Settings.",
         ],
       },
       {
         heading: "How to change your choice",
         paragraphs: [
-          "Use the button below to clear your saved choice. The banner will appear again on the next page load, and you can accept or reject advertising cookies.",
+          "Open adssettings.google.com to switch personalised ads on or off for your Google account or browser, or visit aboutads.info/choices to opt out of many advertising vendors at once. Where Google's consent message is shown, you can reopen it to change your answer.",
           "You can also clear site data in your browser settings. Blocking all cookies may affect the ad-supported parts of the site, but the video and image tools will continue to work.",
         ],
       },
@@ -234,13 +234,13 @@ export const SITE_PAGES: SitePage[] = [
       },
     ],
     footnote:
-      "A production deployment that serves ads in the EEA, the UK, or Switzerland must use a Google-certified CMP in addition to this page.",
+      "Advertising choices are managed by Google. Cutmoor cannot read or delete Google's cookies on your behalf.",
   },
   {
     slug: "contact",
     title: "Contact Cutmoor — support and feedback",
     description:
-      "Report a bug, ask a question, or suggest a tool. The real contact details for Cutmoor.",
+      "Report a bug, ask a question, or suggest a new tool. Contact details for the Cutmoor team, plus what to include so a bug gets fixed faster.",
     eyebrow: "Contact",
     updated: UPDATED,
     intro: [
@@ -374,10 +374,9 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Fonts",
         paragraphs: [
-          "Fraunces and Manrope are served through Fontsource and are licensed under the SIL Open Font License 1.1. The fonts are self-hosted with the site, not fetched from a third-party font service.",
+          "Manrope is served through Fontsource and is licensed under the SIL Open Font License 1.1. The fonts are self-hosted with the site, not fetched from a third-party font service.",
         ],
         links: [
-          { label: "Fraunces", href: "https://github.com/undercasetype/Fraunces", description: "OFL-1.1." },
           { label: "Manrope", href: "https://github.com/sharanda/manrope", description: "OFL-1.1." },
           { label: "Fontsource", href: "https://github.com/fontsource/fontsource", description: "MIT packaging." },
         ],

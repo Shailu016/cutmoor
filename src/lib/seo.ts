@@ -12,9 +12,9 @@ export const SITE = {
   email: "hello@cutmoor.com",
   locale: "en_US",
   language: "en",
-  themeColor: "#101311",
+  themeColor: "#0b0f17",
   ogImage: "/og-image.png",
-  ogImageAlt: "Cutmoor — browser video and image tools for every platform",
+  ogImageAlt: "Cutmoor — edit video and photos in your browser, never upload a thing",
 };
 
 export type PageType = "website" | "article";
@@ -33,21 +33,21 @@ export interface PageMeta {
 const home: PageMeta = {
   title: "Cutmoor — compress video and images in your browser",
   description:
-    "Free browser tools for video and images: compress to a target size, crop to 9:16, trim, convert, extract audio, resize photos, and turn HEIC into JPG. Your files never leave your device.",
+    "Free browser tools to compress video, crop to 9:16, trim, convert, resize photos and turn HEIC into JPG. No upload, no sign-up — files stay on your device.",
   path: "/",
 };
 
 const toolsIndex: PageMeta = {
-  title: "Free video and image tools — compress, crop, convert | Cutmoor",
+  title: "Free video and image tools — no upload | Cutmoor",
   description:
-    "Every Cutmoor tool runs locally in your browser. Compress a video, crop it to 9:16, trim the ends, convert the format, extract audio, resize an image, or convert HEIC to JPG.",
+    "Every Cutmoor tool runs in your browser: compress or trim video, crop to 9:16, extract audio, resize images and convert HEIC to JPG. Free, with no upload.",
   path: "/tools",
 };
 
 const guidesIndex: PageMeta = {
-  title: "Video and image guides — sizes, limits, and settings | Cutmoor",
+  title: "Video and image guides: sizes and settings | Cutmoor",
   description:
-    "Practical guides for short-form video and social images: compress for WhatsApp and Discord, crop to 9:16, choose the right image size, convert HEIC, and pick between PNG, JPG, and WebP.",
+    "Practical guides for video and images: compress for WhatsApp and Discord, crop to 9:16, pick the right image size, convert HEIC, and choose PNG, JPG or WebP.",
   path: "/guides",
 };
 
@@ -64,8 +64,21 @@ const toolPages: PageMeta[] = TOOLS.map((tool) => ({
   path: `/tools/${tool.slug}`,
 }));
 
+/** Search results cut titles at roughly 60 characters, so long guide titles get a shorter form. */
+const GUIDE_SEO_TITLES: Record<string, string> = {
+  "trim-video-online": "How to trim a video online without re-encoding",
+  "social-media-image-sizes": "Social media image sizes for 2026: every platform",
+  "heic-to-jpg-guide": "HEIC to JPG: why iPhone photos need converting",
+};
+
+function guideSeoTitle(guide: { slug: string; title: string }): string {
+  const base = GUIDE_SEO_TITLES[guide.slug] ?? guide.title;
+  const branded = `${base} — ${SITE.name}`;
+  return branded.length <= 60 ? branded : base;
+}
+
 const guidePages: PageMeta[] = GUIDES.map((guide) => ({
-  title: `${guide.title} — Cutmoor`,
+  title: guideSeoTitle(guide),
   description: guide.description,
   path: `/guides/${guide.slug}`,
   type: "article",
@@ -233,6 +246,19 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
     const tool = TOOLS.find((item) => `/tools/${item.slug}` === path);
     if (tool) {
       graph.push({
+        "@type": "WebApplication",
+        "@id": `${canonicalFor(path)}#app`,
+        name: `${tool.name} — ${SITE.name}`,
+        url: canonicalFor(path),
+        description: tool.description,
+        applicationCategory: "MultimediaApplication",
+        operatingSystem: "Any modern browser",
+        browserRequirements: "Requires JavaScript and WebAssembly.",
+        isAccessibleForFree: true,
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        publisher: { "@id": `${SITE.url}/#organization` },
+      });
+      graph.push({
         "@type": "HowTo",
         name: `How to use ${tool.name} with Cutmoor`,
         description: tool.intro,
@@ -308,7 +334,7 @@ export const HOME_FAQS = [
   {
     question: "Is Cutmoor really free?",
     answer:
-      "Yes. Every video and image tool is free, with no account, watermark, or export limit. The site is supported by advertising, which only loads if you accept advertising cookies.",
+      "Yes. Every video and image tool is free, with no account, watermark, or export limit. The site is supported by advertising, which keeps every tool free.",
   },
   {
     question: "Which formats can I use?",

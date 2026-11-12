@@ -14,6 +14,7 @@ import { CompressImageTool } from "../tools/CompressImageTool";
 import { ResizeImageTool } from "../tools/ResizeImageTool";
 import { ConvertImageTool } from "../tools/ConvertImageTool";
 import { HeicTool } from "../tools/HeicTool";
+import { GUIDES } from "../content/guides";
 import { toolBySlug, TOOLS } from "../lib/tools";
 import { NotFoundPage } from "./NotFoundPage";
 
@@ -58,6 +59,7 @@ export function ToolPage() {
   if (!tool) return <NotFoundPage />;
 
   const related = tool.related.map((item) => TOOLS.find((entry) => entry.slug === item)).filter(Boolean);
+  const toolGuides = GUIDES.filter((guide) => guide.tools.includes(tool.slug)).slice(0, 4);
 
   return (
     <>
@@ -151,6 +153,25 @@ export function ToolPage() {
             ))}
           </div>
         </section>
+
+        {toolGuides.length > 0 && (
+          <section className="related-section">
+            <span className="mono-label">Learn</span>
+            <h2>Guides for {tool.name.toLowerCase()}</h2>
+            <div className="guide-grid">
+              {toolGuides.map((guide) => (
+                <Link key={guide.slug} className="guide-card" to={`/guides/${guide.slug}`}>
+                  <span className="mono-label">{guide.category}</span>
+                  <strong>{guide.title}</strong>
+                  <p>{guide.excerpt}</p>
+                  <span className="guide-meta">
+                    {guide.readingMinutes} min read <ArrowRight size={14} />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {related.length > 0 && (
           <section className="related-section">

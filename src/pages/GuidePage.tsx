@@ -183,7 +183,7 @@ export function GuidePage() {
           <aside className="article-aside">
             <div className="aside-card">
               <span className="mono-label">On this page</span>
-              <nav>
+              <nav aria-label="On this page">
                 {guide.sections.map((section) => {
                   const id = slugify(section.heading);
                   return (

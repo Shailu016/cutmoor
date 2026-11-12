@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Mail, RefreshCw } from "lucide-react";
 import { Seo } from "../components/Seo";
-import { resetConsent } from "../components/ConsentBanner";
 import { sitePageBySlug } from "../content/site-pages";
 import { SITE } from "../lib/seo";
 import { slugify } from "../lib/slug";
@@ -30,7 +29,7 @@ export function SitePageView() {
           <aside className="legal-aside">
             <div className="aside-card">
               <span className="mono-label">On this page</span>
-              <nav>
+              <nav aria-label="On this page">
                 {page.sections.map((section) => (
                   <a key={section.heading} href={`#${slugify(section.heading)}`}>
                     {section.heading}
@@ -67,9 +66,14 @@ export function SitePageView() {
                   </ul>
                 )}
                 {page.slug === "cookies" && section.heading === "How to change your choice" && (
-                  <button className="button button-ghost" type="button" onClick={resetConsent}>
-                    <RefreshCw size={15} /> Reset my cookie choice
-                  </button>
+                  <a
+                    className="button button-ghost"
+                    href="https://adssettings.google.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <RefreshCw size={15} /> Open Google Ads Settings
+                  </a>
                 )}
               </section>
             ))}

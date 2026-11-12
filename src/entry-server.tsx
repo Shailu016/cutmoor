@@ -11,11 +11,22 @@ import {
   metaForPath,
   type PageMeta,
 } from "./lib/seo";
+import { TOOLS } from "./lib/tools";
+import { GUIDES } from "./content/guides";
 
 export const INDEXABLE_PATHS = INDEXABLE_PAGES.map((page) => page.path);
 export { INDEXABLE_PAGES };
 export const SITE_URL = SITE.url;
 export const SITE_EMAIL = SITE.email;
+export const SITE_INFO = { name: SITE.name, tagline: SITE.tagline, description: SITE.description, themeColor: SITE.themeColor };
+export const LLM_TOOLS = TOOLS.map((t) => ({ slug: t.slug, name: t.name, description: t.description }));
+export const LLM_GUIDES = GUIDES.map((g) => ({
+  slug: g.slug,
+  title: g.title,
+  description: g.description,
+  published: g.published,
+  modified: g.modified,
+}));
 
 function escapeHtml(value: string) {
   return value
@@ -51,6 +62,13 @@ export function headForPath(pathname: string): string {
     tag("description", meta.description),
     tag("robots", robots),
     tag("theme-color", SITE.themeColor),
+    tag("color-scheme", "light"),
+    tag("format-detection", "telephone=no"),
+    tag("application-name", SITE.name),
+    tag("apple-mobile-web-app-title", SITE.name),
+    `<link rel="manifest" href="/manifest.webmanifest" />`,
+    `<link rel="alternate" type="application/rss+xml" title="${escapeHtml(SITE.name)} guides" href="/feed.xml" />`,
+    `<link rel="apple-touch-icon" href="/apple-touch-icon.png" />`,
     adsenseClient ? tag("google-adsense-account", adsenseClient) : "",
     canonical,
     tag("og:type", meta.type ?? "website", "property"),
@@ -61,6 +79,8 @@ export function headForPath(pathname: string): string {
     tag("og:url", url, "property"),
     tag("og:image", image, "property"),
     tag("og:image:alt", SITE.ogImageAlt, "property"),
+    tag("og:image:width", "1200", "property"),
+    tag("og:image:height", "630", "property"),
     articleMeta(meta),
     tag("twitter:card", "summary_large_image"),
     tag("twitter:title", meta.title),

@@ -6,7 +6,7 @@ export const GUIDES_A: Guide[] = [
     slug: "compress-video-for-whatsapp",
     title: "How to compress a video for WhatsApp (without ruining it)",
     description:
-      "WhatsApp re-encodes every video you send through the chat picker. Here is how to hit its size limits, keep the picture sharp, and know when to send as a document.",
+      "WhatsApp re-encodes every video you send through the chat picker. How to hit its size limits, keep the picture sharp, and know when to send as a document.",
     excerpt:
       "WhatsApp's chat limit is roughly 16 MB, and it re-encodes whatever you send. Pick the right target bitrate, export once, and your video survives the trip.",
     category: "Compression",
@@ -369,7 +369,7 @@ export const GUIDES_A: Guide[] = [
     slug: "crop-video-to-9-16",
     title: "How to crop a video to 9:16 for Reels, Shorts, and TikTok",
     description:
-      "A 9:16 crop is more than a resize. Here is how to reframe horizontal footage, where the platform interfaces cover your video, and what the crop filter is actually doing.",
+      "A 9:16 crop is more than a resize. How to reframe horizontal footage, where platform interfaces cover your video, and what the crop filter really does.",
     excerpt:
       "Filling a vertical frame means cutting the sides. Learn the cost of the crop, when to letterbox instead, and how to keep captions out from under the interface.",
     category: "Editing",
@@ -491,7 +491,7 @@ export const GUIDES_A: Guide[] = [
     slug: "convert-mov-to-mp4",
     title: "How to convert MOV to MP4 (free, in your browser)",
     description:
-      "MOV is Apple's container; MP4 is the one everything else plays. Here is what changes during conversion, when H.264 beats HEVC, and how to avoid the common traps.",
+      "MOV is Apple's container; MP4 is the one everything else plays. What changes during conversion, when H.264 beats HEVC, and how to avoid the common traps.",
     excerpt:
       "A MOV file is a box, not a codec. Learn what is inside, why MP4 travels better, and which settings keep the picture intact without a giant file.",
     category: "Conversion",

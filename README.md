@@ -52,10 +52,11 @@ Copy `.env.example` to `.env` and set:
 - `VITE_ADSENSE_CLIENT` — AdSense client ID. Empty disables ads completely.
 - `VITE_ADSENSE_SLOT_HOME`, `VITE_ADSENSE_SLOT_ARTICLE`, `VITE_ADSENSE_SLOT_FOOTER` — ad unit IDs.
 
-The ad script only loads after the visitor accepts advertising cookies. The
-built-in consent banner is a lightweight gate, not a certified CMP: a production
-deployment serving the EEA, the UK, or Switzerland must use a Google-certified
-consent management platform before enabling ads there.
+The ad script loads whenever `VITE_ADSENSE_CLIENT` is set. Consent for the EEA,
+the UK, and Switzerland is handled by Google's own certified consent message:
+turn it on in AdSense under **Privacy & messaging** before serving ads in those
+regions. The privacy and cookie pages describe that setup, so keep them in sync
+if it changes.
 
 `ads.txt` is generated at build time from `VITE_ADSENSE_CLIENT`. If the variable
 is empty the file contains a comment explaining what to set, which is valid but
@@ -101,8 +102,8 @@ is compressed even though the uncompressed file is 32 MB.
 If you add a Content-Security-Policy, allow WebAssembly in `script-src`
 (`'wasm-unsafe-eval'` in Chromium) for ffmpeg.wasm and the HEIC decoder. The
 HEIC import already uses `heic-to/csp`, which avoids string-eval loading, but
-WASM compilation still needs to be permitted. The ad script remains gated behind
-explicit advertising consent.
+WASM compilation still needs to be permitted, and the AdSense script hosts must
+be allowed too.
 
 ## Notes on limits
 

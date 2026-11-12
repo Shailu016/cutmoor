@@ -53,8 +53,8 @@ libraries are distributed in the JavaScript bundle.
 | @ffmpeg/ffmpeg | MIT | https://github.com/ffmpegwasm/ffmpeg.wasm |
 | @ffmpeg/util | MIT | https://github.com/ffmpegwasm/ffmpeg.wasm |
 | Fontsource | MIT | https://github.com/fontsource/fontsource |
-| Fraunces | OFL-1.1 | https://github.com/undercasetype/Fraunces |
-| Manrope | OFL-1.1 | https://github.com/sharanda/manrope |
+| Geist | OFL-1.1 | https://github.com/vercel/geist-font |
+| Geist Mono | OFL-1.1 | https://github.com/vercel/geist-font |
 
 ## Full licence texts
 

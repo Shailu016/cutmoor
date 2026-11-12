@@ -50,6 +50,18 @@ function prettyUrlPreview(): Plugin {
 }
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        // Framework code changes rarely; a separate chunk stays cached across deploys.
+        manualChunks(id: string) {
+          if (id.includes("node_modules/react") || id.includes("node_modules/scheduler")) return "vendor";
+          if (id.includes("/src/content/")) return "content";
+          return undefined;
+        },
+      },
+    },
+  },
   plugins: [react(), prettyUrlPreview()],
   server: { port: 5173, host: true },
   // ffmpeg ships its own worker; pre-bundling it with esbuild breaks the worker URL.

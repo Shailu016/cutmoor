@@ -38,7 +38,7 @@ export const TOOLS: ToolDef[] = [
     short: "Hit a target file size without wrecking the picture.",
     title: "Compress a video online — in your browser, no upload",
     description:
-      "Compress MP4, MOV, and WebM videos to a target size for WhatsApp, Discord, Instagram, or email. Runs locally in your browser, so the file never leaves your device.",
+      "Compress MP4, MOV, and WebM videos to a target size for WhatsApp, Discord, Instagram, or email. Runs in your browser, so the file never leaves your device.",
     intro:
       "Pick a target size and Cutmoor calculates a video bitrate that fits. The file is decoded and re-encoded on your device, not on a server. Use it when an app rejects a video for being too large, or when a 4K clip is 400 MB and you only need a clean 1080p share.",
     icon: "compress",
@@ -333,7 +333,7 @@ export const TOOLS: ToolDef[] = [
     short: "Hit a target file size without turning the photo to mud.",
     title: "Compress an image online — target a file size, no upload",
     description:
-      "Compress JPG, PNG, WebP, HEIC, AVIF, SVG, and more to a target size in your browser. Cap the dimensions, keep the best quality that fits, and download. No upload, no account, no watermark.",
+      "Compress JPG, PNG, WebP, HEIC and AVIF images to a target file size in your browser. Keep the best quality that fits. No upload, no account, no watermark.",
     intro:
       "An upload form says the photo must be under 200 KB. A website is slow because every image is 4 MB. Pick a target size and Cutmoor searches for the highest quality that fits, reducing the dimensions only when quality alone cannot get there. The file never leaves your device.",
     icon: "image-compress",
@@ -394,9 +394,9 @@ export const TOOLS: ToolDef[] = [
     kind: "image",
     name: "Resize image",
     short: "Crop or pad a photo to a platform-perfect size.",
-    title: "Resize an image online — Instagram, YouTube, and link preview sizes",
+    title: "Resize an image online — Instagram and YouTube sizes",
     description:
-      "Resize and crop images to 1080 × 1350, 1080 × 1920, 1280 × 720, 1200 × 630, and more. Crop to fill or pad with a color. Runs entirely in your browser, with no upload.",
+      "Resize and crop images to 1080 × 1350, 1080 × 1920, 1280 × 720, 1200 × 630 and more. Crop to fill or pad with a color. Runs in your browser, no upload.",
     intro:
       "Every feed crops differently. A landscape photo becomes a vertical Story, a square post becomes a link preview, and a screenshot needs exact pixels for an app store. Choose a platform preset or type your own size, then crop to fill the frame or pad the whole image onto a background.",
     icon: "image-resize",
@@ -463,7 +463,7 @@ export const TOOLS: ToolDef[] = [
     short: "JPG, PNG, and WebP in one clean pass.",
     title: "Convert images online — JPG, PNG, and WebP, no upload",
     description:
-      "Convert JPG to PNG, PNG to JPG, WebP to JPG, or HEIC to JPG in your browser. Control quality, handle transparency, and strip metadata. No upload, no account, no watermark.",
+      "Convert JPG to PNG, PNG to JPG, WebP to JPG or HEIC to JPG in your browser. Control quality and transparency. No upload, no account, no watermark.",
     intro:
       "Formats are a compatibility problem, not a quality problem. A screenshot saved as JPG picks up artifacts around text. A photo saved as PNG is needlessly large. A WebP downloaded from a website will not open in an older editor. Pick the output that fits the destination, and Cutmoor encodes it locally.",
     icon: "image-convert",

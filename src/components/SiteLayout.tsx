@@ -50,16 +50,16 @@ function Logo() {
   return (
     <Link className="logo" to="/" aria-label="Cutmoor home">
       <span className="logo-mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32" width="28" height="28">
-          <rect width="32" height="32" rx="8" fill="#173f31" />
+        <svg viewBox="0 0 64 64" width="30" height="30">
+          <rect width="64" height="64" rx="16" fill="#2d4bf0" />
           <path
-            d="M21.3 9.7A8.2 8.2 0 1 0 21.3 22.3"
+            d="M42.6 21.4A15 15 0 1 0 42.6 42.6"
             fill="none"
-            stroke="#f7f5ef"
-            strokeWidth="2.6"
+            stroke="#ffffff"
+            strokeWidth="7.5"
             strokeLinecap="round"
           />
-          <path d="M8 25h16" stroke="#b7791f" strokeWidth="2.2" strokeLinecap="round" />
+          <circle cx="45.5" cy="32" r="4.6" fill="#ff6a3d" />
         </svg>
       </span>
       <span className="logo-word">Cutmoor</span>
@@ -179,7 +179,7 @@ export function SiteLayout() {
                 type="button"
                 className={toolsActive ? "nav-link active" : "nav-link"}
                 aria-expanded={toolsOpen}
-                aria-controls="tools-menu"
+                aria-controls={toolsOpen ? "tools-menu" : undefined}
                 onClick={() => setToolsOpen((value) => !value)}
               >
                 Tools
@@ -228,7 +228,7 @@ export function SiteLayout() {
               type="button"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
-              aria-controls="mobile-menu"
+              aria-controls={mobileOpen ? "mobile-menu" : undefined}
               onClick={() => setMobileOpen((value) => !value)}
             >
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
