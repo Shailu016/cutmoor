@@ -108,6 +108,7 @@ export const SITE_PAGES: SitePage[] = [
         heading: "Analytics and server logs",
         paragraphs: [
           "The default build does not include a third-party analytics script. The hosting provider may keep standard request logs, such as IP address, user agent, and the requested URL, for security and reliability. Those logs are controlled by the host, not by the browser tools.",
+          "The video encoder program file (FFmpeg compiled to WebAssembly) may be delivered from a public content network, unpkg.com, which receives the same standard request data when your browser downloads it. Only the program file is fetched from there; your videos and photos are never sent anywhere. The site checks the file's SHA-256 fingerprint before running it.",
         ],
       },
       {
