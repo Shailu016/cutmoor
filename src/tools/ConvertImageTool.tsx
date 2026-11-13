@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Info, ShieldCheck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "../components/Link";
 import { FileDrop } from "../components/FileDrop";
 import { ImageJobPanel } from "../components/ImageJobPanel";
 import { useImageEncoderSupport } from "../hooks/useImageEncoderSupport";

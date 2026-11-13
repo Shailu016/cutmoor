@@ -53,8 +53,9 @@ npm run preview  # serve the built dist/ with pretty URLs
   tool on `public/samples/sample-clip.mp4` (or `sample-photo.jpg` for Image)
   through the same job hooks and the same FFmpeg arguments as the tool pages
   (`src/lib/compress.ts`, `src/lib/tool-args.ts`, scenarios in `src/lib/demo.ts`).
-  The samples are generated test files (a Mandelbrot zoom with a synthesized
-  chord, made with FFmpeg), and the page says so. A unit test checks their sizes
+  The samples are drawn in code, not filmed (a sunset over a mountain lake
+  with a synthesized soundtrack; `node scripts/make-sample.mjs` re-makes them),
+  and the page says so. A unit test checks their sizes
   against the files on disk.
 - Until a visitor presses Try it live, the screen plays a **recording** of that
   exact run (`public/walkthroughs/*.mp4`), labelled as a recording. Re-make the

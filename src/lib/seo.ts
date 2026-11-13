@@ -152,7 +152,7 @@ export function softwareJsonLd() {
     name: SITE.name,
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Any modern browser",
-    url: `${SITE.url}/tools`,
+    url: `${SITE.url}/tools/`,
     description: SITE.description,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tools supported by advertising." },
     featureList: [

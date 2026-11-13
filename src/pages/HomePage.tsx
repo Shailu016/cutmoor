@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "../components/Link";
 import { ArrowRight, Check, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { FormatSummary } from "../components/FormatSummary";

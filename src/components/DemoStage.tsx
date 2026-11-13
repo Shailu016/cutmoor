@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { flushSync } from "react-dom";
-import { Link } from "react-router-dom";
+import { Link } from "./Link";
 import { ArrowRight, Check, Download, Info, Loader2, Play, RotateCcw, TriangleAlert, X } from "lucide-react";
 import { ScreenMedia } from "./ScreenMedia";
 import { WalkthroughVideo } from "./WalkthroughVideo";

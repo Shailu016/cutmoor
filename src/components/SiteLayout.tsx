@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { Link, NavLink } from "./Link";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { AdSlot } from "./AdSlot";
 import { ToolIcon } from "./ToolIcon";

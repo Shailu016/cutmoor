@@ -125,11 +125,18 @@ for (const tool of TOOLS) {
 
   await snap("idle");
   let note = "";
+  let steadyShift = null;
   try {
     if (tool.file) {
       await (await page.$('input[type="file"]')).uploadFile(tool.file);
       await waitState("ready", 60_000);
       await snap("ready");
+      // Choosing a file swaps the picker for the file card and settings. That is the visitor's own
+      // action, but the browser cannot tell (a file dialog is not "recent input"), so the unprompted
+      // score starts counting here: from a loaded file onward, nothing may move.
+      await page.evaluate(() => {
+        window.__shift.afterNoInput = 0;
+      });
       await clickText(".tool-input .button-primary", ["compress", "crop", "trim", "convert", "extract", "save", "resize", "run"]);
       await waitState("working", 30_000).catch(() => undefined);
       for (let i = 0; i < 3 && (await phaseText()) === "working"; i += 1) {
@@ -143,6 +150,9 @@ for (const tool of TOOLS) {
         const message = await page.evaluate(() => document.querySelector(".job-error")?.textContent?.trim() ?? "");
         throw new Error(`job ${finished}: ${message}`.slice(0, 120));
       }
+      // Clearing brings the picker back: also the visitor's own click, and the scripted click is
+      // not "recent input" to the browser either. The unprompted score stops counting here.
+      steadyShift = await page.evaluate(() => window.__shift.afterNoInput);
       await clickText(".job-panel .button-ghost", ["start another", "process another", "try another"]);
       await new Promise((resolve) => setTimeout(resolve, 500));
       await snap("cleared");
@@ -181,7 +191,7 @@ for (const tool of TOOLS) {
     panelFits: snaps.every((s) => s.panelFits),
     downloadHidden: snaps.some((s) => s.downloadVisible === false),
     shiftAll: shift.all,
-    shiftNoInput: shift.afterNoInput,
+    shiftNoInput: steadyShift ?? shift.afterNoInput,
     note,
   });
 }
