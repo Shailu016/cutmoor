@@ -14,7 +14,8 @@
     "copy:ffmpeg": "node scripts/copy-ffmpeg.mjs",
     "postinstall": "node scripts/copy-ffmpeg.mjs",
     "upload:ffmpeg": "node scripts/upload-ffmpeg.mjs",
-    "new:guide": "node scripts/new-guide.mjs"
+    "new:guide": "node scripts/new-guide.mjs",
+    "budget": "node scripts/check-budget.mjs"
   },
   "dependencies": {
     "@ffmpeg/core": "^0.12.10",
