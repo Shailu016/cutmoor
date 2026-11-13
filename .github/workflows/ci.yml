@@ -1,0 +1,116 @@
+name: CI
+
+# Every pull request is typechecked, tested, built under the production
+# settings, and checked against the performance budget. Pull requests from this
+# repository also get a preview site, so a change can be looked at before it is
+# merged. Merging to master deploys through deploy.yml.
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      # The same production settings as deploy.yml, so a green check means the real build works.
+      VITE_SITE_URL: https://cutmoor.com
+      VITE_FFMPEG_BASE_URL: https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm
+      STRICT_DEPLOY: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Check the pinned ffmpeg version matches the installed core
+        run: |
+          installed=$(node -p "JSON.parse(require('fs').readFileSync('node_modules/@ffmpeg/core/package.json','utf8')).version")
+          case "$VITE_FFMPEG_BASE_URL" in
+            *"@ffmpeg/core@${installed}/"*) echo "ffmpeg core ${installed} matches." ;;
+            *) echo "::error::VITE_FFMPEG_BASE_URL does not point at @ffmpeg/core@${installed}. Update it in ci.yml and deploy.yml."; exit 1 ;;
+          esac
+
+      - name: Performance budget
+        run: npm run budget
+
+      # The checks below run a real browser against the production build. The CI build has
+      # no ad scripts, so they measure the site itself, and the numbers are repeatable.
+      - name: Install browser tooling
+        run: npm install --no-save puppeteer-core@23.11.1 axe-core@4.10.2
+
+      - name: Serve the build
+        run: |
+          npx vite preview --port 4173 --strictPort > preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && exit 0; sleep 1; done
+          cat preview.log; exit 1
+
+      - name: Accessibility (axe, WCAG 2.2 AA)
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: node scripts/verify/a11y.mjs http://localhost:4173
+
+      - name: Lighthouse (mobile, throttled)
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: |
+          npx --yes lighthouse@12 http://localhost:4173/             --chrome-flags="--headless=new --no-sandbox"             --only-categories=performance,accessibility,best-practices,seo             --output=json --output-path=lh.json --quiet
+          node scripts/check-lighthouse.mjs lh.json
+
+      - name: Demo layout stability
+        # Present once the homepage demo is merged.
+        if: hashFiles('scripts/verify/layout-shift.mjs') != ''
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: node scripts/verify/layout-shift.mjs http://localhost:4173 desktop
+
+      - name: Deploy preview
+        # Forks cannot read the secret, and a preview of someone else's code should not use it.
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Previews must never be indexed.
+          printf '\n/*\n  X-Robots-Tag: noindex\n' >> dist/_headers
+          # Run from an empty directory: Wrangler 4 otherwise auto-configures the repo as a Worker project.
+          cd "$RUNNER_TEMP"
+          npx --yes wrangler@4 pages deploy "$GITHUB_WORKSPACE/dist" \
+            --project-name cutmoor \
+            --branch "pr-${PR_NUMBER}" \
+            --commit-hash "$GITHUB_SHA" \
+            --commit-message "Preview of PR #${PR_NUMBER}" | tee deploy.log
+          url=$(grep -o 'https://[a-z0-9.-]*\.pages\.dev' deploy.log | tail -1)
+          echo "Preview: $url"
+          echo "### Preview site" >> "$GITHUB_STEP_SUMMARY"
+          echo "$url" >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --edit-last --create-if-none \
+            --body "**Preview:** $url
+          Built from \`${GITHUB_SHA::7}\`. Previews are not indexed by search engines."
