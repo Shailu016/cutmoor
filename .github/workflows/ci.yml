@@ -59,6 +59,36 @@ jobs:
       - name: Performance budget
         run: npm run budget
 
+      # The checks below run a real browser against the production build. The CI build has
+      # no ad scripts, so they measure the site itself, and the numbers are repeatable.
+      - name: Install browser tooling
+        run: npm install --no-save puppeteer-core@23.11.1 axe-core@4.10.2
+
+      - name: Serve the build
+        run: |
+          npx vite preview --port 4173 --strictPort > preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && exit 0; sleep 1; done
+          cat preview.log; exit 1
+
+      - name: Accessibility (axe, WCAG 2.2 AA)
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: node scripts/verify/a11y.mjs http://localhost:4173
+
+      - name: Lighthouse (mobile, throttled)
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: |
+          npx --yes lighthouse@12 http://localhost:4173/             --chrome-flags="--headless=new --no-sandbox"             --only-categories=performance,accessibility,best-practices,seo             --output=json --output-path=lh.json --quiet
+          node scripts/check-lighthouse.mjs lh.json
+
+      - name: Demo layout stability
+        # Present once the homepage demo is merged.
+        if: hashFiles('scripts/verify/layout-shift.mjs') != ''
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: node scripts/verify/layout-shift.mjs http://localhost:4173 desktop
+
       - name: Deploy preview
         # Forks cannot read the secret, and a preview of someone else's code should not use it.
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository

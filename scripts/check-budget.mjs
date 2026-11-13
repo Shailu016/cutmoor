@@ -18,7 +18,7 @@ const BUDGET = {
   cssGz: 24 * KB, // all CSS together
   lazyHeicGz: 850 * KB,
   walkthroughVideo: 450 * KB, // each demo recording
-  walkthroughPoster: 100 * KB,
+  walkthroughPoster: 60 * KB,
   samplesTotal: 5 * 1024 * KB,
 };
 
@@ -59,7 +59,7 @@ for (const clip of await sizesIn("walkthroughs", /\.mp4$/)) {
   rows.push({ file: `walkthroughs/${clip.name}`, kind: "video", kb: (clip.size / KB).toFixed(1), gz: "-" });
   if (clip.size > BUDGET.walkthroughVideo) failures.push(`walkthroughs/${clip.name}: ${(clip.size / KB).toFixed(0)} KB is over the ${BUDGET.walkthroughVideo / KB} KB clip limit`);
 }
-for (const poster of await sizesIn("walkthroughs", /\.jpg$/)) {
+for (const poster of await sizesIn("walkthroughs", /\.(jpg|webp)$/)) {
   if (poster.size > BUDGET.walkthroughPoster) failures.push(`walkthroughs/${poster.name}: ${(poster.size / KB).toFixed(0)} KB is over the ${BUDGET.walkthroughPoster / KB} KB poster limit`);
 }
 const samples = await sizesIn("samples", /./);
