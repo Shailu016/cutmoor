@@ -68,7 +68,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "How large a file can it handle?",
         answer:
-          "Browser memory is the limit, not an upload quota. Files up to roughly 500 MB work on a desktop with 8 GB of RAM. Phones and older laptops should stay under 200 MB. Very large files can run out of memory in the tab.",
+          "Browser memory is the limit, not an upload quota. The largest video we have tested is 104 MB, on a desktop. Larger files depend on your device's memory, and phones and older laptops are more likely to run out. Very large files can run out of memory in the tab.",
       },
     ],
     related: ["resize", "trim", "convert"],
@@ -167,20 +167,20 @@ export const TOOLS: ToolDef[] = [
     description:
       "Convert MOV to MP4, MP4 to WebM, video to GIF, or video to MP3 in your browser. No upload, no account, no watermark.",
     intro:
-      "Different platforms want different containers. MP4 with H.264 plays everywhere. WebM is smaller for the web. GIF loops without a player. MP3 is the audio track on its own. Pick a format and Cutmoor encodes it locally.",
+      "Different platforms want different containers. MP4 with H.264 plays everywhere. WebM is an open web format. GIF loops without a player. MP3 is the audio track on its own. Pick a format and Cutmoor encodes it locally.",
     icon: "convert",
     accent: "violet",
     keywords: ["convert mov to mp4", "mp4 to webm", "video to gif", "video converter"],
     steps: [
       { name: "Add a video", text: "Any common container is accepted: MP4, MOV, WebM, MKV, or AVI." },
-      { name: "Choose a format", text: "MP4 for compatibility, WebM for size, GIF for a short loop, or an audio format." },
+      { name: "Choose a format", text: "MP4 for compatibility, WebM when you need an open web format, GIF for a short loop, or an audio format." },
       { name: "Convert", text: "The encoder runs in the page and produces a download when it finishes." },
     ],
     faqs: [
       {
         question: "Which format should I use?",
         answer:
-          "Use MP4 with H.264 for almost everything: phones, browsers, Instagram, YouTube, and email. Use WebM when you control the player and want a smaller file. Use GIF only for very short, silent loops.",
+          "Use MP4 with H.264 for almost everything: phones, browsers, Instagram, YouTube, and email. Use WebM when you need an open web format. Cutmoor encodes it with VP8, which is usually larger than MP4 at similar quality, so it is not a way to save space. Use GIF only for very short, silent loops.",
       },
       {
         question: "Why is my GIF so large?",

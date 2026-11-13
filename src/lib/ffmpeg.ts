@@ -1,5 +1,6 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
+import { explainFailure } from "./ffmpeg-errors";
 import { extensionOf, mimeForName } from "./format";
 
 /**
@@ -92,27 +93,50 @@ async function load(): Promise<FFmpeg> {
   }
 }
 
+/** Real timings for one job, from performance.now(). */
+export interface RunTimings {
+  /** Time spent fetching and starting the encoder. Near zero once it is cached and running. */
+  engineLoadMs: number;
+  /** Time from handing the file to the encoder until the output is read back. */
+  processMs: number;
+}
+
 export interface RunOptions {
   file: File;
   outputName: string;
   args: (inputName: string) => string[];
+  onTimings?: (timings: RunTimings) => void;
 }
 
-export async function runFFmpeg({ file, outputName, args }: RunOptions): Promise<Blob> {
+export async function runFFmpeg({ file, outputName, args, onTimings }: RunOptions): Promise<Blob> {
+  const loadStarted = performance.now();
   const ffmpeg = await load();
+  const engineLoadMs = performance.now() - loadStarted;
   const inputName = `input.${extensionOf(file.name)}`;
   const command = args(inputName);
+  const processStarted = performance.now();
+  // Keep the encoder's last log lines so a failure can be explained in plain words.
+  const recentLog: string[] = [];
+  const stopCapture = onFFmpegLog((message) => {
+    recentLog.push(message);
+    if (recentLog.length > 40) recentLog.shift();
+  });
 
   try {
     await ffmpeg.writeFile(inputName, await fetchFile(file));
     const exitCode = await ffmpeg.exec(command);
     if (exitCode !== 0) {
-      throw new Error(`The encoder exited with code ${exitCode}. Try a different input file or a lower resolution.`);
+      throw new Error(
+        explainFailure(recentLog) ??
+          `The encoder exited with code ${exitCode}. Try a different input file or a lower resolution.`,
+      );
     }
     const data = await ffmpeg.readFile(outputName);
     if (typeof data === "string") throw new Error("The encoder returned text instead of a media file.");
+    onTimings?.({ engineLoadMs, processMs: performance.now() - processStarted });
     return new Blob([data as unknown as BlobPart], { type: mimeForName(outputName) });
   } finally {
+    stopCapture();
     await ffmpeg.deleteFile(inputName).catch(() => undefined);
     await ffmpeg.deleteFile(outputName).catch(() => undefined);
   }

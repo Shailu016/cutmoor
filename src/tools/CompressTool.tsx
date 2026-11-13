@@ -3,6 +3,7 @@ import { Gauge, Sparkles } from "lucide-react";
 import { FileDrop } from "../components/FileDrop";
 import { JobPanel } from "../components/JobPanel";
 import { useMediaJob } from "../hooks/useMediaJob";
+import { buildCompressArgs } from "../lib/compress";
 import { baseName, formatBytes, targetVideoKbps } from "../lib/format";
 
 const SIZES = [8, 10, 16, 25, 50, 100];
@@ -19,26 +20,9 @@ export function CompressTool() {
   const run = () => {
     if (!job.file) return;
     const output = `${baseName(job.file.name)}-compressed.mp4`;
-    job.run(output, (input) => {
-      const args = ["-i", input];
-      if (mode === "size" && duration > 0) {
-        const videoKbps = targetVideoKbps(target, duration, 128);
-        args.push(
-          "-c:v", "libx264",
-          "-preset", "veryfast",
-          "-b:v", `${videoKbps}k`,
-          "-maxrate", `${Math.round(videoKbps * 1.5)}k`,
-          "-bufsize", `${videoKbps * 2}k`,
-        );
-      } else {
-        args.push("-c:v", "libx264", "-preset", "veryfast", "-crf", "28");
-      }
-      if (resolution !== "original") {
-        args.push("-vf", `scale=-2:${resolution}`);
-      }
-      args.push("-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", "-y", output);
-      return args;
-    });
+    job.run(output, (input) =>
+      buildCompressArgs({ input, output, mode, targetMb: target, durationSeconds: duration, resolution }),
+    );
   };
 
   return (
@@ -50,7 +34,7 @@ export function CompressTool() {
           onFile={job.selectFile}
           onClear={job.clear}
           accept="video/*"
-          hint="MP4, MOV, WebM, MKV, or AVI. Up to ~500 MB on desktop."
+          hint="MP4, MOV, WebM, MKV, or AVI. Tested up to 104 MB; larger files depend on your device's memory."
           disabled={job.phase === "working"}
         />
 

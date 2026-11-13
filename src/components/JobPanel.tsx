@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check, Download, Loader2, RotateCcw, ShieldCheck, X } from "lucide-react";
-import { formatBytes, formatDuration } from "../lib/format";
+import { extensionOf, formatBytes, formatDuration } from "../lib/format";
+import { formatElapsed } from "../lib/results";
+import { useElapsed } from "../hooks/useElapsed";
+import { ResultSummary } from "./ResultSummary";
 import type { MediaJob } from "../hooks/useMediaJob";
 
 type PreviewKind = "video" | "audio" | "image" | null;
@@ -14,8 +17,16 @@ function previewKind(name: string): PreviewKind {
 }
 
 export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string }) {
-  const { phase, progress, result, error, logs, file, meta, previewUrl, cancel, clear } = job;
+  const { phase, progress, result, error, logs, file, meta, previewUrl, startedAt, wasCancelled, cancel, clear } = job;
   const loadingEncoder = phase === "working" && progress === 0;
+  // Progress is only shown as a percentage when the encoder can measure it: it needs the source duration.
+  const measurable = !loadingEncoder && (meta ? meta.duration > 0 : true);
+  const elapsed = useElapsed(startedAt, phase === "working");
+  const originalDetail = meta
+    ? [meta.width > 0 && meta.height > 0 ? `${meta.width}×${meta.height}` : null, meta.duration > 0 ? formatDuration(meta.duration) : null]
+        .filter(Boolean)
+        .join(" · ")
+    : "";
   const hasVideoPreview = Boolean(previewUrl && meta && meta.width > 0 && meta.height > 0);
   const hasAudioPreview = Boolean(previewUrl && meta && (!meta.width || !meta.height));
   const resultPreview = result ? previewKind(result.name) : null;
@@ -31,7 +42,7 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
         <span className="mono-label">Output</span>
         <span className={`job-state job-state-${phase}`}>
           {phase === "idle" && "Waiting"}
-          {phase === "ready" && "Ready"}
+          {phase === "ready" && (wasCancelled ? "Cancelled" : "Ready")}
           {phase === "working" && "Working"}
           {phase === "done" && "Complete"}
           {phase === "error" && "Failed"}
@@ -76,6 +87,11 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
               <figcaption>Source preview</figcaption>
             </figure>
           )}
+          {wasCancelled && (
+            <p className="job-note job-note-cancelled" role="status">
+              Job cancelled. Nothing was changed and your file is still loaded.
+            </p>
+          )}
           <p className="job-idle">
             {file ? "File ready. Choose your settings, then run the tool." : "Choose a file to begin."}
           </p>
@@ -101,18 +117,22 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
         <div className="job-body">
           <div className="progress-top">
             <span>{loadingEncoder ? "Loading the encoder…" : "Encoding…"}</span>
-            <span>{Math.round(progress * 100)}%</span>
+            <span>{measurable ? `${Math.round(progress * 100)}%` : "Working"}</span>
           </div>
           <div
             className="progress-track"
             role="progressbar"
-            aria-valuenow={Math.round(progress * 100)}
+            aria-valuenow={measurable ? Math.round(progress * 100) : undefined}
             aria-valuemin={0}
             aria-valuemax={100}
-            aria-valuetext={`${Math.round(progress * 100)} percent`}
+            aria-valuetext={measurable ? `${Math.round(progress * 100)} percent` : "In progress"}
           >
-            <div className={`progress-fill ${loadingEncoder ? "indeterminate" : ""}`} style={{ width: `${Math.max(2, progress * 100)}%` }} />
+            <div
+              className={`progress-fill ${measurable ? "" : "indeterminate"}`}
+              style={measurable ? { width: `${Math.max(2, progress * 100)}%` } : undefined}
+            />
           </div>
+          <p className="job-elapsed">Elapsed {formatElapsed(elapsed)}</p>
           <p className="job-note">
             {loadingEncoder
               ? "The ~32 MB encoder is downloading once and will be cached by your browser."
@@ -131,18 +151,34 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
           </div>
 
           {resultPreview === "video" && !previewFailed && (
-            <figure className="video-preview-figure">
-              <video
-                className="video-preview"
-                src={result.url}
-                controls
-                playsInline
-                preload="metadata"
-                aria-label={`Preview of ${result.name}`}
-                onError={() => setPreviewFailed(true)}
-              />
-              <figcaption>Result preview</figcaption>
-            </figure>
+            <div className={hasVideoPreview ? "video-compare" : undefined}>
+              {hasVideoPreview && (
+                <figure className="video-preview-figure">
+                  <video
+                    className="video-preview"
+                    src={previewUrl ?? undefined}
+                    controls
+                    muted
+                    playsInline
+                    preload="metadata"
+                    aria-label="Original video, before processing"
+                  />
+                  <figcaption>Before</figcaption>
+                </figure>
+              )}
+              <figure className="video-preview-figure">
+                <video
+                  className="video-preview"
+                  src={result.url}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  aria-label={`Preview of ${result.name}`}
+                  onError={() => setPreviewFailed(true)}
+                />
+                <figcaption>{hasVideoPreview ? "After" : "Result preview"}</figcaption>
+              </figure>
+            </div>
           )}
           {resultPreview === "audio" && !previewFailed && (
             <figure className="audio-preview-figure">
@@ -169,10 +205,14 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
             </p>
           )}
 
-          <div className="result-file">
-            <strong title={result.name}>{result.name}</strong>
-            <span>{formatBytes(result.size)}</span>
-          </div>
+          {file && (
+            <ResultSummary
+              original={{ name: file.name, bytes: file.size, format: extensionOf(file.name).toUpperCase() || "FILE", detail: originalDetail || undefined }}
+              processed={{ name: result.name, bytes: result.size, format: extensionOf(result.name).toUpperCase() }}
+              processMs={result.processMs}
+              engineLoadMs={result.engineLoadMs}
+            />
+          )}
           <a className="button button-primary button-block" href={result.url} download={result.name}>
             <Download size={17} /> Download
           </a>

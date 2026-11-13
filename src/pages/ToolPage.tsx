@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { ArrowRight, ChevronRight, Lock, ShieldCheck, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
+import { FormatCompat } from "../components/FormatCompat";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { CompressTool } from "../tools/CompressTool";
@@ -127,7 +128,7 @@ export function ToolPage() {
             ) : (
               <p>
                 Browser encoding uses your device's memory. Close other heavy tabs, keep the original file, and prefer a
-                desktop for files above 200 MB.
+                desktop for large files.
               </p>
             )}
             <Link
@@ -138,6 +139,8 @@ export function ToolPage() {
             </Link>
           </aside>
         </div>
+
+        <FormatCompat slug={tool.slug} toolName={tool.name} />
 
         <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_ARTICLE} className="ad-inline" />
 
