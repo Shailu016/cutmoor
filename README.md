@@ -168,7 +168,7 @@ the workflow fails if they differ.
 
 Deploy manually with Wrangler from an empty directory, not the repo root
 (Wrangler 4 otherwise tries to convert the project into a Worker):
-`npx wrangler@4 pages deploy <repo>/dist --project-name cutmoor --branch master`.
+`npx wrangler@4.161.0 pages deploy <repo>/dist --project-name cutmoor --branch master`.
 
 ### Cloudflare Pages + R2
 

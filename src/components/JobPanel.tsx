@@ -64,7 +64,7 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
 
       <div className="job-screen">
         {showingResult && result && resultKind ? (
-          <ScreenMedia kind={resultKind} url={result.url} controls label={`Result: ${result.name}`} />
+          <ScreenMedia kind={resultKind} url={result.url} controls label={`Result: ${result.name}`} onError={() => setPreviewFailed(true)} />
         ) : sourceKind && phase !== "idle" && phase !== "error" ? (
           <ScreenMedia kind={sourceKind} url={previewUrl} controls label={file ? `Source: ${file.name}` : "Source preview"} />
         ) : (
@@ -168,6 +168,9 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
             <div className="result-badge">
               <Check size={16} /> Your file is ready
             </div>
+            <a className="button button-primary button-block" href={result.url} download={result.name}>
+              <Download size={17} /> Download
+            </a>
             {file && (
               <ResultSummary
                 original={{ name: file.name, bytes: file.size, format: extensionOf(file.name).toUpperCase() || "FILE", detail: originalDetail || undefined }}
@@ -181,9 +184,6 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
                 This browser cannot preview the output format inline. Download the file to check it in your media player.
               </p>
             )}
-            <a className="button button-primary button-block" href={result.url} download={result.name} onClick={() => undefined}>
-              <Download size={17} /> Download
-            </a>
             <button className="button button-ghost button-block" type="button" onClick={clear}>
               <RotateCcw size={15} /> Start another file
             </button>

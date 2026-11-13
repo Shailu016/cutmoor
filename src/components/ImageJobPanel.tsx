@@ -158,6 +158,9 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
             <div className="result-badge">
               <Check size={16} /> Your image is ready
             </div>
+            <a className="button button-primary button-block" href={result.url} download={result.name}>
+              <Download size={17} /> Download
+            </a>
             {file && meta && (
               <ResultSummary
                 original={{ name: file.name, bytes: file.size, format: sourceLabel(meta.kind), detail: `${meta.width}×${meta.height}` }}
@@ -166,9 +169,6 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
               />
             )}
             {result.note && <p className="job-note">{result.note}</p>}
-            <a className="button button-primary button-block" href={result.url} download={result.name}>
-              <Download size={17} /> Download
-            </a>
             <button className="button button-ghost button-block" type="button" onClick={clear}>
               <RotateCcw size={15} /> Process another image
             </button>

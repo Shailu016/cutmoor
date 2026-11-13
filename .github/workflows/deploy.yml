@@ -14,7 +14,13 @@ permissions:
   contents: read
 
 jobs:
+  # The same gates as every pull request, so a direct push or a merge that
+  # skipped CI still cannot deploy an unaudited build.
+  gates:
+    uses: ./.github/workflows/gates.yml
+
   deploy:
+    needs: gates
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -40,8 +46,9 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Typecheck, test, build
-        run: npm run check
+      # Typecheck and tests already passed in the gates; this build adds the AdSense settings.
+      - name: Build
+        run: npm run build
 
       - name: Check the pinned ffmpeg version matches the installed core
         run: |
@@ -61,7 +68,7 @@ jobs:
         # repo as a Worker project instead of deploying the static Pages build.
         working-directory: ${{ runner.temp }}
         run: >
-          npx --yes wrangler@4 pages deploy "$GITHUB_WORKSPACE/dist"
+          npx --yes wrangler@4.161.0 pages deploy "$GITHUB_WORKSPACE/dist"
           --project-name cutmoor
           --branch master
           --commit-hash "$GITHUB_SHA"

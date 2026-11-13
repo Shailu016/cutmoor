@@ -15,6 +15,7 @@ export function ScreenMedia({
   playing = false,
   reducedMotion = false,
   controls = false,
+  onError,
 }: {
   kind: ScreenKind;
   url: string | null;
@@ -23,6 +24,8 @@ export function ScreenMedia({
   playing?: boolean;
   reducedMotion?: boolean;
   controls?: boolean;
+  /** Called when the browser cannot show this media (e.g. an output format it cannot play). */
+  onError?: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -34,12 +37,12 @@ export function ScreenMedia({
   }, [playing, reducedMotion, url]);
 
   if (!url) return <div className="demo-media demo-blank" />;
-  if (kind === "image") return <img className="demo-media" src={url} alt={label} />;
+  if (kind === "image") return <img className="demo-media" src={url} alt={label} onError={onError} />;
   if (kind === "audio") {
     return (
       <div className="demo-audio">
         <Music size={28} aria-hidden="true" />
-        <audio src={url} controls preload="metadata" aria-label={label} />
+        <audio src={url} controls preload="metadata" aria-label={label} onError={onError} />
       </div>
     );
   }
@@ -55,6 +58,7 @@ export function ScreenMedia({
       preload="metadata"
       controls={controls || reducedMotion}
       aria-label={label}
+      onError={onError}
     />
   );
 }

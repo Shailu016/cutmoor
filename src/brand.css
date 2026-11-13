@@ -1560,7 +1560,9 @@ main#main {
 .job-panel {
   display: flex;
   flex-direction: column;
-  height: 720px;
+  /* Fixed for a given window, never by state. On a short laptop screen the
+     panel shrinks to fit, so the sticky panel's bottom is never cut off. */
+  height: clamp(560px, calc(100vh - var(--header-h) - 2 * var(--space-4)), 720px);
   min-height: 0;
 }
 
