@@ -20,6 +20,7 @@ const TOLERANCE_PX = 0.6;
 const browser = await puppeteer.launch({
   executablePath: process.env.CHROME_PATH ?? "C:/Program Files/Google/Chrome/Application/chrome.exe",
   headless: true,
+  args: process.env.CI ? ["--no-sandbox"] : [],
   protocolTimeout: 900_000,
 });
 const page = await browser.newPage();
