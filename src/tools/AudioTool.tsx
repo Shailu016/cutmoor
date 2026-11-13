@@ -3,8 +3,7 @@ import { FileDrop } from "../components/FileDrop";
 import { JobPanel } from "../components/JobPanel";
 import { useMediaJob } from "../hooks/useMediaJob";
 import { baseName } from "../lib/format";
-
-type AudioFormat = "mp3" | "m4a" | "wav";
+import { buildAudioArgs, type AudioFormat } from "../lib/tool-args";
 
 export function AudioTool() {
   const job = useMediaJob();
@@ -14,15 +13,7 @@ export function AudioTool() {
 
   const run = () => {
     if (!job.file) return;
-    job.run(outputName, (input) => {
-      if (format === "wav") {
-        return ["-i", input, "-vn", "-c:a", "pcm_s16le", "-y", outputName];
-      }
-      if (format === "m4a") {
-        return ["-i", input, "-vn", "-c:a", "aac", "-b:a", `${bitrate}k`, "-y", outputName];
-      }
-      return ["-i", input, "-vn", "-c:a", "libmp3lame", "-b:a", `${bitrate}k`, "-y", outputName];
-    });
+    job.run(outputName, (input) => buildAudioArgs({ input, output: outputName, format, bitrate }));
   };
 
   return (

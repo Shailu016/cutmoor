@@ -5,6 +5,7 @@ import { JobPanel } from "../components/JobPanel";
 import { VideoCropPreview } from "../components/Previews";
 import { useMediaJob } from "../hooks/useMediaJob";
 import { baseName } from "../lib/format";
+import { buildResizeArgs } from "../lib/tool-args";
 
 type Preset = "9:16" | "1:1" | "4:5" | "16:9" | "custom";
 
@@ -28,23 +29,7 @@ export function ResizeTool() {
 
   const run = () => {
     if (!job.file) return;
-    job.run(outputName, (input) => {
-      const filter =
-        fit === "crop"
-          ? `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},setsar=1`
-          : `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1`;
-      return [
-        "-i", input,
-        "-vf", filter,
-        "-c:v", "libx264",
-        "-preset", "veryfast",
-        "-crf", "22",
-        "-c:a", "aac",
-        "-b:a", "160k",
-        "-movflags", "+faststart",
-        "-y", outputName,
-      ];
-    });
+    job.run(outputName, (input) => buildResizeArgs({ input, output: outputName, width, height, fit }));
   };
 
   return (

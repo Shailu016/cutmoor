@@ -344,6 +344,26 @@ export const HOME_FAQS = [
       "Video inputs include MP4, MOV, WebM, MKV, and AVI. Image inputs include JPG, PNG, WebP, AVIF, GIF, BMP, HEIC, and HEIF. Exports include MP4, WebM, GIF, MP3, WAV, M4A, JPG, PNG, and WebP, depending on the tool and your browser.",
   },
   {
+    question: "Does Cutmoor work offline?",
+    answer:
+      "Not as a promise. The page and the video encoder have to be downloaded the first time, and Cutmoor has no offline mode. Your browser may keep those files in its cache afterwards, but you should expect to need a connection to open the site.",
+  },
+  {
+    question: "Why does processing speed vary?",
+    answer:
+      "Everything runs on your own device. The video encoder is a single-threaded WebAssembly build, so the time depends on the length and resolution of the video, the settings you choose, and how fast your device is. After every job the result card shows the processing time that job actually took.",
+  },
+  {
+    question: "Does compression reduce quality?",
+    answer:
+      "Video compression re-encodes the file, which is lossy, so some detail is always lost. A smaller target size loses more. The before and after previews and the real file sizes on the result card let you judge the trade-off, and Best quality mode keeps more detail. PNG output is lossless.",
+  },
+  {
+    question: "Does Cutmoor work on a phone?",
+    answer:
+      "It runs in modern mobile browsers, but we have not tested every phone. Phones have less memory than computers, so long or high-resolution videos are more likely to fail. Shorter clips and photos work best on a phone.",
+  },
+  {
     question: "Can Cutmoor download a video from YouTube or Instagram?",
     answer:
       "No. Cutmoor only works with files you already have. It does not fetch URLs or download content from streaming platforms, and it cannot bypass a platform player.",
@@ -351,7 +371,7 @@ export const HOME_FAQS = [
   {
     question: "How big can a file be?",
     answer:
-      "Browser memory is the real limit. Video files up to about 500 MB work on a desktop with 8 GB of RAM, while phones and older laptops should stay under 200 MB. Image output is capped at 16.7 megapixels for canvas safety, and very large photos are scaled down before export.",
+      "Browser memory is the real limit. The largest video we have tested is 104 MB (a 20-second 1080p clip), which compressed in about a minute and a half on a desktop. Larger files may work, but they depend on your device's memory, and phones and older laptops are more likely to run out. Image output is capped at 16.7 megapixels for canvas safety, and very large photos are scaled down before export.",
   },
   {
     question: "Do I need to install anything?",

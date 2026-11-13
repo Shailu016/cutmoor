@@ -4,6 +4,7 @@ import { FileDrop } from "../components/FileDrop";
 import { JobPanel } from "../components/JobPanel";
 import { useMediaJob } from "../hooks/useMediaJob";
 import { baseName, formatDuration, parseTimecode } from "../lib/format";
+import { buildTrimArgs } from "../lib/tool-args";
 
 export function TrimTool() {
   const job = useMediaJob();
@@ -29,12 +30,7 @@ export function TrimTool() {
 
   const run = () => {
     if (!job.file || !valid) return;
-    job.run(outputName, (input) => {
-      const args = ["-ss", String(startSeconds), "-i", input, "-t", String(length)];
-      args.push("-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-c:a", "aac", "-b:a", "160k");
-      args.push("-movflags", "+faststart", "-y", outputName);
-      return args;
-    });
+    job.run(outputName, (input) => buildTrimArgs({ input, output: outputName, startSeconds, lengthSeconds: length }));
   };
 
   return (

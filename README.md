@@ -41,6 +41,34 @@ npm run preview  # serve the built dist/ with pretty URLs
 | `/guides` | 17 practical video and image guides |
 | `/about`, `/privacy`, `/terms`, `/cookies`, `/contact`, `/editorial`, `/licences` | Trust and licence pages |
 
+## Real results, the sample demo, and formats
+
+- Every tool ends with a result card (`src/components/ResultSummary.tsx`) built
+  from the real byte counts of the original and processed files
+  (`src/lib/results.ts`). A larger or identical result is never shown as a
+  saving, and an empty output is flagged. Processing time is measured with
+  `performance.now()`, and the one-time encoder download is reported separately.
+- The homepage demo (`src/components/DemoStage.tsx`) has a tab per tool
+  (Compress, Crop, Trim, Convert, Audio, Frame, Image). **Try it live** runs the
+  tool on `public/samples/sample-clip.mp4` (or `sample-photo.jpg` for Image)
+  through the same job hooks and the same FFmpeg arguments as the tool pages
+  (`src/lib/compress.ts`, `src/lib/tool-args.ts`, scenarios in `src/lib/demo.ts`).
+  The samples are generated test files (a Mandelbrot zoom with a synthesized
+  chord, made with FFmpeg), and the page says so. A unit test checks their sizes
+  against the files on disk.
+- Until a visitor presses Try it live, the screen plays a **recording** of that
+  exact run (`public/walkthroughs/*.mp4`), labelled as a recording. Re-make the
+  clips with `node scripts/capture-walkthroughs.mjs` (see the script header)
+  whenever the demo screen, the samples, or a tool's settings change.
+- **Layout rule:** the demo may never move the page. The screen is always 16:9,
+  its overlays are sized from its own width, and the control area has a fixed
+  height. `scripts/verify/layout-shift.mjs` steps through every tab and state and
+  fails if anything moves.
+- `src/lib/formats.ts` is the single source of truth for supported formats and
+  limits. A format is only "Supported" after a real file went through the tool
+  and the output decoded; see `scripts/verify/README.md` for how that is tested
+  and re-run.
+
 ## Configuration
 
 Copy `.env.example` to `.env` and set:
@@ -161,7 +189,8 @@ be allowed too. With `VITE_FFMPEG_BASE_URL` set, add the asset origin to
 ## Notes on limits
 
 - ffmpeg runs in a Web Worker. Video files are limited by tab memory, not by an
-  upload quota. ~500 MB is reasonable on a desktop with 8 GB of RAM.
+  upload quota. The largest video tested so far is 104 MB (20 s of 1080p), which
+  compressed in 96 s on a desktop; larger files are untested.
 - Image output is capped at 16,777,216 pixels and 16,384 px per edge, matching
   the largest canvas Safari will paint reliably. Larger sources are downscaled.
 - Safari cannot encode WebP from a canvas and silently returns a PNG. The UI

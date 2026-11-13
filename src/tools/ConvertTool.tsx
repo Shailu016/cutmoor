@@ -3,12 +3,13 @@ import { FileDrop } from "../components/FileDrop";
 import { JobPanel } from "../components/JobPanel";
 import { useMediaJob } from "../hooks/useMediaJob";
 import { baseName } from "../lib/format";
+import { buildConvertArgs, type ConvertFormat } from "../lib/tool-args";
 
-type Format = "mp4" | "webm" | "gif" | "mp3" | "wav" | "m4a";
+type Format = ConvertFormat;
 
 const FORMATS: { value: Format; label: string; note: string }[] = [
   { value: "mp4", label: "MP4", note: "Plays everywhere. H.264 + AAC." },
-  { value: "webm", label: "WebM", note: "Smaller for the web. VP9 + Opus." },
+  { value: "webm", label: "WebM", note: "For the web. VP8 + Opus." },
   { value: "gif", label: "GIF", note: "Short silent loop. Keep it under 6s." },
   { value: "mp3", label: "MP3", note: "Audio only. Small and universal." },
   { value: "m4a", label: "M4A", note: "Audio only. AAC, Apple-friendly." },
@@ -22,29 +23,7 @@ export function ConvertTool() {
 
   const run = () => {
     if (!job.file) return;
-    job.run(outputName, (input) => {
-      if (format === "mp4") {
-        return ["-i", input, "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-y", outputName];
-      }
-      if (format === "webm") {
-        return ["-i", input, "-c:v", "libvpx-vp9", "-crf", "32", "-b:v", "0", "-c:a", "libopus", "-b:a", "128k", "-y", outputName];
-      }
-      if (format === "gif") {
-        return [
-          "-i", input,
-          "-vf", "fps=12,scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer",
-          "-loop", "0",
-          "-y", outputName,
-        ];
-      }
-      if (format === "mp3") {
-        return ["-i", input, "-vn", "-c:a", "libmp3lame", "-b:a", "192k", "-y", outputName];
-      }
-      if (format === "m4a") {
-        return ["-i", input, "-vn", "-c:a", "aac", "-b:a", "192k", "-y", outputName];
-      }
-      return ["-i", input, "-vn", "-c:a", "pcm_s16le", "-y", outputName];
-    });
+    job.run(outputName, (input) => buildConvertArgs({ input, output: outputName, format }));
   };
 
   return (

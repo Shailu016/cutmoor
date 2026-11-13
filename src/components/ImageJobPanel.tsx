@@ -1,12 +1,15 @@
 import { AlertTriangle, Check, Download, Loader2, RotateCcw, ShieldCheck, X } from "lucide-react";
 import { formatBytes } from "../lib/format";
-import { savingsPercent, sourceLabel } from "../lib/image";
+import { sourceLabel } from "../lib/image";
+import { formatElapsed } from "../lib/results";
+import { useElapsed } from "../hooks/useElapsed";
+import { ResultSummary } from "./ResultSummary";
 import type { ImageJob } from "../hooks/useImageJob";
 
 export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: string }) {
-  const { phase, progress, result, error, file, meta, sourcePreview, loadingNote, cancel, clear } = job;
+  const { phase, progress, result, error, file, meta, sourcePreview, loadingNote, startedAt, wasCancelled, cancel, clear } = job;
   const percent = Math.round(progress * 100);
-  const savings = result && file ? savingsPercent(file.size, result.size) : null;
+  const elapsed = useElapsed(startedAt, phase === "working");
 
   return (
     <aside className="job-panel image-job-panel" aria-live="polite">
@@ -15,7 +18,7 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
         <span className={`job-state job-state-${phase}`}>
           {phase === "idle" && "Waiting"}
           {phase === "loading" && "Reading"}
-          {phase === "ready" && "Ready"}
+          {phase === "ready" && (wasCancelled ? "Cancelled" : "Ready")}
           {phase === "working" && "Working"}
           {phase === "done" && "Complete"}
           {phase === "error" && "Failed"}
@@ -67,6 +70,11 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
               {meta.hasAlpha && <span>Transparency</span>}
             </div>
           )}
+          {wasCancelled && (
+            <p className="job-note job-note-cancelled" role="status">
+              Job cancelled. Nothing was changed and your image is still loaded.
+            </p>
+          )}
           <p className="job-idle">Choose your settings, then run the tool.</p>
           <div className="job-trust">
             <ShieldCheck size={16} />
@@ -91,6 +99,7 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
           >
             <div className="progress-fill" style={{ width: `${Math.max(3, percent)}%` }} />
           </div>
+          <p className="job-elapsed">Elapsed {formatElapsed(elapsed)}</p>
           <p className="job-note">
             Canvas work happens on your device. Large photos and target-size searches take a few seconds longer than a
             simple resize.
@@ -120,22 +129,13 @@ export function ImageJobPanel({ job, idleHint }: { job: ImageJob; idleHint: stri
             </figure>
           </div>
 
-          <div className="result-file">
-            <strong title={result.name}>{result.name}</strong>
-            <span>{formatBytes(result.size)}</span>
-          </div>
-
-          <div className="image-result-stats">
-            <span>
-              {result.width}×{result.height}
-            </span>
-            <span>{sourceLabel(result.format)}</span>
-            {savings !== null && (
-              <span className={savings >= 0 ? "stat-good" : "stat-warn"}>
-                {savings >= 0 ? `${savings}% smaller` : `${Math.abs(savings)}% larger`}
-              </span>
-            )}
-          </div>
+          {file && meta && (
+            <ResultSummary
+              original={{ name: file.name, bytes: file.size, format: sourceLabel(meta.kind), detail: `${meta.width}×${meta.height}` }}
+              processed={{ name: result.name, bytes: result.size, format: sourceLabel(result.format), detail: `${result.width}×${result.height}` }}
+              processMs={result.processMs}
+            />
+          )}
 
           {result.note && <p className="job-note">{result.note}</p>}
 

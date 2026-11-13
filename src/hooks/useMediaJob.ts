@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { releaseBlobUrl } from "../lib/blob-url";
 import { onFFmpegLog, onFFmpegProgress, resetFFmpeg, runFFmpeg } from "../lib/ffmpeg";
 import { readVideoMeta, type VideoMeta } from "../lib/media";
 
@@ -8,6 +9,10 @@ export interface JobResult {
   url: string;
   name: string;
   size: number;
+  /** Measured processing time. Excludes the one-time encoder download. */
+  processMs: number;
+  /** Measured encoder download and start-up time for this run; near zero when already loaded. */
+  engineLoadMs: number;
 }
 
 export interface MediaJob {
@@ -19,6 +24,10 @@ export interface MediaJob {
   result: JobResult | null;
   error: string | null;
   previewUrl: string | null;
+  /** performance.now() when the current run started, or null when idle. */
+  startedAt: number | null;
+  /** True after the user cancelled the last run, until the next run or file. */
+  wasCancelled: boolean;
   selectFile: (file: File) => Promise<void>;
   clear: () => void;
   run: (outputName: string, buildArgs: (inputName: string) => string[]) => Promise<void>;
@@ -39,6 +48,8 @@ export function useMediaJob(): MediaJob {
   const [result, setResult] = useState<JobResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [wasCancelled, setWasCancelled] = useState(false);
 
   const resultUrl = useRef<string | null>(null);
   const previewUrlRef = useRef<string | null>(null);
@@ -47,14 +58,14 @@ export function useMediaJob(): MediaJob {
 
   const releaseResult = useCallback(() => {
     if (resultUrl.current) {
-      URL.revokeObjectURL(resultUrl.current);
+      releaseBlobUrl(resultUrl.current);
       resultUrl.current = null;
     }
   }, []);
 
   const releasePreview = useCallback(() => {
     if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current);
+      releaseBlobUrl(previewUrlRef.current);
       previewUrlRef.current = null;
     }
     setPreviewUrl(null);
@@ -86,6 +97,8 @@ export function useMediaJob(): MediaJob {
       setLogs([]);
       setPhase("ready");
       setMeta(null);
+      setStartedAt(null);
+      setWasCancelled(false);
       const url = URL.createObjectURL(next);
       previewUrlRef.current = url;
       setPreviewUrl(url);
@@ -107,6 +120,8 @@ export function useMediaJob(): MediaJob {
     setLogs([]);
     setResult(null);
     setError(null);
+    setStartedAt(null);
+    setWasCancelled(false);
   }, [releaseResult, releasePreview, unsubscribeAll]);
 
   const run = useCallback(
@@ -120,6 +135,9 @@ export function useMediaJob(): MediaJob {
       setLogs([]);
       setResult(null);
       setError(null);
+      setWasCancelled(false);
+      setStartedAt(performance.now());
+      let timings = { engineLoadMs: 0, processMs: 0 };
 
       subscriptions.current.push(
         onFFmpegLog((message) => {
@@ -136,11 +154,18 @@ export function useMediaJob(): MediaJob {
       );
 
       try {
-        const blob = await runFFmpeg({ file, outputName, args: buildArgs });
+        const blob = await runFFmpeg({
+          file,
+          outputName,
+          args: buildArgs,
+          onTimings: (measured) => {
+            timings = measured;
+          },
+        });
         if (cancelled.current) return;
         const url = URL.createObjectURL(blob);
         resultUrl.current = url;
-        setResult({ url, name: outputName, size: blob.size });
+        setResult({ url, name: outputName, size: blob.size, ...timings });
         setProgress(1);
         setPhase("done");
       } catch (jobError) {
@@ -171,8 +196,25 @@ export function useMediaJob(): MediaJob {
     setPhase(file ? "ready" : "idle");
     setProgress(0);
     setError(null);
+    setStartedAt(null);
+    setWasCancelled(true);
     setLogs((previous) => [...previous, "Job cancelled."]);
   }, [file, unsubscribeAll]);
 
-  return { file, meta, phase, progress, logs, result, error, previewUrl, selectFile, clear, run, cancel };
+  return {
+    file,
+    meta,
+    phase,
+    progress,
+    logs,
+    result,
+    error,
+    previewUrl,
+    startedAt,
+    wasCancelled,
+    selectFile,
+    clear,
+    run,
+    cancel,
+  };
 }

@@ -18,6 +18,12 @@
 
 /*.png
   Cache-Control: public, max-age=604800
+
+# Demo recordings and samples change only when the demo does.
+/walkthroughs/*
+  Cache-Control: public, max-age=604800
+/samples/*
+  Cache-Control: public, max-age=604800
 /favicon.svg
   Cache-Control: public, max-age=604800
 /favicon.ico

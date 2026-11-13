@@ -1,3 +1,4 @@
+import { releaseBlobUrl } from "./blob-url";
 export interface VideoMeta {
   duration: number;
   width: number;
@@ -23,7 +24,13 @@ export function readVideoMeta(file: File): Promise<VideoMeta> {
     const finish = (meta: VideoMeta) => {
       if (settled) return;
       settled = true;
-      URL.revokeObjectURL(url);
+      // Detach the source before releasing the URL. Otherwise the element can still be
+      // reading the file when it disappears, and the browser logs a failed request.
+      video.onloadedmetadata = null;
+      video.onerror = null;
+      video.removeAttribute("src");
+      video.load();
+      releaseBlobUrl(url);
       resolve(meta);
     };
 

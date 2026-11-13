@@ -4,6 +4,7 @@ import { FileDrop } from "../components/FileDrop";
 import { JobPanel } from "../components/JobPanel";
 import { useMediaJob } from "../hooks/useMediaJob";
 import { baseName, formatDuration, parseTimecode } from "../lib/format";
+import { buildFrameArgs } from "../lib/tool-args";
 
 export function FrameTool() {
   const job = useMediaJob();
@@ -23,12 +24,7 @@ export function FrameTool() {
 
   const run = () => {
     if (!job.file || !valid) return;
-    job.run(outputName, (input) => {
-      const args = ["-ss", String(seconds), "-i", input, "-frames:v", "1"];
-      if (format === "jpg") args.push("-q:v", "2");
-      args.push("-y", outputName);
-      return args;
-    });
+    job.run(outputName, (input) => buildFrameArgs({ input, output: outputName, seconds, format }));
   };
 
   return (

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { releaseBlobUrl } from "../lib/blob-url";
 import {
   createPreview,
   detectAlpha,
@@ -18,6 +19,8 @@ export interface ImageJobResult {
   height: number;
   format: ImageFormat;
   note?: string;
+  /** Measured processing time from performance.now(). */
+  processMs: number;
 }
 
 export interface ImageTaskContext {
@@ -45,6 +48,10 @@ export interface ImageJob {
   error: string | null;
   sourcePreview: string | null;
   source: LoadedImage | null;
+  /** performance.now() when the current run started, or null when idle. */
+  startedAt: number | null;
+  /** True after the user cancelled the last run, until the next run or file. */
+  wasCancelled: boolean;
   selectFile: (file: File) => Promise<void>;
   clear: () => void;
   run: (task: (context: ImageTaskContext) => Promise<ImageTaskResult>) => Promise<void>;
@@ -66,6 +73,8 @@ export function useImageJob(): ImageJob {
   const [error, setError] = useState<string | null>(null);
   const [sourcePreview, setSourcePreview] = useState<string | null>(null);
   const [source, setSource] = useState<LoadedImage | null>(null);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [wasCancelled, setWasCancelled] = useState(false);
 
   const loadedRef = useRef<LoadedImage | null>(null);
   const resultUrlRef = useRef<string | null>(null);
@@ -82,7 +91,7 @@ export function useImageJob(): ImageJob {
 
   const releaseResult = useCallback(() => {
     if (resultUrlRef.current) {
-      URL.revokeObjectURL(resultUrlRef.current);
+      releaseBlobUrl(resultUrlRef.current);
       resultUrlRef.current = null;
     }
   }, []);
@@ -112,6 +121,8 @@ export function useImageJob(): ImageJob {
     setError(null);
     setSourcePreview(null);
     setSource(null);
+    setStartedAt(null);
+    setWasCancelled(false);
   }, [releaseLoaded, releaseResult]);
 
   const selectFile = useCallback(
@@ -132,6 +143,8 @@ export function useImageJob(): ImageJob {
       setError(null);
       setSourcePreview(null);
       setSource(null);
+      setStartedAt(null);
+      setWasCancelled(false);
 
       try {
         const loaded = await loadImage(next, {
@@ -181,10 +194,13 @@ export function useImageJob(): ImageJob {
       abortRef.current = controller;
       const token = tokenRef.current;
 
+      const started = performance.now();
       setPhase("working");
       setProgress(0);
       setResult(null);
       setError(null);
+      setWasCancelled(false);
+      setStartedAt(started);
 
       try {
         const output = await task({
@@ -207,6 +223,7 @@ export function useImageJob(): ImageJob {
           height: output.height,
           format: output.format,
           note: output.note,
+          processMs: performance.now() - started,
         });
         setProgress(1);
         setPhase("done");
@@ -243,6 +260,8 @@ export function useImageJob(): ImageJob {
     setPhase(loadedRef.current ? "ready" : "idle");
     setProgress(0);
     setError(null);
+    setStartedAt(null);
+    setWasCancelled(true);
   }, []);
 
   return {
@@ -255,6 +274,8 @@ export function useImageJob(): ImageJob {
     error,
     sourcePreview,
     source,
+    startedAt,
+    wasCancelled,
     selectFile,
     clear,
     run,

@@ -150,8 +150,8 @@ export function ToolsIndexPage() {
             <details className="faq">
               <summary>Very large files can fail.</summary>
               <p>
-                Browser work is limited by tab memory. A 500 MB video is usually fine on a desktop with 8 GB of RAM; a
-                phone should stay under 200 MB. Images above 16.7 megapixels are capped for canvas safety. If a job
+                Browser work is limited by tab memory. The largest video we have tested is 104 MB on a desktop; larger
+                files depend on your device's memory, and a phone is more likely to run out. Images above 16.7 megapixels are capped for canvas safety. If a job
                 fails, try a smaller file or a lower resolution.
               </p>
             </details>

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
-import { PixelStage } from "../components/PixelStage";
+import { FormatSummary } from "../components/FormatSummary";
+import { DemoStage } from "../components/DemoStage";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
@@ -29,7 +30,7 @@ const POPULAR_TASKS = [
 ];
 
 const TRUST_STATS = [
-  { value: "0", label: "bytes uploaded" },
+  { value: "0", label: "bytes of media uploaded" },
   { value: "11", label: "free tools" },
   { value: "No", label: "watermark or sign-up" },
   { value: "100%", label: "runs in your browser" },
@@ -85,7 +86,7 @@ export function HomePage() {
           </ul>
         </div>
         <div className="hero-art">
-          <PixelStage />
+          <DemoStage />
         </div>
         </div>
 
@@ -313,6 +314,8 @@ export function HomePage() {
           </div>
         </section>
       )}
+
+      <FormatSummary />
 
       <section className="section shell faq-section">
         <div className="section-head">
