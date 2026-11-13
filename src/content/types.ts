@@ -17,7 +17,10 @@ export interface GuideFaq {
   answer: string;
 }
 
-export interface Guide {
+/** What every page needs to list or link a guide. Small, and shipped with the main bundle. */
+export interface GuideMeta {
+  /** Position in lists and the sitemap. New guides take the next number. */
+  order: number;
   slug: string;
   title: string;
   description: string;
@@ -27,6 +30,12 @@ export interface Guide {
   modified: string;
   readingMinutes: number;
   tools: string[];
+}
+
+/** The article itself. Loaded only on that guide's page, as its own chunk. */
+export interface GuideBody {
   sections: GuideSection[];
   faqs: GuideFaq[];
 }
+
+export type Guide = GuideMeta & GuideBody;

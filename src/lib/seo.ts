@@ -1,3 +1,4 @@
+import { getGuideBody } from "../content/guide-content";
 import { GUIDES } from "../content/guides";
 import { SITE_PAGES } from "../content/site-pages";
 import { TOOLS } from "./tools";
@@ -308,7 +309,8 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
           { name: guide.title, path: `/guides/${guide.slug}` },
         ]),
       );
-      if (guide.faqs.length) graph.push(faqJsonLd(guide.faqs));
+      const faqs = getGuideBody(guide.slug)?.faqs ?? [];
+      if (faqs.length) graph.push(faqJsonLd(faqs));
     }
   }
 

@@ -1528,3 +1528,27 @@ main#main {
     opacity: 0.55;
   }
 }
+
+/* A guide's article loads as its own chunk; hold its place so nothing jumps when it arrives. */
+.article-loading {
+  min-height: 70vh;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--paper-2) 25%, var(--paper) 50%, var(--paper-2) 75%);
+  background-size: 200% 100%;
+  animation: article-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes article-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-loading {
+    animation: none;
+  }
+}

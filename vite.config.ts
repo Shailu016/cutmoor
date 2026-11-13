@@ -70,7 +70,9 @@ export default defineConfig(async ({ mode }) => {
         // Framework code changes rarely; a separate chunk stays cached across deploys.
         manualChunks(id: string) {
           if (id.includes("node_modules/react") || id.includes("node_modules/scheduler")) return "vendor";
-          if (id.includes("/src/content/")) return "content";
+          // Guide articles are loaded one at a time, so each stays its own chunk. Only the small
+          // index and the site pages share the "content" chunk.
+          if (id.includes("/src/content/") && !id.endsWith("/body.ts")) return "content";
           return undefined;
         },
       },

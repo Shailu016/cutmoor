@@ -69,6 +69,24 @@ npm run preview  # serve the built dist/ with pretty URLs
   and the output decoded; see `scripts/verify/README.md` for how that is tested
   and re-run.
 
+## Adding a guide
+
+```bash
+npm run new:guide -- how-to-compress-a-gif
+```
+
+This creates `src/content/guides/<slug>/meta.ts` (title, description, dates,
+tool links, and an `order`) and `body.ts` (sections and FAQs). Fill in every
+`TODO`; the tests fail while any remain, and they also check the structure
+(three or more sections, unique headings, questions that end in `?`, descriptions
+under 300 characters). Nothing else needs editing: the guide list, home page,
+sitemap, RSS feed, `llms.txt` and structured data are all built from the index.
+
+The split is deliberate. `meta.ts` files form a small index shipped with every
+page; each `body.ts` is its own chunk, fetched only on that guide's page (and
+prerendered in full at build time, so search engines see the whole article). A
+guide therefore costs every visitor a few hundred bytes, not its whole text.
+
 ## Configuration
 
 Copy `.env.example` to `.env` and set:
