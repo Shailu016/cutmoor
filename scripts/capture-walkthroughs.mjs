@@ -161,6 +161,8 @@ for (const id of tabIds) {
   const timeline = [];
 
   await setCaption(CAPTIONS.ready);
+  // The poster is the clip's own first frame, so starting playback never changes the picture.
+  const poster = Buffer.from(await screen.screenshot({ type: "webp", quality: 72 }));
   timeline.push(...realTime(await captureFor(HOLD_SECONDS.ready)));
 
   await click(".demo-controls .button-primary", "Run");
@@ -177,7 +179,6 @@ for (const id of tabIds) {
   await new Promise((r) => setTimeout(r, 250));
   const afterFrames = await captureFor(HOLD_SECONDS.after);
   timeline.push(...realTime(afterFrames));
-  const poster = timeline[0].buf; // the clip's first frame: starting playback must not change the picture
 
   await click(".demo-switch button", "Before");
   await setCaption(CAPTIONS.before);
@@ -191,7 +192,7 @@ for (const id of tabIds) {
 
   const video = await encode(timeline);
   await writeFile(join(OUT_DIR, `${id}.mp4`), video);
-  await writeFile(join(OUT_DIR, `${id}.jpg`), poster);
+  await writeFile(join(OUT_DIR, `${id}.webp`), poster);
   report.push({ id, frames: timeline.length, seconds: Math.round((timeline.length / FPS) * 10) / 10, kb: Math.round(video.length / 1024), posterKb: Math.round(poster.length / 1024), realWorkingSeconds: Math.round(realSeconds * 10) / 10 });
   console.log(`${(video.length / 1024).toFixed(0)} KB, ${(timeline.length / FPS).toFixed(1)} s`);
 

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
+import { useAfterLoadIdle } from "../hooks/useAfterLoad";
 import { usePrefersReducedMotion, useSaveData } from "../hooks/useMotionPrefs";
 import { walkthroughPosterUrl, walkthroughUrl, type DemoId } from "../lib/demo";
 
@@ -14,6 +15,8 @@ export function WalkthroughVideo({ id, label }: { id: DemoId; label: string }) {
   const reducedMotion = usePrefersReducedMotion();
   const saveData = useSaveData();
   const autoplay = !reducedMotion && !saveData;
+  // Starting the video downloads it. Wait until the page has loaded so it never competes with what the visitor came to see.
+  const pageIdle = useAfterLoadIdle();
   const [failed, setFailed] = useState(false);
   const [playing, setPlaying] = useState(false);
 
@@ -25,7 +28,7 @@ export function WalkthroughVideo({ id, label }: { id: DemoId; label: string }) {
   // Play only while the demo is on screen, and stop when it leaves.
   useEffect(() => {
     const video = ref.current;
-    if (!video || !autoplay || typeof IntersectionObserver === "undefined") return;
+    if (!video || !autoplay || !pageIdle || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) video.play().catch(() => undefined);
@@ -35,7 +38,7 @@ export function WalkthroughVideo({ id, label }: { id: DemoId; label: string }) {
     );
     observer.observe(video);
     return () => observer.disconnect();
-  }, [id, autoplay]);
+  }, [id, autoplay, pageIdle]);
 
   if (failed) {
     return (

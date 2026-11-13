@@ -71,6 +71,8 @@ export function headForPath(pathname: string): string {
     `<link rel="apple-touch-icon" href="/apple-touch-icon.png" />`,
     adsenseClient ? tag("google-adsense-account", adsenseClient) : "",
     // The AdSense loader on every page: verifies the site for review and enables Auto ads.
+    // Preconnecting saves the connection set-up time when the loader starts.
+    adsenseClient ? `<link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />` : "",
     adsenseClient
       ? `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsenseClient)}" crossorigin="anonymous" data-cutmoor-ads="true"></script>`
       : "",

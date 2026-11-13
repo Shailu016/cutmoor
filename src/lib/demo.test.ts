@@ -100,6 +100,6 @@ describe("image demo and URLs", () => {
 
   it("builds walkthrough URLs under the app base", () => {
     expect(walkthroughUrl("/", "trim")).toBe("/walkthroughs/trim.mp4");
-    expect(walkthroughPosterUrl("/", "trim")).toBe("/walkthroughs/trim.jpg");
+    expect(walkthroughPosterUrl("/", "trim")).toBe("/walkthroughs/trim.webp");
   });
 });

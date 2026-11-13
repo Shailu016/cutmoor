@@ -222,5 +222,5 @@ export function walkthroughUrl(base: string, id: DemoId): string {
 }
 
 export function walkthroughPosterUrl(base: string, id: DemoId): string {
-  return `${base}walkthroughs/${id}.jpg`;
+  return `${base}walkthroughs/${id}.webp`;
 }
