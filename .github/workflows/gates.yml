@@ -1,0 +1,97 @@
+name: Release gates
+
+# The checks a build must pass before it is previewed or deployed. Called by
+# ci.yml (every pull request) and deploy.yml (every push to master), so a change
+# that skips the pull request still cannot reach production unaudited.
+#
+# The browser checks answer the encoder's CDN requests from the installed
+# @ffmpeg/core (scripts/verify/local-core.mjs): the bytes are the same, the
+# page's SHA-256 check still runs, and a CDN hiccup cannot fail the gates.
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      # Production settings without ad scripts, so the numbers measure the site itself.
+      VITE_SITE_URL: https://cutmoor.com
+      VITE_FFMPEG_BASE_URL: https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm
+      STRICT_DEPLOY: "1"
+      CHROME_PATH: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Check the pinned ffmpeg version matches the installed core
+        run: |
+          # Read the file directly: @ffmpeg/core's "exports" map does not expose package.json to require().
+          installed=$(node -p "JSON.parse(require('fs').readFileSync('node_modules/@ffmpeg/core/package.json','utf8')).version")
+          case "$VITE_FFMPEG_BASE_URL" in
+            *"@ffmpeg/core@${installed}/"*) echo "ffmpeg core ${installed} matches." ;;
+            *) echo "::error::VITE_FFMPEG_BASE_URL does not point at @ffmpeg/core@${installed}. Update it in gates.yml and deploy.yml."; exit 1 ;;
+          esac
+
+      - name: Performance budget
+        run: npm run budget
+
+      - name: Install browser tooling
+        run: npm install --no-save puppeteer-core@23.11.1 axe-core@4.10.2
+
+      - name: Serve the build
+        run: |
+          npx vite preview --port 4173 --strictPort > preview.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://localhost:4173/ > /dev/null && exit 0; sleep 1; done
+          cat preview.log; exit 1
+
+      - name: Accessibility (axe, WCAG 2.2 AA)
+        run: node scripts/verify/a11y.mjs http://localhost:4173
+
+      - name: Lighthouse (mobile, throttled)
+        run: |
+          npx --yes lighthouse@12.8.2 http://localhost:4173/ \
+            --chrome-flags="--headless=new --no-sandbox" \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --output=json --output-path=lh.json --quiet
+          node scripts/check-lighthouse.mjs lh.json
+
+      - name: Demo layout stability (desktop)
+        run: node scripts/verify/layout-shift.mjs http://localhost:4173 desktop
+
+      - name: Demo layout stability (phone)
+        run: node scripts/verify/layout-shift.mjs http://localhost:4173 mobile
+
+      - name: Tool pages layout stability (short laptop screen)
+        run: node scripts/verify/tool-layout.mjs http://localhost:4173 laptop
+
+      - name: Tool pages layout stability (phone)
+        run: node scripts/verify/tool-layout.mjs http://localhost:4173 mobile
+
+      - name: Keep the audited build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          include-hidden-files: true
+          retention-days: 3

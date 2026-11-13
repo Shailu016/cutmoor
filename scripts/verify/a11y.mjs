@@ -11,6 +11,7 @@
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import puppeteer from "puppeteer-core";
+import { serveCoreLocally } from "./local-core.mjs";
 
 const BASE = (process.argv[2] || "http://localhost:4173").replace(/\/$/, "");
 const require = createRequire(import.meta.url);
@@ -25,6 +26,7 @@ const browser = await puppeteer.launch({
   protocolTimeout: 300_000,
 });
 const page = await browser.newPage();
+await serveCoreLocally(page);
 await page.setViewport({ width: 1280, height: 900 });
 
 const findings = [];

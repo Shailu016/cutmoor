@@ -21,6 +21,7 @@ Windows location.
 | `formats.mjs <base-url> <out.json>` | Creates real sample files in each video and image format, runs them through each tool's real code path, and checks that every output decodes. Prints each result as it happens. | `npm run dev` |
 | `extra.mjs` | WebM input (a VP9 file recorded by the browser, plus VP8) and a ~100 MB 1080p large-file compress. | `npm run dev` on port 5174 |
 | `layout-shift.mjs <base-url> [desktop\|mobile]` | Steps through every homepage demo tab and state and fails if the demo changes size, the headline moves, a control row overflows, or the browser's layout-shift score is above 0.02. | `npm run dev` |
+| `tool-layout.mjs <base-url> [desktop\|laptop\|mobile] [tool,tool]` | Runs a real job on every tool page and fails if the output panel changes size, anything below the tool moves, the panel is taller than the window, the Download button is hidden, a job fails, or the layout-shift score is above 0.02. | `npm run dev` |
 | `network.mjs <url> <file> <out.json>` | Loads a deployed tool page, runs a real job on a file, and records every network request, including the encoder's worker. Reports any request that carries a body. | The live or preview site |
 
 `formats.mjs` and `extra.mjs` import `/src/lib/*.ts` straight from the Vite dev
@@ -36,3 +37,6 @@ server, so they exercise the same functions the tools use.
 - During a real compress job on the live site, the only requests were `GET`s for
   the encoder (unpkg.com) and the page's own worker script. No request carried the
   file, and the largest request body in the whole session was 848 bytes.
+
+
+`a11y.mjs`, `layout-shift.mjs` and `tool-layout.mjs` answer the encoder's CDN requests from the installed `@ffmpeg/core` (`local-core.mjs`), so they do not depend on unpkg. The bytes are identical and the page still checks their SHA-256. Set `USE_CDN_CORE=1` to fetch from the real CDN. CI runs all three through `.github/workflows/gates.yml`, on pull requests and before every production deploy.

@@ -7,12 +7,13 @@
  * browser's own layout-shift score. It fails if the output panel changes size,
  * or (on desktop) if anything below the workbench moves.
  *
- *   node scripts/verify/tool-layout.mjs <base-url> [desktop|mobile] [tool,tool]
+ *   node scripts/verify/tool-layout.mjs <base-url> [desktop|laptop|mobile] [tool,tool]
  *
  * Needs `npm install --no-save puppeteer-core` and Chrome (CHROME_PATH).
  */
 import { join } from "node:path";
 import puppeteer from "puppeteer-core";
+import { serveCoreLocally } from "./local-core.mjs";
 
 const BASE = (process.argv[2] || "http://localhost:5174").replace(/\/$/, "");
 const device = process.argv[3] || "desktop";
@@ -45,7 +46,15 @@ const browser = await puppeteer.launch({
   protocolTimeout: 900_000,
 });
 const page = await browser.newPage();
-await page.setViewport(device === "mobile" ? { width: 390, height: 844, isMobile: true, deviceScaleFactor: 2 } : { width: 1280, height: 900 });
+await serveCoreLocally(page);
+const VIEWPORTS = {
+  desktop: { width: 1280, height: 900 },
+  // A short laptop screen: the sticky output panel must still fit, Download included.
+  laptop: { width: 1280, height: 720 },
+  mobile: { width: 390, height: 844, isMobile: true, deviceScaleFactor: 2 },
+};
+if (!VIEWPORTS[device]) throw new Error(`unknown device "${device}" (use ${Object.keys(VIEWPORTS).join(", ")})`);
+await page.setViewport(VIEWPORTS[device]);
 const consoleErrors = [];
 page.on("pageerror", (error) => consoleErrors.push(`pageerror: ${error.message.slice(0, 100)}`));
 page.on("console", (message) => {
@@ -96,6 +105,15 @@ for (const tool of TOOLS) {
         bench: bench ? Math.round(bench.height * 10) / 10 : null,
         lowerTop: lower ? Math.round((lower.top + window.scrollY) * 10) / 10 : null,
         pageHeight: document.documentElement.scrollHeight,
+        panelFits: panel ? panel.height <= window.innerHeight : true,
+        downloadVisible: (() => {
+          const link = document.querySelector(".job-panel a[download]");
+          const body = document.querySelector(".job-panel .job-body");
+          if (!link || !body) return null;
+          const a = link.getBoundingClientRect();
+          const b = body.getBoundingClientRect();
+          return a.top >= b.top - 1 && a.bottom <= b.bottom + 1;
+        })(),
         overflow: (() => {
           const lowerRegion = document.querySelector(".job-lower");
           return lowerRegion ? lowerRegion.scrollHeight > lowerRegion.clientHeight + 1 : false;
@@ -119,7 +137,12 @@ for (const tool of TOOLS) {
         await snap(`working ${i + 1}`);
       }
       await waitState("complete|failed");
-      await snap(`done (${await phaseText()})`);
+      const finished = await phaseText();
+      await snap(`done (${finished})`);
+      if (finished !== "complete") {
+        const message = await page.evaluate(() => document.querySelector(".job-error")?.textContent?.trim() ?? "");
+        throw new Error(`job ${finished}: ${message}`.slice(0, 120));
+      }
       await clickText(".job-panel .button-ghost", ["start another", "process another", "try another"]);
       await new Promise((resolve) => setTimeout(resolve, 500));
       await snap("cleared");
@@ -155,6 +178,8 @@ for (const tool of TOOLS) {
     lowerSpread: spread("lowerTop", true),
     pageSpread: spread("pageHeight", true),
     overflow: snaps.some((s) => s.overflow),
+    panelFits: snaps.every((s) => s.panelFits),
+    downloadHidden: snaps.some((s) => s.downloadVisible === false),
     shiftAll: shift.all,
     shiftNoInput: shift.afterNoInput,
     note,
@@ -171,13 +196,15 @@ for (const r of results) {
   );
 }
 
-const desktop = device === "desktop";
+const desktop = device !== "mobile";
 const failures = [];
 for (const r of results) {
   if (r.panelSpread > TOLERANCE) failures.push(`${r.tool}: output panel changes height by ${r.panelSpread.toFixed(0)} px`);
   if (desktop && r.lowerSpread > TOLERANCE) failures.push(`${r.tool}: content below the tool moves by ${r.lowerSpread.toFixed(0)} px`);
   if (r.shiftNoInput > CLS_LIMIT) failures.push(`${r.tool}: layout-shift score ${r.shiftNoInput.toFixed(3)} (not caused by input)`);
   if (r.overflow) failures.push(`${r.tool}: output panel text overflows its area`);
+  if (desktop && !r.panelFits) failures.push(`${r.tool}: output panel is taller than the window`);
+  if (r.downloadHidden) failures.push(`${r.tool}: the Download button is not visible without scrolling the panel`);
   if (r.note) failures.push(`${r.tool}: ${r.note}`);
 }
 if (consoleErrors.length) failures.push(`console errors: ${[...new Set(consoleErrors)].slice(0, 3).join(" | ")}`);

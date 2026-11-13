@@ -11,6 +11,7 @@
  * overflows, or the layout-shift score is above the limit.
  */
 import puppeteer from "puppeteer-core";
+import { serveCoreLocally } from "./local-core.mjs";
 
 const BASE = process.argv[2] || "http://localhost:5174";
 const device = process.argv[3] || "desktop";
@@ -24,6 +25,7 @@ const browser = await puppeteer.launch({
   protocolTimeout: 900_000,
 });
 const page = await browser.newPage();
+await serveCoreLocally(page);
 await page.setViewport(device === "mobile" ? { width: 390, height: 844, isMobile: true, deviceScaleFactor: 2 } : { width: 1280, height: 900 });
 
 const consoleErrors = [];

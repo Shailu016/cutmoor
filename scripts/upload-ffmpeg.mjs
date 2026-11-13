@@ -37,7 +37,7 @@ for (const file of files) {
   const result = spawnSync(
     "npx",
     [
-      "--yes", "wrangler@4", "r2", "object", "put", key,
+      "--yes", "wrangler@4.161.0", "r2", "object", "put", key,
       "--file", path,
       "--content-type", file.type,
       "--cache-control", "public, max-age=31536000, immutable",
