@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, Check, Download, Loader2, RotateCcw, ShieldCheck, X } from "lucide-react";
+import { AlertTriangle, Check, Download, Film, Loader2, RotateCcw, ShieldCheck, X } from "lucide-react";
 import { extensionOf, formatBytes, formatDuration } from "../lib/format";
 import { formatElapsed } from "../lib/results";
 import { useElapsed } from "../hooks/useElapsed";
 import { ResultSummary } from "./ResultSummary";
+import { ScreenMedia, type ScreenKind } from "./ScreenMedia";
 import type { MediaJob } from "../hooks/useMediaJob";
 
-type PreviewKind = "video" | "audio" | "image" | null;
+type PreviewKind = ScreenKind | null;
 
 function previewKind(name: string): PreviewKind {
   const ext = name.split(".").pop()?.toLowerCase() ?? "";
@@ -16,6 +17,12 @@ function previewKind(name: string): PreviewKind {
   return null;
 }
 
+/**
+ * The output panel of every video and audio tool. Layout rule: the panel has a
+ * fixed height, the screen is always 16:9, and the detail area below scrolls
+ * inside itself, so no state (waiting, ready, working, done, failed) can move
+ * the page.
+ */
 export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string }) {
   const { phase, progress, result, error, logs, file, meta, previewUrl, startedAt, wasCancelled, cancel, clear } = job;
   const loadingEncoder = phase === "working" && progress === 0;
@@ -27,14 +34,20 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
         .filter(Boolean)
         .join(" · ")
     : "";
-  const hasVideoPreview = Boolean(previewUrl && meta && meta.width > 0 && meta.height > 0);
-  const hasAudioPreview = Boolean(previewUrl && meta && (!meta.width || !meta.height));
-  const resultPreview = result ? previewKind(result.name) : null;
+
+  const sourceKind: ScreenKind | null =
+    previewUrl && meta ? (meta.width > 0 && meta.height > 0 ? "video" : "audio") : null;
+  const resultKind = result ? previewKind(result.name) : null;
   const [previewFailed, setPreviewFailed] = useState(false);
+  const [view, setView] = useState<"before" | "after">("after");
 
   useEffect(() => {
     setPreviewFailed(false);
+    setView("after");
   }, [result?.url]);
+
+  const canCompare = phase === "done" && Boolean(result) && Boolean(resultKind) && !previewFailed;
+  const showingResult = canCompare && view === "after";
 
   return (
     <aside className="job-panel" aria-live="polite">
@@ -49,211 +62,164 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
         </span>
       </div>
 
-      {phase === "idle" && (
-        <div className="job-body">
-          <p className="job-idle">{idleHint}</p>
-          <div className="job-trust">
-            <ShieldCheck size={16} />
-            <span>Your file is read and written locally. Nothing is uploaded.</span>
+      <div className="job-screen">
+        {showingResult && result && resultKind ? (
+          <ScreenMedia kind={resultKind} url={result.url} controls label={`Result: ${result.name}`} />
+        ) : sourceKind && phase !== "idle" && phase !== "error" ? (
+          <ScreenMedia kind={sourceKind} url={previewUrl} controls label={file ? `Source: ${file.name}` : "Source preview"} />
+        ) : (
+          <div className="demo-center">
+            {phase === "error" ? <AlertTriangle size={22} aria-hidden="true" /> : <Film size={22} aria-hidden="true" />}
+            <span>{phase === "error" ? "Nothing to show" : "Your file appears here"}</span>
           </div>
-        </div>
-      )}
-
-      {phase === "ready" && (
-        <div className="job-body">
-          {hasVideoPreview && (
-            <figure className="video-preview-figure">
-              <video
-                className="video-preview"
-                src={previewUrl ?? undefined}
-                controls
-                muted
-                playsInline
-                preload="metadata"
-                aria-label="Source video preview"
-              />
-              <figcaption>Source preview</figcaption>
-            </figure>
-          )}
-          {hasAudioPreview && (
-            <figure className="audio-preview-figure">
-              <audio
-                className="audio-preview"
-                src={previewUrl ?? undefined}
-                controls
-                preload="metadata"
-                aria-label="Source audio preview"
-              />
-              <figcaption>Source preview</figcaption>
-            </figure>
-          )}
-          {wasCancelled && (
-            <p className="job-note job-note-cancelled" role="status">
-              Job cancelled. Nothing was changed and your file is still loaded.
-            </p>
-          )}
-          <p className="job-idle">
-            {file ? "File ready. Choose your settings, then run the tool." : "Choose a file to begin."}
-          </p>
-          {meta && file && (
-            <div className="meta-row">
-              {meta.duration > 0 && <span>{formatDuration(meta.duration)}</span>}
-              {meta.width > 0 && meta.height > 0 && (
-                <span>
-                  {meta.width}×{meta.height}
-                </span>
-              )}
-              <span>{formatBytes(file.size)}</span>
+        )}
+        {phase === "working" && <div className="demo-dim" aria-hidden="true" />}
+        {(phase === "ready" || phase === "working" || canCompare) && (
+          <span className="demo-badge">{canCompare ? (view === "after" ? "After" : "Before") : "Source"}</span>
+        )}
+        {canCompare && (
+          <div className="demo-switch" role="group" aria-label="Compare before and after">
+            {(["before", "after"] as const).map((item) => (
+              <button key={item} type="button" aria-pressed={view === item} className={view === item ? "active" : undefined} onClick={() => setView(item)}>
+                {item === "before" ? "Before" : "After"}
+              </button>
+            ))}
+          </div>
+        )}
+        {phase === "working" && (
+          <div className="demo-info" aria-hidden="true">
+            <div className="demo-progress">
+              <span className={measurable ? undefined : "indeterminate"} style={measurable ? { width: `${Math.max(2, progress * 100)}%` } : undefined} />
             </div>
-          )}
-          <div className="job-trust">
-            <ShieldCheck size={16} />
-            <span>The first run loads the encoder once. Later runs start faster.</span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {phase === "working" && (
-        <div className="job-body">
-          <div className="progress-top">
-            <span>{loadingEncoder ? "Loading the encoder…" : "Encoding…"}</span>
-            <span>{measurable ? `${Math.round(progress * 100)}%` : "Working"}</span>
-          </div>
-          <div
-            className="progress-track"
-            role="progressbar"
-            aria-valuenow={measurable ? Math.round(progress * 100) : undefined}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuetext={measurable ? `${Math.round(progress * 100)} percent` : "In progress"}
-          >
+      <div className="job-body">
+        {phase === "idle" && (
+          <>
+            <p className="job-idle">{idleHint}</p>
+            <div className="job-trust">
+              <ShieldCheck size={16} />
+              <span>Your file is read and written locally. Nothing is uploaded.</span>
+            </div>
+          </>
+        )}
+
+        {phase === "ready" && (
+          <>
+            {wasCancelled && (
+              <p className="job-note job-note-cancelled" role="status">
+                Job cancelled. Nothing was changed and your file is still loaded.
+              </p>
+            )}
+            <p className="job-idle">{file ? "File ready. Choose your settings, then run the tool." : "Choose a file to begin."}</p>
+            {meta && file && (
+              <div className="meta-row">
+                {meta.duration > 0 && <span>{formatDuration(meta.duration)}</span>}
+                {meta.width > 0 && meta.height > 0 && (
+                  <span>
+                    {meta.width}×{meta.height}
+                  </span>
+                )}
+                <span>{formatBytes(file.size)}</span>
+              </div>
+            )}
+            <div className="job-trust">
+              <ShieldCheck size={16} />
+              <span>The first run loads the encoder once. Later runs start faster.</span>
+            </div>
+          </>
+        )}
+
+        {phase === "working" && (
+          <>
+            <div className="progress-top">
+              <span>{loadingEncoder ? "Loading the encoder…" : "Encoding…"}</span>
+              <span>{measurable ? `${Math.round(progress * 100)}%` : "Working"}</span>
+            </div>
             <div
-              className={`progress-fill ${measurable ? "" : "indeterminate"}`}
-              style={measurable ? { width: `${Math.max(2, progress * 100)}%` } : undefined}
-            />
-          </div>
-          <p className="job-elapsed">Elapsed {formatElapsed(elapsed)}</p>
-          <p className="job-note">
-            {loadingEncoder
-              ? "The ~32 MB encoder is downloading once and will be cached by your browser."
-              : "Keep this tab open. Encoding uses your device's CPU, so it may take a little while."}
-          </p>
-          <button className="button button-ghost button-small" type="button" onClick={cancel}>
-            <X size={15} /> Cancel job
-          </button>
-        </div>
-      )}
-
-      {phase === "done" && result && (
-        <div className="job-body">
-          <div className="result-badge">
-            <Check size={16} /> Your file is ready
-          </div>
-
-          {resultPreview === "video" && !previewFailed && (
-            <div className={hasVideoPreview ? "video-compare" : undefined}>
-              {hasVideoPreview && (
-                <figure className="video-preview-figure">
-                  <video
-                    className="video-preview"
-                    src={previewUrl ?? undefined}
-                    controls
-                    muted
-                    playsInline
-                    preload="metadata"
-                    aria-label="Original video, before processing"
-                  />
-                  <figcaption>Before</figcaption>
-                </figure>
-              )}
-              <figure className="video-preview-figure">
-                <video
-                  className="video-preview"
-                  src={result.url}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  aria-label={`Preview of ${result.name}`}
-                  onError={() => setPreviewFailed(true)}
-                />
-                <figcaption>{hasVideoPreview ? "After" : "Result preview"}</figcaption>
-              </figure>
-            </div>
-          )}
-          {resultPreview === "audio" && !previewFailed && (
-            <figure className="audio-preview-figure">
-              <audio
-                className="audio-preview"
-                src={result.url}
-                controls
-                preload="metadata"
-                aria-label={`Audio preview of ${result.name}`}
-                onError={() => setPreviewFailed(true)}
+              className="progress-track"
+              role="progressbar"
+              aria-valuenow={measurable ? Math.round(progress * 100) : undefined}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuetext={measurable ? `${Math.round(progress * 100)} percent` : "In progress"}
+            >
+              <div
+                className={`progress-fill ${measurable ? "" : "indeterminate"}`}
+                style={measurable ? { width: `${Math.max(2, progress * 100)}%` } : undefined}
               />
-              <figcaption>Audio preview</figcaption>
-            </figure>
-          )}
-          {resultPreview === "image" && !previewFailed && (
-            <figure className="image-preview">
-              <img src={result.url} alt={`Preview of ${result.name}`} onError={() => setPreviewFailed(true)} />
-              <figcaption>Result preview</figcaption>
-            </figure>
-          )}
-          {previewFailed && (
+            </div>
+            <p className="job-elapsed">Elapsed {formatElapsed(elapsed)}</p>
             <p className="job-note">
-              This browser cannot preview the output format inline. Download the file to check it in your media player.
+              {loadingEncoder
+                ? "The ~32 MB encoder is downloading once and will be cached by your browser."
+                : "Keep this tab open. Encoding uses your device's CPU, so it may take a little while."}
             </p>
-          )}
+            <button className="button button-ghost button-small" type="button" onClick={cancel}>
+              <X size={15} /> Cancel job
+            </button>
+          </>
+        )}
 
-          {file && (
-            <ResultSummary
-              original={{ name: file.name, bytes: file.size, format: extensionOf(file.name).toUpperCase() || "FILE", detail: originalDetail || undefined }}
-              processed={{ name: result.name, bytes: result.size, format: extensionOf(result.name).toUpperCase() }}
-              processMs={result.processMs}
-              engineLoadMs={result.engineLoadMs}
-            />
-          )}
-          <a className="button button-primary button-block" href={result.url} download={result.name}>
-            <Download size={17} /> Download
-          </a>
-          <button className="button button-ghost button-block" type="button" onClick={clear}>
-            <RotateCcw size={15} /> Start another file
-          </button>
-          <p className="job-note">
-            Preview the result before you download. The download link lives only in this tab; reloading the page removes
-            it.
-          </p>
-        </div>
-      )}
+        {phase === "done" && result && (
+          <>
+            <div className="result-badge">
+              <Check size={16} /> Your file is ready
+            </div>
+            {file && (
+              <ResultSummary
+                original={{ name: file.name, bytes: file.size, format: extensionOf(file.name).toUpperCase() || "FILE", detail: originalDetail || undefined }}
+                processed={{ name: result.name, bytes: result.size, format: extensionOf(result.name).toUpperCase() }}
+                processMs={result.processMs}
+                engineLoadMs={result.engineLoadMs}
+              />
+            )}
+            {previewFailed && (
+              <p className="job-note">
+                This browser cannot preview the output format inline. Download the file to check it in your media player.
+              </p>
+            )}
+            <a className="button button-primary button-block" href={result.url} download={result.name} onClick={() => undefined}>
+              <Download size={17} /> Download
+            </a>
+            <button className="button button-ghost button-block" type="button" onClick={clear}>
+              <RotateCcw size={15} /> Start another file
+            </button>
+            <p className="job-note">The download link lives only in this tab. Reloading the page removes it.</p>
+          </>
+        )}
 
-      {phase === "error" && (
-        <div className="job-body">
-          <div className="result-badge result-badge-error">
-            <AlertTriangle size={16} /> The job did not finish
+        {phase === "error" && (
+          <>
+            <div className="result-badge result-badge-error">
+              <AlertTriangle size={16} /> The job did not finish
+            </div>
+            <p className="job-error" role="alert">{error}</p>
+            <button className="button button-ghost button-block" type="button" onClick={clear}>
+              <RotateCcw size={15} /> Try another file
+            </button>
+            <p className="job-note">
+              Common causes: the file is larger than the tab's memory, the format is unusual, or the encoder was
+              interrupted. Keep the original file.
+            </p>
+          </>
+        )}
+
+        {logs.length > 0 && phase !== "idle" && (
+          <details className="job-log">
+            <summary>Encoder log</summary>
+            <pre>{logs.join("\n")}</pre>
+          </details>
+        )}
+
+        {phase === "working" && (
+          <div className="job-spinner" aria-hidden="true">
+            <Loader2 size={18} className="spin" />
           </div>
-          <p className="job-error" role="alert">{error}</p>
-          <button className="button button-ghost button-block" type="button" onClick={clear}>
-            <RotateCcw size={15} /> Try another file
-          </button>
-          <p className="job-note">
-            Common causes: the file is larger than the tab's memory, the format is unusual, or the encoder was
-            interrupted. Keep the original file.
-          </p>
-        </div>
-      )}
-
-      {logs.length > 0 && phase !== "idle" && (
-        <details className="job-log">
-          <summary>Encoder log</summary>
-          <pre>{logs.join("\n")}</pre>
-        </details>
-      )}
-
-      {phase === "working" && (
-        <div className="job-spinner" aria-hidden="true">
-          <Loader2 size={18} className="spin" />
-        </div>
-      )}
+        )}
+      </div>
     </aside>
   );
 }

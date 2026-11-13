@@ -12,7 +12,12 @@ import {
   type PageMeta,
 } from "./lib/seo";
 import { TOOLS } from "./lib/tools";
+import { primeGuideBodies } from "./content/guide-content";
 import { GUIDES } from "./content/guides";
+import { GUIDE_BODIES } from "./content/guides.server";
+
+// Every article is available before rendering, so each guide is prerendered in full.
+primeGuideBodies(GUIDE_BODIES);
 
 export const INDEXABLE_PATHS = INDEXABLE_PAGES.map((page) => page.path);
 export { INDEXABLE_PAGES };

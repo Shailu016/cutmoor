@@ -1528,3 +1528,88 @@ main#main {
     opacity: 0.55;
   }
 }
+
+/* A guide's article loads as its own chunk; hold its place so nothing jumps when it arrives. */
+.article-loading {
+  min-height: 70vh;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--paper-2) 25%, var(--paper) 50%, var(--paper-2) 75%);
+  background-size: 200% 100%;
+  animation: article-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes article-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-loading {
+    animation: none;
+  }
+}
+
+/* ---------- Tool output panel: fixed size, every state ----------
+   The panel never changes height. The screen is always 16:9 and the detail area
+   below it scrolls inside itself, so waiting, ready, working, done and failed
+   look the same size and nothing below the tool moves. */
+.job-panel {
+  display: flex;
+  flex-direction: column;
+  height: 720px;
+  min-height: 0;
+}
+
+.job-panel .job-head {
+  flex: none;
+}
+
+.job-screen {
+  position: relative;
+  flex: none;
+  aspect-ratio: 16 / 9;
+  container-type: inline-size;
+  overflow: hidden;
+  border-bottom: 1px solid var(--panel-line);
+  background: #05070c;
+}
+
+.job-panel .job-body {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.job-panel .job-body > * {
+  flex: none;
+}
+
+@media (max-width: 900px) {
+  .job-panel {
+    position: static;
+    height: 700px;
+  }
+}
+
+/* Captions have no screen: the converted text fills the panel instead. */
+.job-panel .job-body > .subtitle-output {
+  flex: 1 1 0;
+  min-height: 160px;
+  height: auto;
+  resize: none;
+}
+
+/* The crop preview reserves its full size before the frame is ready, so it never grows. */
+.crop-preview-media {
+  box-sizing: border-box;
+  height: 292px;
+}
+
+.crop-preview-empty {
+  min-height: 0;
+}

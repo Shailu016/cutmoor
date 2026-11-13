@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowRight, Calendar, ChevronRight, Clock } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { Seo } from "../components/Seo";
+import { useGuideBody } from "../content/guide-content";
 import { relatedGuides, toolsForGuide } from "../content/guide-helpers";
 import { GUIDES, guideBySlug } from "../content/guides";
 import { slugify } from "../lib/slug";
@@ -12,6 +13,9 @@ import { NotFoundPage } from "./NotFoundPage";
 export function GuidePage() {
   const { slug = "" } = useParams();
   const guide = guideBySlug(slug);
+  const body = useGuideBody(slug);
+  const sections = body?.sections ?? [];
+  const faqs = body?.faqs ?? [];
   const articleRef = useRef<HTMLElement>(null);
   const [progress, setProgress] = useState(0);
   const [activeId, setActiveId] = useState("");
@@ -60,13 +64,13 @@ export function GuidePage() {
     );
     sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
-  }, [guide]);
+  }, [guide, body]);
 
   if (!guide) return <NotFoundPage />;
 
   return (
     <>
-      <Seo path={`/guides/${guide.slug}`} />
+      <Seo path={`/guides/${guide.slug}`} refresh={Boolean(body)} />
       <div className="reading-progress" aria-hidden="true">
         <span style={{ transform: `scaleX(${progress})` }} />
       </div>
@@ -96,7 +100,9 @@ export function GuidePage() {
               </div>
             </header>
 
-            {guide.sections.map((section) => (
+            {!body && <div className="article-loading" aria-busy="true" aria-label="Loading the article" />}
+
+            {sections.map((section) => (
               <section key={section.heading} className="article-section" id={slugify(section.heading)}>
                 <h2>{section.heading}</h2>
                 {section.paragraphs.map((paragraph) => (
@@ -151,12 +157,12 @@ export function GuidePage() {
               </div>
             </div>
 
-            {guide.faqs.length > 0 && (
+            {faqs.length > 0 && (
               <section className="faq-section">
                 <span className="mono-label">Questions</span>
                 <h2>Frequently asked</h2>
                 <div className="faq-list">
-                  {guide.faqs.map((faq) => (
+                  {faqs.map((faq) => (
                     <details key={faq.question} className="faq">
                       <summary>{faq.question}</summary>
                       <p>{faq.answer}</p>
@@ -184,7 +190,7 @@ export function GuidePage() {
             <div className="aside-card">
               <span className="mono-label">On this page</span>
               <nav aria-label="On this page">
-                {guide.sections.map((section) => {
+                {sections.map((section) => {
                   const id = slugify(section.heading);
                   return (
                     <a

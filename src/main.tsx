@@ -4,6 +4,7 @@ import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
+import { loadGuideBody } from "./content/guide-content";
 import "./styles.css";
 import "./brand.css";
 
@@ -26,8 +27,17 @@ const prerenderedRoute = root.dataset.route;
  * mounts fresh. The route marker prevents hydrating a page the host served from
  * an SPA fallback, which would be a mismatch.
  */
-if (root.hasChildNodes() && prerenderedRoute && normalizeRoute(prerenderedRoute) === normalizeRoute(window.location.pathname)) {
-  hydrateRoot(root, tree);
-} else {
-  createRoot(root).render(tree);
+async function start(container: HTMLElement) {
+  const prerendered =
+    container.hasChildNodes() && prerenderedRoute && normalizeRoute(prerenderedRoute) === normalizeRoute(window.location.pathname);
+
+  // A guide's article is a separate chunk. Load it before hydrating, so the first
+  // client render is identical to the prerendered HTML.
+  const guideSlug = /^\/guides\/([^/]+)\/?$/.exec(window.location.pathname)?.[1];
+  if (prerendered && guideSlug) await loadGuideBody(guideSlug);
+
+  if (prerendered) hydrateRoot(container, tree);
+  else createRoot(container).render(tree);
 }
+
+void start(root);

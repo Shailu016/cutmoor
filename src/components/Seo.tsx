@@ -35,7 +35,7 @@ function removeLink(rel: string) {
  * canonical, social tags, article metadata, and JSON-LD correct when the
  * visitor moves between pages without a reload.
  */
-export function Seo({ path }: { path: string }) {
+export function Seo({ path, refresh }: { path: string; /** Change this to rebuild the structured data, e.g. once a guide's body has loaded. */ refresh?: unknown }) {
   useEffect(() => {
     const meta = metaForPath(path);
     const url = canonicalFor(path);
@@ -88,7 +88,7 @@ export function Seo({ path }: { path: string }) {
       document.head.appendChild(script);
     }
     script.textContent = JSON.stringify(jsonLdForPath(path)).replace(/</g, "\\u003c");
-  }, [path]);
+  }, [path, refresh]);
 
   return null;
 }
