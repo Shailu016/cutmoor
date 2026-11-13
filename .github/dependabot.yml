@@ -4,8 +4,7 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     open-pull-requests-limit: 5
     groups:
       # One pull request for the routine updates; majors stay separate so they get a real review.
@@ -15,10 +14,15 @@ updates:
       # The ffmpeg core is pinned by version and fingerprint in the workflows and the CDN URL.
       # Upgrade it by hand: update the URL in ci.yml and deploy.yml, then re-run scripts/verify.
       - dependency-name: "@ffmpeg/core"
+      # Major versions are upgraded on purpose, on a branch, not by a bot.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
     open-pull-requests-limit: 3
+    groups:
+      actions:
+        patterns: ["*"]
