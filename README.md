@@ -48,11 +48,22 @@ npm run preview  # serve the built dist/ with pretty URLs
   (`src/lib/results.ts`). A larger or identical result is never shown as a
   saving, and an empty output is flagged. Processing time is measured with
   `performance.now()`, and the one-time encoder download is reported separately.
-- The homepage demo (`src/components/SampleDemo.tsx`) loads
-  `public/samples/sample-clip.mp4` and runs it through the same job hook and the
-  same FFmpeg arguments as the Compress tool (`src/lib/compress.ts`). The clip is
-  a generated test clip (a Mandelbrot zoom made with FFmpeg), and the page says
-  so. A unit test checks its recorded size against the file on disk.
+- The homepage demo (`src/components/DemoStage.tsx`) has a tab per tool
+  (Compress, Crop, Trim, Convert, Audio, Frame, Image). **Try it live** runs the
+  tool on `public/samples/sample-clip.mp4` (or `sample-photo.jpg` for Image)
+  through the same job hooks and the same FFmpeg arguments as the tool pages
+  (`src/lib/compress.ts`, `src/lib/tool-args.ts`, scenarios in `src/lib/demo.ts`).
+  The samples are generated test files (a Mandelbrot zoom with a synthesized
+  chord, made with FFmpeg), and the page says so. A unit test checks their sizes
+  against the files on disk.
+- Until a visitor presses Try it live, the screen plays a **recording** of that
+  exact run (`public/walkthroughs/*.mp4`), labelled as a recording. Re-make the
+  clips with `node scripts/capture-walkthroughs.mjs` (see the script header)
+  whenever the demo screen, the samples, or a tool's settings change.
+- **Layout rule:** the demo may never move the page. The screen is always 16:9,
+  its overlays are sized from its own width, and the control area has a fixed
+  height. `scripts/verify/layout-shift.mjs` steps through every tab and state and
+  fails if anything moves.
 - `src/lib/formats.ts` is the single source of truth for supported formats and
   limits. A format is only "Supported" after a real file went through the tool
   and the output decoded; see `scripts/verify/README.md` for how that is tested

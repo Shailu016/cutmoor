@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { releaseBlobUrl } from "../lib/blob-url";
 import {
   createPreview,
   detectAlpha,
@@ -90,7 +91,7 @@ export function useImageJob(): ImageJob {
 
   const releaseResult = useCallback(() => {
     if (resultUrlRef.current) {
-      URL.revokeObjectURL(resultUrlRef.current);
+      releaseBlobUrl(resultUrlRef.current);
       resultUrlRef.current = null;
     }
   }, []);

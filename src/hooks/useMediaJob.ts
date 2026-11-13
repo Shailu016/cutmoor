@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { releaseBlobUrl } from "../lib/blob-url";
 import { onFFmpegLog, onFFmpegProgress, resetFFmpeg, runFFmpeg } from "../lib/ffmpeg";
 import { readVideoMeta, type VideoMeta } from "../lib/media";
 
@@ -57,14 +58,14 @@ export function useMediaJob(): MediaJob {
 
   const releaseResult = useCallback(() => {
     if (resultUrl.current) {
-      URL.revokeObjectURL(resultUrl.current);
+      releaseBlobUrl(resultUrl.current);
       resultUrl.current = null;
     }
   }, []);
 
   const releasePreview = useCallback(() => {
     if (previewUrlRef.current) {
-      URL.revokeObjectURL(previewUrlRef.current);
+      releaseBlobUrl(previewUrlRef.current);
       previewUrlRef.current = null;
     }
     setPreviewUrl(null);

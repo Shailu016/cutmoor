@@ -20,6 +20,7 @@ Windows location.
 | --- | --- | --- |
 | `formats.mjs <base-url> <out.json>` | Creates real sample files in each video and image format, runs them through each tool's real code path, and checks that every output decodes. Prints each result as it happens. | `npm run dev` |
 | `extra.mjs` | WebM input (a VP9 file recorded by the browser, plus VP8) and a ~100 MB 1080p large-file compress. | `npm run dev` on port 5174 |
+| `layout-shift.mjs <base-url> [desktop\|mobile]` | Steps through every homepage demo tab and state and fails if the demo changes size, the headline moves, a control row overflows, or the browser's layout-shift score is above 0.02. | `npm run dev` |
 | `network.mjs <url> <file> <out.json>` | Loads a deployed tool page, runs a real job on a file, and records every network request, including the encoder's worker. Reports any request that carries a body. | The live or preview site |
 
 `formats.mjs` and `extra.mjs` import `/src/lib/*.ts` straight from the Vite dev

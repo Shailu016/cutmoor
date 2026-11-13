@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Check, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { FormatSummary } from "../components/FormatSummary";
-import { SampleDemo } from "../components/SampleDemo";
+import { DemoStage } from "../components/DemoStage";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
@@ -86,7 +86,7 @@ export function HomePage() {
           </ul>
         </div>
         <div className="hero-art">
-          <SampleDemo />
+          <DemoStage />
         </div>
         </div>
 
