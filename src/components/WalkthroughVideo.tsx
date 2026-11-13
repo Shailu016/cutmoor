@@ -19,10 +19,14 @@ export function WalkthroughVideo({ id, label }: { id: DemoId; label: string }) {
   const pageIdle = useAfterLoadIdle();
   const [failed, setFailed] = useState(false);
   const [playing, setPlaying] = useState(false);
+  // Autoplay is only a wish: iOS Low Power Mode and some browser settings refuse it.
+  // When that happens the visitor gets the play button instead of a frozen poster.
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
   useEffect(() => {
     setFailed(false);
     setPlaying(false);
+    setAutoplayBlocked(false);
   }, [id]);
 
   // Play only while the demo is on screen, and stop when it leaves.
@@ -31,8 +35,12 @@ export function WalkthroughVideo({ id, label }: { id: DemoId; label: string }) {
     if (!video || !autoplay || !pageIdle || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) video.play().catch(() => undefined);
-        else video.pause();
+        if (entry.isIntersecting) {
+          video.play().catch((error: unknown) => {
+            // An interrupted play (the tab switched, a pause won the race) is not a refusal.
+            if (!(error instanceof DOMException && error.name === "AbortError")) setAutoplayBlocked(true);
+          });
+        } else video.pause();
       },
       { threshold: 0.4 },
     );
@@ -66,11 +74,14 @@ export function WalkthroughVideo({ id, label }: { id: DemoId; label: string }) {
         playsInline
         preload="none"
         aria-label={`${label}: a recorded walkthrough of the demo`}
-        onPlay={() => setPlaying(true)}
+        onPlay={() => {
+          setPlaying(true);
+          setAutoplayBlocked(false);
+        }}
         onPause={() => setPlaying(false)}
         onError={() => setFailed(true)}
       />
-      {!autoplay && !playing && (
+      {(!autoplay || autoplayBlocked) && !playing && (
         <button
           type="button"
           className="demo-play"

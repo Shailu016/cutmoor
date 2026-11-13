@@ -12,7 +12,8 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
-# The video encoder is ~32 MB; cache it for a long time.
+# Only used when the encoder is self-hosted (VITE_FFMPEG_BASE_URL empty, e.g. local
+# builds or another host). Production loads it from unpkg, so dist/ffmpeg is removed there.
 /ffmpeg/*
   Cache-Control: public, max-age=2592000
 

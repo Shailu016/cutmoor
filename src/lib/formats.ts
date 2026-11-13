@@ -65,7 +65,7 @@ const VIDEO_INPUTS: FormatEntry[] = [
   {
     label: "HEVC / H.265 (many iPhone videos)",
     status: "limited",
-    note: "Not verified in this release: we could not produce an HEVC test file. If it fails, convert it with the phone's \"Most compatible\" setting.",
+    note: "Not verified in this release: our test encoder timed out before it could produce an HEVC file to test with. If a video fails, export it with the phone's \"Most compatible\" setting.",
   },
   { label: "AV1 and other codecs", status: "limited", note: "Not verified in this release." },
   { label: "DRM-protected video, streaming URLs", status: "unsupported", note: "Only files you already have on your device." },

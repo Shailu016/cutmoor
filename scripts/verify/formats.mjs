@@ -17,6 +17,8 @@ await page.goto(`${BASE}/tools/compress`, { waitUntil: "networkidle0" });
 const results = await page.evaluate(async () => {
   const ff = await import("/src/lib/ffmpeg.ts");
   const { buildCompressArgs } = await import("/src/lib/compress.ts");
+  // The convert rows run the exact arguments the Convert tool ships, so a "supported" badge means the shipped path works.
+  const { buildConvertArgs } = await import("/src/lib/tool-args.ts");
   const img = await import("/src/lib/image.ts");
 
   const mk = (group) => { const a = []; const orig = a.push.bind(a); a.push = (...e) => { e.forEach((x) => window.report({ group, ...x })); return orig(...e); }; return a; };
@@ -101,9 +103,13 @@ const results = await page.evaluate(async () => {
   const sourceSpecs = {
     "mp4": ["src.mp4", ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac"]],
     "mov": ["src.mov", ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac"]],
-    "webm": ["src.webm", ["-c:v", "libvpx-vp9", "-c:a", "libopus"]],
+    // VP8, like the shipped WebM export: the VP9 encoder crashes in this WebAssembly build.
+    // VP9 WebM input is verified separately in extra.mjs with a clip recorded by Chrome.
+    "webm": ["src.webm", ["-c:v", "libvpx", "-b:v", "1M", "-c:a", "libopus"]],
     "mkv": ["src.mkv", ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-c:a", "aac"]],
     "avi": ["src.avi", ["-c:v", "mpeg4", "-c:a", "libmp3lame"]],
+    // libx265 in the single-thread WebAssembly build has timed out (75 s) on a 1-second clip;
+    // until a real HEVC file is added, formats.ts marks HEVC input as not verified.
     "mp4 (HEVC)": ["src-hevc.mp4", ["-c:v", "libx265", "-pix_fmt", "yuv420p", "-tag:v", "hvc1", "-c:a", "aac"]],
     "mp4 (no audio)": ["src-silent.mp4", ["-c:v", "libx264", "-pix_fmt", "yuv420p", "-an"]],
     "mov (ProRes)": ["src-prores.mov", ["-c:v", "prores_ks", "-profile:v", "0", "-c:a", "pcm_s16le"]],
@@ -133,13 +139,13 @@ const results = await page.evaluate(async () => {
 
   const mp4 = sources["mp4"];
   const inName = "input.mp4";
-  await record("video", "convert", "mp4", "mp4", () => ffRun(mp4, "c.mp4", ["-i", inName, "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-y", "c.mp4"]), "video");
-  await record("video", "convert", "mp4", "webm", () => ffRun(mp4, "c.webm", ["-i", inName, "-c:v", "libvpx-vp9", "-crf", "32", "-b:v", "0", "-c:a", "libopus", "-b:a", "128k", "-y", "c.webm"]), "video");
-  await record("video", "convert", "mp4", "gif", () => ffRun(mp4, "c.gif", ["-i", inName, "-vf", "fps=12,scale=640:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer", "-loop", "0", "-y", "c.gif"]), "image");
+  for (const [format, kind] of [["mp4", "video"], ["webm", "video"], ["gif", "image"]]) {
+    await record("video", "convert", "mp4", format, () => ffRun(mp4, `c.${format}`, buildConvertArgs({ input: inName, output: `c.${format}`, format })), kind);
+  }
   for (const label of ["mov", "webm", "mkv", "avi", "mp4 (HEVC)", "mov (ProRes)", "webm (AV1)"]) {
     if (!sources[label]) continue;
     const f = sources[label];
-    await record("video", "convert", label, "mp4", () => ffRun(f, "c.mp4", ["-i", `input.${f.name.split(".").pop()}`, "-c:v", "libx264", "-preset", "veryfast", "-crf", "23", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-y", "c.mp4"]), "video");
+    await record("video", "convert", label, "mp4", () => ffRun(f, "c.mp4", buildConvertArgs({ input: `input.${f.name.split(".").pop()}`, output: "c.mp4", format: "mp4" })), "video");
   }
   for (const label of ["mp4", "webm", "mov"]) {
     const f = sources[label];
