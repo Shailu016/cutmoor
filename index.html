@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Google's favicon crawler wants an icon whose size is a multiple of 48 px; the ICO and PNG cover it, the SVG serves browsers. -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
     <!--cutmoor-head-->
   </head>
   <body>
