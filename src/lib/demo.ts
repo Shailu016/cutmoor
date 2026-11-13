@@ -1,5 +1,5 @@
 import { buildCompressArgs } from "./compress";
-import { SAMPLE_CLIP } from "./samples";
+import { MEDIA_VERSION, SAMPLE_CLIP } from "./samples";
 import { buildAudioArgs, buildConvertArgs, buildFrameArgs, buildResizeArgs, buildTrimArgs } from "./tool-args";
 
 /**
@@ -218,9 +218,9 @@ export function demoVideoArgs(
 }
 
 export function walkthroughUrl(base: string, id: DemoId): string {
-  return `${base}walkthroughs/${id}.mp4`;
+  return `${base}walkthroughs/${id}.mp4?v=${MEDIA_VERSION}`;
 }
 
 export function walkthroughPosterUrl(base: string, id: DemoId): string {
-  return `${base}walkthroughs/${id}.webp`;
+  return `${base}walkthroughs/${id}.webp?v=${MEDIA_VERSION}`;
 }

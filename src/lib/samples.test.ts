@@ -1,7 +1,7 @@
 import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { SAMPLE_CLIP, SAMPLE_PHOTO, sampleClipUrl, samplePhotoUrl } from "./samples";
+import { MEDIA_VERSION, SAMPLE_CLIP, SAMPLE_PHOTO, sampleClipUrl, samplePhotoUrl } from "./samples";
 
 /** Reads the facts out of an MP4's own header (no decoder needed). */
 function readMp4(bytes: Buffer) {
@@ -60,7 +60,7 @@ describe("sample clip", () => {
   it("matches the sample photo on disk", () => {
     const file = resolve(__dirname, "../../public", SAMPLE_PHOTO.path);
     expect(statSync(file).size).toBe(SAMPLE_PHOTO.bytes);
-    expect(samplePhotoUrl("/")).toBe("/samples/sample-photo.jpg");
+    expect(samplePhotoUrl("/")).toBe(`/samples/sample-photo.jpg?v=${MEDIA_VERSION}`);
   });
 
   it("is small enough for a quick demo", () => {
@@ -68,6 +68,6 @@ describe("sample clip", () => {
   });
 
   it("builds a URL under the app base", () => {
-    expect(sampleClipUrl("/")).toBe("/samples/sample-clip.mp4");
+    expect(sampleClipUrl("/")).toBe(`/samples/sample-clip.mp4?v=${MEDIA_VERSION}`);
   });
 });

@@ -10,6 +10,7 @@ import {
   walkthroughPosterUrl,
   walkthroughUrl,
 } from "./demo";
+import { MEDIA_VERSION } from "./samples";
 
 describe("demo scenarios", () => {
   it("has unique ids and points at real tools", () => {
@@ -99,7 +100,7 @@ describe("image demo and URLs", () => {
   });
 
   it("builds walkthrough URLs under the app base", () => {
-    expect(walkthroughUrl("/", "trim")).toBe("/walkthroughs/trim.mp4");
-    expect(walkthroughPosterUrl("/", "trim")).toBe("/walkthroughs/trim.webp");
+    expect(walkthroughUrl("/", "trim")).toBe(`/walkthroughs/trim.mp4?v=${MEDIA_VERSION}`);
+    expect(walkthroughPosterUrl("/", "trim")).toBe(`/walkthroughs/trim.webp?v=${MEDIA_VERSION}`);
   });
 });
