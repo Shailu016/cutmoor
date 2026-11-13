@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { flushSync } from "react-dom";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Download, Info, Loader2, Music, Play, RotateCcw, TriangleAlert, X } from "lucide-react";
+import { ArrowRight, Check, Download, Info, Loader2, Play, RotateCcw, TriangleAlert, X } from "lucide-react";
+import { ScreenMedia } from "./ScreenMedia";
 import { WalkthroughVideo } from "./WalkthroughVideo";
 import { useElapsed } from "../hooks/useElapsed";
 import { usePrefersReducedMotion } from "../hooks/useMotionPrefs";
@@ -428,42 +429,6 @@ export function DemoStage() {
       </div>
     </div>
   );
-}
-
-function ScreenMedia({
-  kind,
-  url,
-  playing,
-  reducedMotion,
-  label,
-}: {
-  kind: OutputKind | "video" | "image";
-  url: string | null;
-  playing: boolean;
-  reducedMotion: boolean;
-  label: string;
-}) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Play while idle and look at it; hold still while the encoder is busy.
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (playing && !reducedMotion) video.play().catch(() => undefined);
-    else video.pause();
-  }, [playing, reducedMotion, url]);
-
-  if (!url) return <div className="demo-media demo-blank" />;
-  if (kind === "image") return <img className="demo-media" src={url} alt={label} />;
-  if (kind === "audio") {
-    return (
-      <div className="demo-audio">
-        <Music size={28} aria-hidden="true" />
-        <audio src={url} controls preload="metadata" aria-label={label} />
-      </div>
-    );
-  }
-  return <video ref={videoRef} key={url} className="demo-media" src={url} muted loop playsInline preload="metadata" controls={reducedMotion} aria-label={label} />;
 }
 
 /** The honest before/after line shown over the result. */
