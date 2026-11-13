@@ -48,8 +48,23 @@ function toBase64(buffer: ArrayBuffer): string {
 /**
  * Fetch a core file and refuse to run it unless its SHA-256 matches the hash
  * pinned at build time. This keeps a CDN copy from being swapped underneath us.
+ *
+ * Fails closed: when the encoder comes from another origin, a missing pin or a
+ * browser that cannot compute SHA-256 stops the load instead of skipping the
+ * check. A same-origin copy is part of this deploy, so it needs no pin.
  */
-async function verifiedBlobURL(url: string, type: string, expected: string | undefined): Promise<string> {
+export async function verifiedBlobURL(
+  url: string,
+  type: string,
+  expected: string | undefined,
+  { required }: { required: boolean },
+): Promise<string> {
+  if (required && !expected) {
+    throw new Error("The video engine could not be verified, so it was not loaded. This is a problem with the site's build, not your file.");
+  }
+  if (required && !globalThis.crypto?.subtle) {
+    throw new Error("This browser cannot verify the video engine before running it, so it was not loaded. Update your browser and try again.");
+  }
   const response = await fetch(url, { credentials: "omit" });
   if (!response.ok) throw new Error(`The video engine could not be downloaded (${response.status}). Check your connection and try again.`);
   const buffer = await response.arrayBuffer();
@@ -58,6 +73,15 @@ async function verifiedBlobURL(url: string, type: string, expected: string | und
     if (actual !== expected) throw new Error("The video engine failed its integrity check and was not loaded.");
   }
   return URL.createObjectURL(new Blob([buffer], { type }));
+}
+
+/** True when the encoder is fetched from a different origin than the page (a CDN or R2). */
+export function isRemoteBase(base: string, pageOrigin: string): boolean {
+  try {
+    return new URL(base, pageOrigin).origin !== pageOrigin;
+  } catch {
+    return true;
+  }
 }
 
 async function load(): Promise<FFmpeg> {
@@ -75,9 +99,10 @@ async function load(): Promise<FFmpeg> {
     });
 
     const base = ffmpegBaseUrl();
+    const required = isRemoteBase(base, window.location.origin);
     const [coreURL, wasmURL] = await Promise.all([
-      verifiedBlobURL(`${base}/ffmpeg-core.js`, "text/javascript", __FFMPEG_CORE_SHA256__?.js),
-      verifiedBlobURL(`${base}/ffmpeg-core.wasm`, "application/wasm", __FFMPEG_CORE_SHA256__?.wasm),
+      verifiedBlobURL(`${base}/ffmpeg-core.js`, "text/javascript", __FFMPEG_CORE_SHA256__?.js, { required }),
+      verifiedBlobURL(`${base}/ffmpeg-core.wasm`, "application/wasm", __FFMPEG_CORE_SHA256__?.wasm, { required }),
     ]);
     await ffmpeg.load({ coreURL, wasmURL });
 

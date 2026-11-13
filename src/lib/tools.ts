@@ -63,7 +63,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Does Cutmoor upload my video?",
         answer:
-          "No. The encoder is WebAssembly running inside the page. The file is read from your disk, processed in memory, and saved back to your device. You can disconnect from the internet after the page loads and the tool still works.",
+          "No. The encoder is WebAssembly running inside the page. The file is read from your disk, processed in memory, and saved back to your device. The only download is the encoder program itself, fetched once on first use; your video is never sent anywhere. The tool needs a connection to load, so it does not work offline.",
       },
       {
         question: "How large a file can it handle?",
@@ -379,7 +379,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Does Cutmoor upload my image?",
         answer:
-          "No. The image is decoded and re-encoded by your browser using the canvas API. There is no upload endpoint, no account, and no server-side copy. You can disconnect from the internet after the page loads and the tool still works.",
+          "No. The image is decoded and re-encoded by your browser using the canvas API. There is no upload endpoint, no account, and no server-side copy. Processing an image makes no network requests at all; you can check this in your browser's Network tab.",
       },
       {
         question: "What is a realistic target size?",

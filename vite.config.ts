@@ -51,11 +51,18 @@ function prettyUrlPreview(): Plugin {
   };
 }
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async ({ command, mode }) => {
   const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
   const site = resolveSiteUrl(env);
   const ffmpegBase = resolveFfmpegBase(env);
   const ffmpegHashes = await ffmpegCoreHashes(process.cwd());
+  // A CDN-hosted encoder is only safe to run if its fingerprint is pinned into the bundle.
+  // Without the local copy there is nothing to pin, so the build stops instead of shipping an unchecked encoder.
+  if (command === "build" && ffmpegBase && !ffmpegHashes) {
+    throw new Error(
+      `VITE_FFMPEG_BASE_URL is set (${ffmpegBase}) but public/ffmpeg/ffmpeg-core.js and .wasm are missing, so their SHA-256 cannot be pinned. Run \`npm run copy:ffmpeg\` (it runs on npm install) and build again.`,
+    );
+  }
 
   return {
   define: {

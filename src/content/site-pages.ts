@@ -109,7 +109,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Analytics and server logs",
         paragraphs: [
-          "Cutmoor's own code includes no analytics script. The site is hosted on Cloudflare, which can add its Web Analytics beacon to pages. The beacon reports page-load timing and the page address to Cloudflare, which describes the service as cookieless, and it never receives your media files. Cloudflare and the other hosts we use may also keep standard request logs, such as IP address, user agent, and the requested URL, for security and reliability. Those logs are controlled by the provider, not by the browser tools.",
+          "Cutmoor uses no analytics service: its own code includes no analytics script, and the Cloudflare Web Analytics beacon is not enabled. Cloudflare and the other hosts we use may also keep standard request logs, such as IP address, user agent, and the requested URL, for security and reliability. Those logs are controlled by the provider, not by the browser tools.",
           "The video encoder program file (FFmpeg compiled to WebAssembly) may be delivered from a public content network, unpkg.com, which receives the same standard request data when your browser downloads it. Only the program file is fetched from there; your videos and photos are never sent anywhere. The site checks the file's SHA-256 fingerprint before running it.",
         ],
       },
@@ -117,7 +117,7 @@ export const SITE_PAGES: SitePage[] = [
         heading: "What we checked",
         paragraphs: [
           "On 13 November 2026 we recorded every network request the live site made while it compressed a multi-megabyte test video in Chrome. During processing, the only requests were downloads: the encoder program from unpkg.com and the page's own worker script. No request carried the video, and no request in the whole session had a body larger than 1 KB.",
-          "When the page first loaded, the browser also contacted Google (AdSense and its consent message) and Cloudflare (its analytics beacon). Those requests carry ordinary page and device information, not your files.",
+          "When the page first loaded, the browser also contacted Google (AdSense and its consent message). Those requests carry ordinary page and device information, not your files.",
           "This is a point-in-time check of the live site, not a promise about future versions. You can repeat it yourself: open your browser's developer tools, go to the Network tab, process a file, and look for any request that sends data out.",
         ],
       },
