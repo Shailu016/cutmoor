@@ -15,6 +15,7 @@ const KB = 1024;
 const BUDGET = {
   firstLoadJsGz: 230 * KB, // every JS file except the lazy HEIC chunk, together
   singleChunkGz: 100 * KB, // any one first-load JS file
+  articleChunkGz: 15 * KB, // one guide article, loaded only on its own page
   cssGz: 24 * KB, // all CSS together
   lazyHeicGz: 850 * KB,
   walkthroughVideo: 450 * KB, // each demo recording
@@ -34,13 +35,16 @@ for (const name of files) {
   const bytes = await readFile(join(assets, name));
   const gz = gzipSync(bytes).length;
   const lazy = name.startsWith("heic-to");
-  const kind = name.endsWith(".css") ? "css" : lazy ? "lazy js" : "js";
+  // Guide articles (guides/<slug>/body.ts) are separate chunks named body-<hash>.js.
+  const article = /^body-/.test(name);
+  const kind = name.endsWith(".css") ? "css" : lazy ? "lazy js" : article ? "article" : "js";
   rows.push({ file: name.replace(/-[A-Za-z0-9_]{8}\./, "."), kind, kb: (bytes.length / KB).toFixed(1), gz: (gz / KB).toFixed(1) });
   if (kind === "js") {
     firstLoadJs += gz;
     if (gz > BUDGET.singleChunkGz) failures.push(`${name}: ${(gz / KB).toFixed(1)} KB gzip is over the ${BUDGET.singleChunkGz / KB} KB single-chunk limit`);
   }
   if (kind === "css") css += gz;
+  if (kind === "article" && gz > BUDGET.articleChunkGz) failures.push(`${name}: ${(gz / KB).toFixed(1)} KB gzip is over the ${BUDGET.articleChunkGz / KB} KB per-article limit`);
   if (lazy && gz > BUDGET.lazyHeicGz) failures.push(`${name}: ${(gz / KB).toFixed(1)} KB gzip is over the ${BUDGET.lazyHeicGz / KB} KB lazy-chunk limit`);
 }
 if (firstLoadJs > BUDGET.firstLoadJsGz) failures.push(`First-load JS is ${(firstLoadJs / KB).toFixed(1)} KB gzip, over the ${BUDGET.firstLoadJsGz / KB} KB budget`);
