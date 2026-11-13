@@ -11,8 +11,9 @@
  *   node scripts/make-sample.mjs [base-url]
  *
  * Afterwards: update the byte sizes in src/lib/samples.ts (the script prints
- * them; a unit test checks them) and re-record the walkthrough clips with
- * scripts/capture-walkthroughs.mjs.
+ * them; a unit test checks them), re-record the walkthrough clips with
+ * scripts/capture-walkthroughs.mjs, and raise MEDIA_VERSION in src/lib/samples.ts
+ * so browsers and the edge cache fetch the new files instead of the cached ones.
  *
  * Set CHROME_PATH if Chrome is not in the default Windows location.
  */

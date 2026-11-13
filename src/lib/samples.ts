@@ -32,10 +32,17 @@ export const SAMPLE_PHOTO = {
   description: "A single frame from the sample clip, saved as a JPG. Not a camera photo.",
 } as const;
 
+/**
+ * The demo media is cached for a week under a fixed name, and a host's edge cache can hold an old
+ * copy even after a deploy. Change this whenever the files in public/samples or
+ * public/walkthroughs are re-made, so visitors fetch the new ones straight away.
+ */
+export const MEDIA_VERSION = "2";
+
 export function sampleClipUrl(base: string): string {
-  return `${base}${SAMPLE_CLIP.path}`;
+  return `${base}${SAMPLE_CLIP.path}?v=${MEDIA_VERSION}`;
 }
 
 export function samplePhotoUrl(base: string): string {
-  return `${base}${SAMPLE_PHOTO.path}`;
+  return `${base}${SAMPLE_PHOTO.path}?v=${MEDIA_VERSION}`;
 }

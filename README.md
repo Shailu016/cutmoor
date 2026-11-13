@@ -60,7 +60,9 @@ npm run preview  # serve the built dist/ with pretty URLs
 - Until a visitor presses Try it live, the screen plays a **recording** of that
   exact run (`public/walkthroughs/*.mp4`), labelled as a recording. Re-make the
   clips with `node scripts/capture-walkthroughs.mjs` (see the script header)
-  whenever the demo screen, the samples, or a tool's settings change.
+  whenever the demo screen, the samples, or a tool's settings change, and raise
+  `MEDIA_VERSION` in `src/lib/samples.ts`: these files are cached for a week under
+  fixed names, so the version in the URL is what makes visitors fetch the new ones.
 - **Layout rule:** the demo may never move the page. The screen is always 16:9,
   its overlays are sized from its own width, and the control area has a fixed
   height. `scripts/verify/layout-shift.mjs` steps through every tab and state and
