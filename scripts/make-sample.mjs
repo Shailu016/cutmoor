@@ -4,7 +4,7 @@
  * The picture is drawn in code (scripts/sample-scene.js), the soundtrack is
  * synthesized here, and both are encoded with the site's own FFmpeg in a real
  * browser. Nothing is downloaded and there is no camera footage, so the files
- * are ours to ship. The output is the same on every run.
+ * are ours to ship. The scene draws the same frames on every run; the encoded bytes can differ with the browser and FFmpeg build.
  *
  *   npm run dev -- --port 5174                    (in one terminal)
  *   npm install --no-save puppeteer-core          (once)

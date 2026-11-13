@@ -205,7 +205,7 @@ export function articleJsonLd(guide: {
 }) {
   return {
     "@type": "Article",
-    "@id": `${SITE.url}/guides/${guide.slug}#article`,
+    "@id": `${canonicalFor(`/guides/${guide.slug}`)}#article`,
     headline: guide.title,
     description: guide.description,
     datePublished: guide.published,

@@ -1708,6 +1708,10 @@ main#main {
     height: 18px;
   }
 
+  .tool-card:hover .tool-card-link {
+    gap: 0;
+  }
+
   /* Tool pages: a shorter introduction, so the file picker is on the first screen. */
   .tool-hero {
     gap: 0;
@@ -1730,10 +1734,8 @@ main#main {
   .tool-hero .trust-card {
     display: none;
   }
-}
 
-/* The All / Video / Images filter stays on one row on a phone. */
-@media (max-width: 560px) {
+  /* The All / Video / Images filter stays on one row. */
   .toolbar .segmented {
     flex-wrap: nowrap;
   }
