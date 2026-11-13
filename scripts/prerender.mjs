@@ -58,8 +58,16 @@ async function writeFileAt(relativePath, contents) {
 }
 
 for (const page of INDEXABLE_PAGES) {
-  const { html } = render(page.path);
-  await writeRoute(page.path, html);
+  // Render at the address the page is served from (with its trailing slash), the same one the
+  // links and the router use, so the static HTML and the hydrated page agree on what is active.
+  const served = page.path === "/" ? "/" : `${page.path}/`;
+  const { html } = render(served);
+  // The header marks the current section. If it is missing here, a visitor who loads the page
+  // directly sees the wrong highlight until they navigate.
+  if ((page.path === "/guides" || page.path === "/about") && !html.includes("nav-link active")) {
+    throw new Error(`Prerendered ${served} has no active header link. The route it was rendered at does not match its links.`);
+  }
+  await writeRoute(served, html);
   console.log(`prerendered ${page.path}`);
 }
 

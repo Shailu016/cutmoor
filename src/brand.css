@@ -1615,3 +1615,133 @@ main#main {
 .crop-preview-empty {
   min-height: 0;
 }
+
+/* ============================================================
+   Phones: shorter pages, with the working part first
+   ============================================================ */
+@media (max-width: 560px) {
+  /* Hero shortcuts: two compact tiles per row instead of six full-width cards. */
+  .hero-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .hero-tile {
+    grid-template-rows: auto;
+    column-gap: 10px;
+    min-height: 60px;
+    padding: 11px 12px;
+    border-radius: 14px;
+  }
+
+  .hero-tile-icon {
+    grid-row: auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .hero-tile-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .hero-tile strong {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+
+  /* The full description is on the tool cards just below. */
+  .hero-tile > span:not(.hero-tile-icon),
+  .hero-tile-arrow {
+    display: none;
+  }
+
+  /* Tool cards become rows (icon, name, one line), so every tool fits in about two screens. */
+  .tool-grid,
+  .tool-grid-small,
+  .tool-grid-wide {
+    gap: 10px;
+  }
+
+  .tool-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "icon name link"
+      "icon text link";
+    column-gap: 14px;
+    row-gap: 2px;
+    align-items: center;
+    padding: 14px 16px;
+  }
+
+  .tool-card-icon {
+    grid-area: icon;
+    width: 44px;
+    height: 44px;
+  }
+
+  .tool-card strong {
+    grid-area: name;
+    align-self: end;
+    font-size: 15.5px;
+  }
+
+  .tool-card p {
+    grid-area: text;
+    align-self: start;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  /* The whole card is the link, so the arrow alone is enough here. */
+  .tool-card-link {
+    grid-area: link;
+    gap: 0;
+    font-size: 0;
+  }
+
+  .tool-card-link svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .tool-card:hover .tool-card-link {
+    gap: 0;
+  }
+
+  /* Tool pages: a shorter introduction, so the file picker is on the first screen. */
+  .tool-hero {
+    gap: 0;
+    margin-bottom: 16px;
+    padding: 18px;
+  }
+
+  .tool-hero h1 {
+    margin: 10px 0 8px;
+    font-size: 25px;
+    line-height: 1.12;
+  }
+
+  .tool-hero-copy p {
+    font-size: 14.5px;
+    line-height: 1.5;
+  }
+
+  /* The file picker right below says the same thing. */
+  .tool-hero .trust-card {
+    display: none;
+  }
+
+  /* The All / Video / Images filter stays on one row. */
+  .toolbar .segmented {
+    flex-wrap: nowrap;
+  }
+
+  .toolbar .segmented .segment {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}

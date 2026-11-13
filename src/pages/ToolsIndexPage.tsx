@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "../components/Link";
 import { ArrowRight, Search, Sparkles } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { Seo } from "../components/Seo";

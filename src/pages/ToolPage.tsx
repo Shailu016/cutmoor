@@ -1,4 +1,5 @@
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { Link } from "../components/Link";
 import { ArrowRight, ChevronRight, Lock, ShieldCheck, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { FormatCompat } from "../components/FormatCompat";

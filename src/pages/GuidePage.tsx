@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { Link } from "../components/Link";
 import { ArrowRight, Calendar, ChevronRight, Clock } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { Seo } from "../components/Seo";

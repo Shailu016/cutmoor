@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "./Link";
 import { ArrowRight } from "lucide-react";
 import { FormatList, TestedNote } from "./FormatCompat";
 import { summarizeFormats } from "../lib/formats";

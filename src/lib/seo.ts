@@ -152,7 +152,7 @@ export function softwareJsonLd() {
     name: SITE.name,
     applicationCategory: "MultimediaApplication",
     operatingSystem: "Any modern browser",
-    url: `${SITE.url}/tools`,
+    url: `${SITE.url}/tools/`,
     description: SITE.description,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tools supported by advertising." },
     featureList: [
@@ -205,7 +205,7 @@ export function articleJsonLd(guide: {
 }) {
   return {
     "@type": "Article",
-    "@id": `${SITE.url}/guides/${guide.slug}#article`,
+    "@id": `${canonicalFor(`/guides/${guide.slug}`)}#article`,
     headline: guide.title,
     description: guide.description,
     datePublished: guide.published,
