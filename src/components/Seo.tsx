@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { isAdFreePath } from "../lib/ad-free";
 import { canonicalFor, jsonLdForPath, metaForPath, SITE } from "../lib/seo";
 
 function upsertMeta(attribute: "name" | "property", key: string, content: string) {
@@ -40,7 +41,7 @@ export function Seo({ path, refresh }: { path: string; /** Change this to rebuil
     const meta = metaForPath(path);
     const url = canonicalFor(path);
     const image = new URL(meta.image ?? SITE.ogImage, SITE.url).toString();
-    const adsenseClient = String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
+    const adsenseClient = isAdFreePath(path) ? "" : String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
 
     document.title = meta.title;
     upsertMeta("name", "description", meta.description);

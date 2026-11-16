@@ -227,6 +227,33 @@ const IMAGE_COMPAT_BASE = {
 TOOL_COMPAT["compress-image"] = { ...IMAGE_COMPAT_BASE, resolutions: `${IMAGE_COMPAT_BASE.resolutions} Large photos can be scaled down to reach a target size.` };
 TOOL_COMPAT["resize-image"] = { ...IMAGE_COMPAT_BASE };
 TOOL_COMPAT["convert-image"] = { ...IMAGE_COMPAT_BASE };
+// Auto captions: the speech model has been run with real files (scripts/verify/captions-real.mjs),
+// but only in desktop Chrome on Windows, so every row still says what it depends on instead of promising it works.
+TOOL_COMPAT["auto-captions"] = {
+  inputs: [
+    { label: "MP4, MOV, WebM, MKV video", status: "limited", note: "Depends on the browser's audio decoder. Verified with MP4 in desktop Chrome on Windows so far." },
+    { label: "MP3 and WAV audio", status: "limited", note: "Depends on the browser's audio decoder. Verified with WAV and MP3 in desktop Chrome on Windows so far." },
+  ],
+  outputs: [
+    { label: "SRT and WebVTT captions", status: "limited", note: "Available when a model runs. Verified in desktop Chrome on Windows only so far." },
+    { label: "Word-level JSON", status: "limited", note: "Available when a model runs. Verified in desktop Chrome on Windows only so far." },
+    { label: "MP4 with captions burned in", status: "limited", note: "Needs WebCodecs video encoding, which not every browser has. Verified in desktop Chrome on Windows only so far." },
+  ],
+  maxTested: "short test clips in desktop Chrome on Windows only; no broad accuracy benchmark",
+  resolutions: "Burned-in captions scale with the picture height.",
+  codecs: "Audio is decoded by the browser (WebCodecs).",
+  audio: "The video needs a sound track with speech.",
+  metadata: "The file name and content are never sent anywhere. Only the model files are downloaded.",
+  limitations: [
+    "Machine captions can be wrong; review them before publishing.",
+    "Songs, rap, and speech over loud music are the hardest case: where there is singing, expect more wrong words and some missing lines.",
+    "Draft is a quick first pass for clear speech and can miss words on fast, noisy or accented speech; High accuracy is the accurate one.",
+    "Hinglish spelling varies. Common spellings are made consistent, but names are guesses; add them in the Names and special words box.",
+    "Word timing can be off by a fraction of a second.",
+    "Verified only in desktop Chrome on Windows so far. Other browsers are not tested, and phones may run out of memory with High accuracy.",
+    "The model downloads once and needs a connection the first time.",
+  ],
+};
 TOOL_COMPAT["heic-to-jpg"] = {
   ...IMAGE_COMPAT_BASE,
   inputs: IMAGE_INPUTS.filter((entry) => entry.label.startsWith("HEIC") || entry.label === "JPG" || entry.label === "PNG"),

@@ -1,0 +1,35 @@
+{
+  "hinglish-talking-head": {
+    "words": [
+      { "text": "Yaar,", "startMs": 0, "endMs": 320, "confidence": 0.91 },
+      { "text": "mujhe", "startMs": 320, "endMs": 645, "confidence": 0.94 },
+      { "text": "yeh", "startMs": 645, "endMs": 885, "confidence": 0.93 },
+      { "text": "video", "startMs": 885, "endMs": 1325, "confidence": 0.95 },
+      { "text": "bahut", "startMs": 1325, "endMs": 1665, "confidence": 0.92 },
+      { "text": "achi", "startMs": 1665, "endMs": 2045, "confidence": 0.83 },
+      { "text": "lagi", "startMs": 2045, "endMs": 2385, "confidence": 0.9 },
+      { "text": "hai", "startMs": 2385, "endMs": 2585, "confidence": 0.96 }
+    ]
+  },
+  "hindi-explainer": {
+    "words": [
+      { "text": "यह", "startMs": 30, "endMs": 290 },
+      { "text": "वीडियो", "startMs": 290, "endMs": 800 },
+      { "text": "बहुत", "startMs": 800, "endMs": 1160 },
+      { "text": "अच्छा", "startMs": 1160, "endMs": 1640 },
+      { "text": "है", "startMs": 1640, "endMs": 1990 }
+    ]
+  },
+  "english-demo": {
+    "words": [
+      { "text": "this", "startMs": 50, "endMs": 330 },
+      { "text": "tool", "startMs": 330, "endMs": 610 },
+      { "text": "keeps", "startMs": 610, "endMs": 870 },
+      { "text": "every", "startMs": 870, "endMs": 1090 },
+      { "text": "file", "startMs": 1090, "endMs": 1330 },
+      { "text": "on", "startMs": 1330, "endMs": 1470 },
+      { "text": "your", "startMs": 1470, "endMs": 1710 },
+      { "text": "device", "startMs": 1710, "endMs": 2070 }
+    ]
+  }
+}

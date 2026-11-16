@@ -1,0 +1,9 @@
+{
+  "default": { "werMax": 0.18, "timingMaeMsMax": 120, "coverageMin": 0.995 },
+  "byLanguage": {
+    "english": { "werMax": 0.1 }
+  },
+  "byTag": {
+    "talking-head": { "werMax": 0.15, "timingMaeMsMax": 80 }
+  }
+}

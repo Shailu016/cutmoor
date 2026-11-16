@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "notes": "EXAMPLE DATA - fictional clips with fake transcripts and invented timings. They do not describe real audio. Copy this file, replace the entries with real clips, and keep the real file out of git (see .gitignore in this folder).",
+  "clips": [
+    {
+      "id": "example-clean-2ref",
+      "path": "example-media/example-clean.mp4",
+      "tags": ["clean", "code-switch"],
+      "references": [
+        "yaar yeh video bahut achhi hai",
+        "yaar ye video bahut achi hai"
+      ],
+      "wordTimes": [
+        { "text": "yaar", "startMs": 0, "endMs": 300 },
+        { "text": "yeh", "startMs": 320, "endMs": 600 },
+        { "text": "video", "startMs": 620, "endMs": 850 },
+        { "text": "bahut", "startMs": 870, "endMs": 1200 },
+        { "text": "achhi", "startMs": 1220, "endMs": 1500 },
+        { "text": "hai", "startMs": 1520, "endMs": 1800 }
+      ]
+    },
+    {
+      "id": "example-noisy-phone",
+      "path": "example-media/example-noisy.m4a",
+      "tags": ["noisy", "phone"],
+      "references": ["delivery kal shaam tak aa jayegi"]
+    },
+    {
+      "id": "example-silence",
+      "path": "example-media/example-silence.wav",
+      "tags": ["silence", "long-pause"],
+      "references": [],
+      "expectNoWords": true
+    }
+  ]
+}

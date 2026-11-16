@@ -5,8 +5,14 @@ import { createRoot, hydrateRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { App } from "./App";
 import { loadGuideBody } from "./content/guide-content";
+import { installCaptionRuntime } from "./lib/captioning/runtime";
 import "./styles.css";
 import "./brand.css";
+import "./captions.css";
+
+// Registers the real captioning engine for the captions tool. Does nothing until a model list has been published,
+// and imports nothing heavy: the engine itself is loaded only when a caption job starts.
+installCaptionRuntime();
 
 const root = document.getElementById("root");
 if (!root) throw new Error("App root was not found.");

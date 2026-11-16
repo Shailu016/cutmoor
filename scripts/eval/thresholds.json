@@ -1,0 +1,10 @@
+{
+  "default": { "werMax": 0.18, "timingMaeMsMax": 120, "coverageMin": 0.995 },
+  "gold": {
+    "meanWerMax": 0.25,
+    "clipWerMax": 0.5,
+    "timingMaeMsMax": 120,
+    "hallucinatedWordsMax": 0,
+    "byTag": {}
+  }
+}

@@ -15,6 +15,7 @@ import { TOOLS } from "./lib/tools";
 import { primeGuideBodies } from "./content/guide-content";
 import { GUIDES } from "./content/guides";
 import { GUIDE_BODIES } from "./content/guides.server";
+import { isAdFreePath } from "./lib/ad-free";
 
 // Every article is available before rendering, so each guide is prerendered in full.
 primeGuideBodies(GUIDE_BODIES);
@@ -59,7 +60,8 @@ export function headForPath(pathname: string): string {
   const image = absoluteUrl(meta.image ?? SITE.ogImage);
   const robots = meta.noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large";
   const jsonLd = JSON.stringify(jsonLdForPath(pathname)).replace(/</g, "\\u003c");
-  const adsenseClient = String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
+  // Ad-free pages (the captions tool) get no ad meta tag, preconnect or script: their security policy forbids them.
+  const adsenseClient = isAdFreePath(pathname) ? "" : String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
   const canonical = meta.noindex ? "" : `<link rel="canonical" href="${escapeHtml(url)}" />`;
 
   return [

@@ -1,7 +1,9 @@
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "../components/Link";
 import { ArrowRight, ChevronRight, Lock, ShieldCheck, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
+import { isAdFreePath } from "../lib/ad-free";
 import { FormatCompat } from "../components/FormatCompat";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
@@ -39,6 +41,18 @@ const IMAGE_GUIDES: Record<string, { to: string; label: string }> = {
   },
 };
 
+// The captions tool (editor, preview, job logic) is large and used by one page, so it loads only there instead of
+// adding to every visitor's first download. The placeholder keeps the page the same height until it arrives.
+const AutoCaptionsTool = lazy(() => import("../tools/AutoCaptionsTool").then((module) => ({ default: module.AutoCaptionsTool })));
+
+/** The lazy tool loads only in the browser. Prerendering and hydration both show the placeholder, so they agree (a lazy component cannot render on the server). */
+function LazyCaptionsTool() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  const fallback = <div className="tool-loading" style={{ minHeight: 640 }} role="status" aria-live="polite">Loading the captions tool…</div>;
+  return ready ? <Suspense fallback={fallback}><AutoCaptionsTool /></Suspense> : fallback;
+}
+
 function ToolRenderer({ slug }: { slug: string }) {
   if (slug === "compress") return <CompressTool />;
   if (slug === "resize") return <ResizeTool />;
@@ -47,6 +61,7 @@ function ToolRenderer({ slug }: { slug: string }) {
   if (slug === "audio") return <AudioTool />;
   if (slug === "frame") return <FrameTool />;
   if (slug === "captions") return <CaptionsTool />;
+  if (slug === "auto-captions") return <LazyCaptionsTool />;
   if (slug === "compress-image") return <CompressImageTool />;
   if (slug === "resize-image") return <ResizeImageTool />;
   if (slug === "convert-image") return <ConvertImageTool />;
@@ -143,7 +158,7 @@ export function ToolPage() {
 
         <FormatCompat slug={tool.slug} toolName={tool.name} />
 
-        <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_ARTICLE} className="ad-inline" />
+        {!isAdFreePath(`/tools/${tool.slug}`) && <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_ARTICLE} className="ad-inline" />}
 
         <section className="faq-section">
           <span className="mono-label">Questions</span>

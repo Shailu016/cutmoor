@@ -1,7 +1,11 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { isAdFreePath } from "../lib/ad-free";
 
 export function AdSlot({ slot, className = "" }: { slot?: string; className?: string }) {
-  const client = String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
+  // Ad-free pages never load ads, even if a slot is placed on them by mistake.
+  const adFree = isAdFreePath(useLocation().pathname);
+  const client = adFree ? "" : String(import.meta.env.VITE_ADSENSE_CLIENT ?? "").trim();
 
   useEffect(() => {
     if (!client || !slot) return;
@@ -22,6 +26,7 @@ export function AdSlot({ slot, className = "" }: { slot?: string; className?: st
     }
   }, [client, slot]);
 
+  if (adFree) return null;
   if (!client) {
     if (!import.meta.env.DEV) return null;
     return (

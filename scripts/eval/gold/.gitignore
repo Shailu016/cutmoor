@@ -1,0 +1,7 @@
+# Real gold manifests, transcripts and media are private: they stay on this machine.
+# Only this file, the README and the clearly-fake example are tracked.
+*
+!.gitignore
+!README.md
+!example-gold.json
+!example-hypotheses.json
