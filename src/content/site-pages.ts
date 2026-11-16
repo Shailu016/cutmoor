@@ -25,6 +25,10 @@ export interface SitePage {
 const UPDATED = "2026-11-11";
 /** The privacy policy was revised separately: analytics disclosure and the network check. */
 const PRIVACY_UPDATED = "2026-11-13";
+/** The About page was revised for the Auto captions tool. */
+const CAPTIONS_UPDATED = "2026-11-13";
+/** The Licences page was revised when the second speech model shipped. */
+const LICENCES_UPDATED = "2026-11-14";
 
 export const SITE_PAGES: SitePage[] = [
   {
@@ -33,7 +37,7 @@ export const SITE_PAGES: SitePage[] = [
     description:
       "Cutmoor is a free, local-first toolkit for video and images. Compress, crop, trim, convert, resize, and extract audio without uploading your files.",
     eyebrow: "About",
-    updated: UPDATED,
+    updated: CAPTIONS_UPDATED,
     intro: [
       "Cutmoor is a small set of video and image tools that run in your browser. It exists because the everyday jobs around short-form media are boring, repetitive, and usually require a trip through an upload form on someone else's server.",
       "Drop a file, choose a preset, get a clean export. The file is processed on your device. There is no account, no storage bucket, and no queue.",
@@ -57,7 +61,8 @@ export const SITE_PAGES: SitePage[] = [
         heading: "What Cutmoor does not do",
         paragraphs: [
           "Cutmoor does not download videos from YouTube, Instagram, TikTok, or any other platform. It only works with files you already have and have the right to use.",
-          "It does not upload, store, or share your files. It does not require an account, and it does not add a watermark.",
+          "We never receive your media: the tools do not upload, store, or share your files. They do not require an account, and they do not add a watermark.",
+          "One tool, Auto captions, downloads a speech-recognition model to your browser the first time you use it. The model comes to your device; your audio, video, and transcript never go the other way.",
         ],
       },
       {
@@ -119,6 +124,18 @@ export const SITE_PAGES: SitePage[] = [
           "On 13 November 2026 we recorded every network request the live site made while it compressed a multi-megabyte test video in Chrome. During processing, the only requests were downloads: the encoder program from unpkg.com and the page's own worker script. No request carried the video, and no request in the whole session had a body larger than 1 KB.",
           "When the page first loaded, the browser also contacted Google (AdSense and its consent message). Those requests carry ordinary page and device information, not your files.",
           "This is a point-in-time check of the live site, not a promise about future versions. You can repeat it yourself: open your browser's developer tools, go to the Network tab, process a file, and look for any request that sends data out.",
+        ],
+      },
+      {
+        heading: "Auto captions and the model download",
+        paragraphs: [
+          "The Auto captions tool needs a speech-recognition model, which is a large file. The first time you choose to use it, the page shows the download size and the host, and asks before anything is fetched. The model is downloaded from models.cutmoor.com, which is our own Cloudflare R2 storage, once, and your browser then keeps it so later jobs start without downloading again. The page checks each file against a known fingerprint (SHA-256) before using it.",
+          "Your audio, video, and transcript are processed on your device and never leave it. We never receive your media. The only thing the tool requests from the network is the model file itself.",
+        ],
+        bullets: [
+          "What the model host can see: your IP address, your browser's user agent, which file you requested, and the standard request details that web servers and Cloudflare keep in their logs. It cannot see your video, audio, transcript, or file names, because none of them are sent.",
+          "To delete the cached model, use the tool's Delete model button, or clear this site's data in your browser settings. Deleting it means the next use will ask to download it again.",
+          "The model download is separate from advertising: ad partners never receive your video, audio, or transcript.",
         ],
       },
       {
@@ -334,9 +351,9 @@ export const SITE_PAGES: SitePage[] = [
     slug: "licences",
     title: "Third-party licences — Cutmoor",
     description:
-      "The open-source components that power Cutmoor, including FFmpeg, heic-to, libheif, React, Lucide, and the site fonts, with links to their licences.",
+      "The open-source components that power Cutmoor, including FFmpeg, heic-to, libheif, ONNX Runtime Web, Mediabunny, the Auto captions models, React, Lucide, and the site fonts, with links to their licences.",
     eyebrow: "Licences",
-    updated: UPDATED,
+    updated: LICENCES_UPDATED,
     intro: [
       "Cutmoor is built on open-source software. The browser does the heavy lifting, and several of those components carry obligations that are worth stating plainly.",
       "The list below covers the components that are distributed to visitors as part of the site, plus the libraries used to build it. Full licence texts are available at the linked upstream projects and in the repository's THIRD_PARTY_NOTICES.md.",
@@ -368,6 +385,45 @@ export const SITE_PAGES: SitePage[] = [
           { label: "heic-to by Hopper Gee", href: "https://github.com/hoppergee/heic-to", description: "LGPL-3.0." },
           { label: "libheif", href: "https://github.com/strukturag/libheif", description: "LGPL-3.0." },
           { label: "libde265", href: "https://github.com/strukturag/libde265", description: "LGPL-3.0." },
+        ],
+      },
+      {
+        heading: "Auto captions: runtime and video export",
+        paragraphs: [
+          "The Auto captions tool runs its speech models with ONNX Runtime Web 1.31, published by Microsoft under the MIT licence. Burned-in caption video is written with Mediabunny, published by Vanilagy under the Mozilla Public License 2.0 (MPL-2.0).",
+          "Cutmoor uses Mediabunny unmodified. MPL-2.0 is a file-level licence: its source files keep their licence headers, and anyone who changes those files and distributes them must publish the changes under the same licence. The video and audio codecs used for export come from your browser, not from Cutmoor.",
+        ],
+        links: [
+          { label: "ONNX Runtime", href: "https://github.com/microsoft/onnxruntime", description: "MIT." },
+          { label: "Mediabunny", href: "https://github.com/Vanilagy/mediabunny", description: "MPL-2.0." },
+        ],
+      },
+      {
+        heading: "Auto captions: speech models",
+        paragraphs: [
+          "The tool offers two speech-recognition models, both by Oriserve and both declared Apache-2.0. Draft is Whisper-Hindi2Hinglish-Swift, a fine-tune of OpenAI Whisper base. The Hugging Face user di12355 converted it to ONNX, and the download is about 160 MB. High accuracy is Whisper-Hindi2Hinglish-Apex, a fine-tune of OpenAI whisper-large-v3-turbo. Cutmoor converted it to ONNX and compressed the weights to 4-bit, and the download is about 800 MB. High accuracy needs WebGPU, so it runs in recent Chrome or Edge on a computer.",
+          "Oriserve describes its training data as proprietary or partly proprietary and does not publish it. We rely on the Apache-2.0 licence each model page declares and have not independently verified the training data.",
+          "Silero VAD v6 by the Silero Team is part of the app's model files, but Auto captions does not run it: that page uses a small built-in vocal-activity detector to decide which stretches to read. The Silero repository's LICENSE file says MIT.",
+          "Both models download once from models.cutmoor.com after the visitor agrees, are checked against SHA-256 fingerprints shipped with the site, and are stored in the browser. Nothing else is sent anywhere.",
+        ],
+        links: [
+          {
+            label: "Whisper-Hindi2Hinglish-Swift (Oriserve)",
+            href: "https://huggingface.co/Oriserve/Whisper-Hindi2Hinglish-Swift",
+            description: "Apache-2.0.",
+          },
+          {
+            label: "Whisper-Hindi2Hinglish-Apex (Oriserve)",
+            href: "https://huggingface.co/Oriserve/Whisper-Hindi2Hinglish-Apex",
+            description: "Apache-2.0.",
+          },
+          {
+            label: "whisper-hinglish-swift-onnx (di12355)",
+            href: "https://huggingface.co/di12355/whisper-hinglish-swift-onnx",
+            description: "ONNX conversion of the Draft model; Apache-2.0 with the OpenAI Whisper MIT notice.",
+          },
+          { label: "OpenAI Whisper", href: "https://github.com/openai/whisper", description: "MIT." },
+          { label: "Silero VAD", href: "https://github.com/snakers4/silero-vad", description: "MIT per the repository LICENSE file; v6." },
         ],
       },
       {

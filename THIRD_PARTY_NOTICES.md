@@ -5,7 +5,7 @@ site. This file lists the components, their licences, and where to obtain the
 corresponding source. It is a notice, not legal advice; the upstream licence
 texts control.
 
-Last updated: 2026-11-11
+Last updated: 2026-11-14
 
 ## Distributed to the browser
 
@@ -38,6 +38,42 @@ Last updated: 2026-11-11
 - LGPL source and relinking information is available at the upstream links
   above. The unmodified npm package is also present in `node_modules/heic-to`
   after `npm install`.
+
+### Auto captions (speech recognition)
+
+The Auto captions tool offers two speech-recognition models. Both are published
+by Oriserve and both model pages declare Apache-2.0. The files are hosted by
+Cutmoor at `https://models.cutmoor.com`, downloaded once after the visitor
+agrees, checked against SHA-256 fingerprints bundled with the site, and kept in
+the browser.
+
+- **Draft:** `Oriserve/Whisper-Hindi2Hinglish-Swift`, a fine-tune of OpenAI
+  Whisper base. About 160 MB. Converted to ONNX by the Hugging Face user
+  `di12355`.
+  - Model page: https://huggingface.co/Oriserve/Whisper-Hindi2Hinglish-Swift
+  - ONNX conversion: https://huggingface.co/di12355/whisper-hinglish-swift-onnx
+  - The converted repository carries the OpenAI Whisper MIT notice.
+- **High accuracy:** `Oriserve/Whisper-Hindi2Hinglish-Apex`, a fine-tune of
+  OpenAI `whisper-large-v3-turbo`. About 800 MB. Converted to ONNX and
+  compressed to 4-bit weights by Cutmoor. Requires WebGPU in the browser.
+  - Model page: https://huggingface.co/Oriserve/Whisper-Hindi2Hinglish-Apex
+- Oriserve describes its training data as proprietary or partly proprietary and
+  does not publish it. Cutmoor relies on the Apache-2.0 licence each model page
+  declares and has not independently verified the training data.
+- OpenAI Whisper (MIT): https://github.com/openai/whisper
+
+The tool runs the models with ONNX Runtime Web 1.31, published by Microsoft
+under the MIT licence: https://github.com/microsoft/onnxruntime
+
+Silero VAD v6 by the Silero Team is part of the app's model files, but the
+Auto captions page does not run it: the page uses a small built-in
+vocal-activity detector to decide which stretches to read. The repository
+LICENSE file says MIT:
+https://github.com/snakers4/silero-vad
+
+Burned-in caption video is written with Mediabunny 1.66.0, published by
+Vanilagy under the Mozilla Public License 2.0 (MPL-2.0):
+https://github.com/Vanilagy/mediabunny
 
 ## Build and interface libraries
 

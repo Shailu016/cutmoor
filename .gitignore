@@ -11,3 +11,6 @@ Thumbs.db
 coverage/
 
 public/ffmpeg/
+# Local caption gold-set reports (scripts/eval/gold-score.mjs default outputs)
+/gold-report.md
+/gold-results.json

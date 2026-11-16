@@ -1,0 +1,746 @@
+/* ============================================================
+   Auto captions tool. Everything is prefixed `cap-` so it cannot
+   collide with other tools. Colour and spacing tokens come from
+   brand.css and styles.css; the output panel reuses `.job-panel`
+   (fixed size in every state, see brand.css).
+   ============================================================ */
+
+.cap-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Left column: the card grows with its content; the page scrolls, never the card ---------- */
+.cap-stage-card {
+  height: auto;
+  min-height: 540px;
+  overflow: visible;
+}
+
+.cap-stage-editor {
+  padding: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .cap-stage-card {
+    min-height: 0;
+  }
+}
+
+.cap-alert {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  color: #7a1a10;
+}
+
+.cap-alert strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+}
+
+.cap-alert p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.cap-alert .button-ghost {
+  color: #7a1a10;
+  border-color: #7a1a10;
+  background: transparent;
+}
+
+.cap-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--paper-2);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.cap-linkbutton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.cap-consent-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.cap-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.cap-facts > div {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  min-width: 0;
+}
+
+.cap-facts dt {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.cap-facts dd {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.cap-privacy {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  margin: 0;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cap-privacy svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--accent);
+}
+
+.cap-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.cap-button-row .button {
+  flex: 1 1 160px;
+}
+
+/* ---------- Progress ---------- */
+.cap-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cap-progress-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.cap-track {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--paper-2);
+  overflow: hidden;
+}
+
+.cap-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+.cap-partial {
+  flex: none;
+  min-height: 80px;
+  margin: 0;
+  padding: 6px 12px;
+  overflow: visible;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+
+.cap-partial li {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.cap-partial li:last-child {
+  border-bottom: 0;
+}
+
+.cap-partial .cap-partial-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+
+/* ---------- Preview (inside the dark output panel) ---------- */
+.cap-stage {
+  background: #000;
+}
+
+.cap-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.cap-overlay {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  pointer-events: none; /* never block the video's own controls */
+}
+
+.cap-block {
+  max-width: 92%;
+  text-align: center;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  -webkit-text-stroke-color: #000;
+}
+
+.cap-pos-bottom {
+  margin-top: auto;
+  margin-bottom: 13%; /* clear of the player's control bar */
+}
+
+.cap-pos-middle {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.cap-bg-outline {
+  paint-order: stroke fill;
+  -webkit-text-stroke-width: 0.16em;
+  text-shadow: 0 0.05em 0.18em rgba(0, 0, 0, 0.6);
+}
+
+.cap-bg-pill {
+  padding: 0.22em 0.6em;
+  border-radius: 0.55em;
+  background: rgba(0, 0, 0, 0.74);
+}
+
+.cap-word {
+  display: inline-block;
+  margin: 0 0.12em;
+}
+
+.cap-dim {
+  pointer-events: none;
+}
+
+/* ---------- Output panel content ---------- */
+/* No inner scrollbar: the panel is as tall as its content and scrolls with the page. */
+.cap-panel {
+  position: static;
+  height: auto;
+  min-height: 560px;
+}
+
+.cap-panel .job-body {
+  gap: 14px;
+  flex: none;
+  overflow: visible;
+}
+
+@media (max-width: 900px) {
+  .cap-panel {
+    height: auto;
+    min-height: 0;
+  }
+}
+
+.cap-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cap-panel .result-badge {
+  color: var(--ember-on-dark); /* the default cobalt is too dim on the dark panel */
+}
+
+.cap-section > .mono-label {
+  color: var(--panel-muted);
+}
+
+.cap-styles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cap-style {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--panel-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cap-style:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cap-style.active {
+  border-color: var(--ember-on-dark);
+  background: rgba(255, 179, 92, 0.12);
+}
+
+.cap-style-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cap-style-detail {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--panel-muted);
+}
+
+.cap-swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #3b4256, #1c2434);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.cap-swatch.cap-bg-pill {
+  background: linear-gradient(135deg, #3b4256, #1c2434);
+}
+
+.cap-swatch.cap-bg-pill > span:first-child {
+  padding: 0;
+}
+
+.cap-exports {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cap-exports .button {
+  width: 100%;
+  padding-inline: 8px;
+}
+
+.cap-burn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cap-spots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cap-panel .chip {
+  background: transparent;
+  color: var(--panel-text);
+  border-color: var(--panel-line);
+}
+
+.cap-testbanner {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 179, 92, 0.5);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 179, 92, 0.12);
+  color: var(--ember-on-dark);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.cap-testbanner svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* ---------- Editor ---------- */
+.cap-editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.cap-editor-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 14px 16px 6px;
+}
+
+.cap-editor-bar strong {
+  display: block;
+  font-size: 15px;
+}
+
+.cap-count {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.cap-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cap-editor-actions .icon-button {
+  width: 40px;
+  height: 40px;
+}
+
+.cap-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.cap-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.cap-hint {
+  margin: 0;
+  padding: 0 16px 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.cap-list {
+  flex: none;
+  overflow: visible;
+  border-block: 1px solid var(--line);
+  background: var(--paper);
+}
+
+.cap-empty {
+  margin: 0;
+  padding: 20px 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.cap-row {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 4px 8px;
+  padding: 6px 12px 6px 8px;
+  border-bottom: 1px solid var(--line);
+  /* Long transcripts have thousands of rows: the browser skips drawing the ones off screen. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 52px;
+}
+
+.cap-time {
+  align-self: start;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cap-words {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cap-wline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.cap-w {
+  min-height: 32px;
+  padding: 3px 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.cap-w:hover {
+  background: var(--paper-2);
+}
+
+.cap-w.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.cap-w.is-playing {
+  background: var(--brass-soft);
+  box-shadow: inset 0 -3px 0 var(--brass);
+}
+
+.cap-w.is-uncertain {
+  text-decoration: underline wavy var(--brass-strong);
+  text-underline-offset: 4px;
+}
+
+.cap-gap {
+  grid-column: 1 / -1;
+  margin: 2px 0 4px;
+  padding: 7px 10px;
+  border: 1px dashed var(--brass-strong);
+  border-radius: 6px;
+  background: var(--brass-soft);
+  color: #7a2a0c;
+  font-size: 12.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cap-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 16px 14px;
+}
+
+.cap-tools-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.cap-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+.cap-field input {
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  font: inherit;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.cap-field input:disabled {
+  background: var(--paper-2);
+}
+
+.cap-timing {
+  align-items: center;
+}
+
+.cap-range {
+  flex: 1 1 100%;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.cap-nudge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cap-nudge .chip {
+  min-width: 38px;
+  padding: 6px 10px;
+  justify-content: center;
+}
+
+.cap-nudge .chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cap-danger {
+  color: var(--danger);
+}
+
+@media (max-width: 560px) {
+  .cap-facts {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* The host name is long, so it gets a full row to itself. */
+  .cap-facts > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .cap-styles {
+    gap: 6px;
+  }
+
+  .cap-style-detail {
+    display: none;
+  }
+
+  .cap-exports {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cap-fill {
+    transition: none;
+  }
+}
+
+/* ---------- Names and special words (collapsed until opened) ---------- */
+.cap-glossary {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-3);
+}
+
+.cap-glossary > summary {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.cap-glossary > summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.cap-glossary-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.cap-glossary-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cap-glossary-input {
+  width: 100%;
+  min-height: 74px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.cap-glossary-input:disabled {
+  background: var(--paper-2);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Shown above the editor when a long file produced almost no text (songs, loud music). Informational, not an error. */
+.cap-lowspeech {
+  margin: 0 0 12px;
+  border: 1px solid var(--line);
+}
+.cap-lowspeech strong {
+  display: block;
+  margin-bottom: 4px;
+}
+.cap-lowspeech p {
+  margin: 0;
+  color: var(--muted);
+}

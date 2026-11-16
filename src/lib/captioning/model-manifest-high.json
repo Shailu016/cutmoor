@@ -1,0 +1,72 @@
+{
+  "id": "whisper-apex-hinglish-q4",
+  "version": "2",
+  "files": [
+    {
+      "name": "decoder-p0",
+      "url": "https://models.cutmoor.com/m/14b0b60f5d4cf7b6.bin",
+      "bytes": 157286400,
+      "sha256": "14b0b60f5d4cf7b661be9af112ec4212ce632d761a732c968c496df14fb552bf"
+    },
+    {
+      "name": "decoder-p1",
+      "url": "https://models.cutmoor.com/m/1f17c6ef4d02c8dd.bin",
+      "bytes": 157286400,
+      "sha256": "1f17c6ef4d02c8ddf97829f37de4aa519a1a3bd638405a01e0be1c91de939347"
+    },
+    {
+      "name": "decoder-p2",
+      "url": "https://models.cutmoor.com/m/932f6647cf3e13c0.bin",
+      "bytes": 60899900,
+      "sha256": "932f6647cf3e13c093eff60ac815f373991fc76545bb6983a1fd3a4df989fe00"
+    },
+    {
+      "name": "encoder-p0",
+      "url": "https://models.cutmoor.com/m/038ce889a57e5eec.bin",
+      "bytes": 157286400,
+      "sha256": "038ce889a57e5eecd75dbaedd2f134118ed80873b7b45ccb439fb6ea3e074927"
+    },
+    {
+      "name": "encoder-p1",
+      "url": "https://models.cutmoor.com/m/03f2e9c9fe77450c.bin",
+      "bytes": 157286400,
+      "sha256": "03f2e9c9fe77450cfc605b2178931ed53f520b96ffc4475e386b6aacf421ae91"
+    },
+    {
+      "name": "encoder-p2",
+      "url": "https://models.cutmoor.com/m/f03c3253295adada.bin",
+      "bytes": 110347589,
+      "sha256": "f03c3253295adada14b2e3019a2aa3796a5bcbbacd52174ee327671baae3b11b"
+    },
+    {
+      "name": "generation",
+      "url": "https://models.cutmoor.com/m/a6defbc7de460291.bin",
+      "bytes": 3808,
+      "sha256": "a6defbc7de4602911d726a9e769a5639f59d493c4066bffe5a9f524ef30f12bc"
+    },
+    {
+      "name": "ort-mjs",
+      "url": "https://models.cutmoor.com/m/59cf781530e1a16d.bin",
+      "bytes": 53457,
+      "sha256": "59cf781530e1a16df2a291d78798e3ec1152467edaec402d6f9599d85047c302"
+    },
+    {
+      "name": "ort-wasm",
+      "url": "https://models.cutmoor.com/m/ca319e9539cd0f1e.bin",
+      "bytes": 28747738,
+      "sha256": "ca319e9539cd0f1e291cf56074760121eaf39650f5dbf84b6e52c07f4b2944ec"
+    },
+    {
+      "name": "tokenizer",
+      "url": "https://models.cutmoor.com/m/5c1bf30c9e716e14.bin",
+      "bytes": 3930645,
+      "sha256": "5c1bf30c9e716e1477bedef846b01be0013daecb89e9e3ef7ab89b23c178df1b"
+    },
+    {
+      "name": "vad",
+      "url": "https://models.cutmoor.com/m/1a153a22f4509e29.bin",
+      "bytes": 2327524,
+      "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+    }
+  ]
+}

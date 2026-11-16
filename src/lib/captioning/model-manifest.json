@@ -1,0 +1,48 @@
+{
+  "id": "whisper-swift-base-hinglish",
+  "version": "1",
+  "files": [
+    {
+      "name": "decoder",
+      "url": "https://models.cutmoor.com/m/387346e931adb29e.bin",
+      "bytes": 52843037,
+      "sha256": "387346e931adb29eb240fc2e369bdfd23517e87794244c6e06e98b2a12965b21"
+    },
+    {
+      "name": "encoder",
+      "url": "https://models.cutmoor.com/m/b61d5ce200686d16.bin",
+      "bytes": 82443504,
+      "sha256": "b61d5ce200686d16617fb76f44a72e177d01357f39603b08a0c138d18312702f"
+    },
+    {
+      "name": "generation",
+      "url": "https://models.cutmoor.com/m/1bae24d268d25f65.bin",
+      "bytes": 3801,
+      "sha256": "1bae24d268d25f653675ad23da32cfbc45448bce4b2b8aea5bddd97eb29fdb95"
+    },
+    {
+      "name": "ort-mjs",
+      "url": "https://models.cutmoor.com/m/59cf781530e1a16d.bin",
+      "bytes": 53457,
+      "sha256": "59cf781530e1a16df2a291d78798e3ec1152467edaec402d6f9599d85047c302"
+    },
+    {
+      "name": "ort-wasm",
+      "url": "https://models.cutmoor.com/m/ca319e9539cd0f1e.bin",
+      "bytes": 28747738,
+      "sha256": "ca319e9539cd0f1e291cf56074760121eaf39650f5dbf84b6e52c07f4b2944ec"
+    },
+    {
+      "name": "tokenizer",
+      "url": "https://models.cutmoor.com/m/7e146198186d5e3b.bin",
+      "bytes": 3930462,
+      "sha256": "7e146198186d5e3b9ce7d9d7f131b69b44569eaed9ad64a5516629a6c6a865c4"
+    },
+    {
+      "name": "vad",
+      "url": "https://models.cutmoor.com/m/1a153a22f4509e29.bin",
+      "bytes": 2327524,
+      "sha256": "1a153a22f4509e292a94e67d6f9b85e8deb25b4988682b7e174c65279d8788e3"
+    }
+  ]
+}

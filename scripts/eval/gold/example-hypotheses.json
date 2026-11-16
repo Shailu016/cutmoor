@@ -1,0 +1,33 @@
+{
+  "model": "example-model-v0",
+  "backend": "example-backend",
+  "device": "example-device",
+  "clips": {
+    "example-clean-2ref": {
+      "seconds": 12.5,
+      "words": [
+        { "text": "yaar", "startMs": 0, "endMs": 310 },
+        { "text": "ye", "startMs": 330, "endMs": 610 },
+        { "text": "video", "startMs": 630, "endMs": 860 },
+        { "text": "bahut", "startMs": 880, "endMs": 1210 },
+        { "text": "achi", "startMs": 1230, "endMs": 1510 },
+        { "text": "hai", "startMs": 1530, "endMs": 1810 }
+      ]
+    },
+    "example-noisy-phone": {
+      "seconds": 8,
+      "words": [
+        { "text": "delivery", "startMs": 100, "endMs": 500 },
+        { "text": "kal", "startMs": 520, "endMs": 700 },
+        { "text": "shaam", "startMs": 720, "endMs": 1000 },
+        { "text": "tak", "startMs": 1020, "endMs": 1150 },
+        { "text": "aa", "startMs": 1170, "endMs": 1300 },
+        { "text": "jayega", "startMs": 1320, "endMs": 1700 }
+      ]
+    },
+    "example-silence": {
+      "seconds": 1.5,
+      "words": []
+    }
+  }
+}

@@ -51,6 +51,27 @@ function prettyUrlPreview(): Plugin {
   };
 }
 
+/**
+ * onnxruntime-web ships its WebAssembly files next to the library, and the bundler would copy them (28 MB each)
+ * into the site, past the host's 25 MiB per-file limit. The captioning runtime never loads them from the site:
+ * it downloads them from our model host, checks their SHA-256, and hands the library blob: URLs (see
+ * src/lib/captioning/runtime.ts). So the copies are dropped from the build.
+ */
+function dropOnnxRuntimeWasm(): Plugin {
+  return {
+    name: "cutmoor-drop-onnxruntime-wasm",
+    apply: "build",
+    generateBundle(_options, bundle) {
+      for (const name of Object.keys(bundle)) {
+        if (/(^|\/)ort-wasm[^/]*\.wasm$/.test(name)) delete bundle[name];
+      }
+    },
+  };
+}
+
+/** Code that only the captions tool uses. Named `captions-*` so the size budget can treat it as lazy. */
+const CAPTIONS_CODE = /[\/](src[\/](lib[\/]captioning|components[\/]captions|tools[\/]AutoCaptionsTool|hooks[\/]useCaptionJob)|node_modules[\/](onnxruntime-web|mediabunny))[\/]?/;
+
 export default defineConfig(async ({ command, mode }) => {
   const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
   const site = resolveSiteUrl(env);
@@ -74,6 +95,7 @@ export default defineConfig(async ({ command, mode }) => {
   build: {
     rollupOptions: {
       output: {
+        chunkFileNames: (chunk: { moduleIds: string[] }) => (chunk.moduleIds.some((id: string) => CAPTIONS_CODE.test(id)) ? "assets/captions-[name]-[hash].js" : "assets/[name]-[hash].js"),
         // Framework code changes rarely; a separate chunk stays cached across deploys.
         manualChunks(id: string) {
           if (id.includes("node_modules/react") || id.includes("node_modules/scheduler")) return "vendor";
@@ -85,13 +107,15 @@ export default defineConfig(async ({ command, mode }) => {
       },
     },
   },
-  plugins: [react(), prettyUrlPreview()],
+  plugins: [react(), prettyUrlPreview(), dropOnnxRuntimeWasm()],
   server: { port: 5173, host: true },
   // ffmpeg ships its own worker; pre-bundling it with esbuild breaks the worker URL.
   optimizeDeps: { exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"] },
   test: {
     environment: "jsdom",
     globals: true,
+    // The seeded fuzz and oracle tests are CPU-heavy: they take 2-4 s alone and passed 5 s only on an idle machine.
+    testTimeout: 30_000,
   },
   };
 });

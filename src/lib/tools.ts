@@ -324,7 +324,98 @@ export const TOOLS: ToolDef[] = [
           "No. Cutmoor changes the header, timestamp separators, and cue numbering only. The spoken text is preserved. Cue settings that SRT cannot represent are removed when converting from VTT.",
       },
     ],
-    related: ["trim", "audio", "compress"],
+    related: ["auto-captions", "trim", "audio"],
+  },
+  {
+    slug: "auto-captions",
+    kind: "video",
+    name: "Auto captions",
+    short: "Get Hinglish, Hindi, or English captions, timed to every word.",
+    title: "Auto captions for video: Hinglish, Hindi, English, no upload",
+    description:
+      "Turn speech into word-timed captions in your browser. Choose the Draft model for a quick first pass, or the larger High accuracy model when you need the accurate transcript. Edit the words, preview the highlight, and export SRT, VTT, or a captioned MP4. Your video never leaves your device.",
+    intro:
+      "Drop a video and Cutmoor listens to it on your device, then writes captions with a time for every word. You choose between two speech models before anything downloads: Draft, about 160 MB, is a quick first pass for clear speech; High accuracy, about 800 MB, is the accurate one and needs WebGPU, so it runs in recent Chrome or Edge on a computer. Fix any mistakes in the editor, watch the spoken word light up in the preview, and export SRT, VTT, or an MP4 with the captions burned in. The model you pick downloads once, after you agree, is checked against a fingerprint, and stays in your browser for next time. Your video, its sound, and the text never leave your device.",
+    icon: "captions",
+    accent: "rose",
+    keywords: [
+      "auto captions",
+      "hinglish captions",
+      "hindi subtitles generator",
+      "add captions to video",
+      "video to srt",
+      "caption generator without upload",
+    ],
+    steps: [
+      {
+        name: "Choose the video",
+        text: "Drop an MP4, MOV, WebM, or MKV file, or an audio recording. Hinglish, Hindi, and English speech are all written in English letters, and there is nothing to set up: the tool reads whichever it hears.",
+      },
+      {
+        name: "Choose a model",
+        text: "Draft is about 160 MB and is a quick first pass for clear speech. High accuracy is about 800 MB, needs WebGPU, and is aimed at a computer.",
+      },
+      {
+        name: "Approve the one-time download",
+        text: "The first time, you see the model size and where it comes from before anything starts. Each file is checked against a SHA-256 fingerprint and saved in your browser.",
+      },
+      {
+        name: "Edit and preview",
+        text: "The first captions appear while the rest is still being read. Click any word to fix it, split or join words, or nudge its timing, then play the video to check the highlight.",
+      },
+      {
+        name: "Export",
+        text: "Download SRT or VTT for any player, a word-level JSON file, or an MP4 with the captions burned in.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Is my video uploaded to a server?",
+        answer:
+          "No. The sound is read and turned into text on your device, in this tab. The only network request is the model download from our model host, once, after you agree. Your video, its sound, the captions, and the file name are never sent anywhere.",
+      },
+      {
+        question: "Which model should I choose?",
+        answer:
+          "Draft downloads about 160 MB and runs on more devices. It is a quick first pass for clear speech, and it can miss words on fast, noisy or accented speech. High accuracy downloads about 800 MB and needs WebGPU, which means recent Chrome or Edge on a computer. It is the accurate one, and much better on fast, noisy, or children's speech.",
+      },
+      {
+        question: "What is downloaded, and how big is it?",
+        answer:
+          "The speech model you choose: about 160 MB for Draft, or about 800 MB for High accuracy. Before anything downloads, the page shows the exact size and the host, and waits for your yes. Each file is checked against a SHA-256 fingerprint shipped with the site, then stored in your browser, so later visits start without downloading again. You can delete it from the tool page at any time.",
+      },
+      {
+        question: "How accurate are the captions?",
+        answer:
+          "We do not quote an accuracy percentage, because it depends on the recording. Machine captions can be wrong, especially with background noise, music, heavy accents, or several people talking at once. Draft is a quick first pass: it can miss words on fast, noisy or accented speech. High accuracy is the accurate one, and much better on fast, noisy, or children's speech. Songs, rap, and speech over loud music are the hardest case: where there is singing, music behind or under the voice gives more wrong words and some missing lines. Some singing, especially a chorus over dense music, may not be heard at all, and the tool leaves a gap rather than making words up; pasting the lyrics in the Lyrics or script box is the fix for a song. Words the model was unsure about are marked in the editor, but always read the captions through and fix them before you publish.",
+      },
+      {
+        question: "What is Hinglish mode?",
+        answer:
+          "Hinglish is Hindi and English mixed in one sentence, written in English letters, the way many people type messages. Hindi and English speech are written in English letters too, and there is nothing to choose. Hinglish spelling varies; the tool makes common spellings consistent, but it cannot know names, places or brands. List them in the Names and special words box: the model is told to expect them, and a heard word that sounds like one is changed to your spelling.",
+      },
+      {
+        question: "Can I paste the lyrics or a script?",
+        answer:
+          "Yes. Open Lyrics or script in the settings, under Names and special words, and paste the words exactly as they are spoken. Cutmoor does not write the lyrics for you: it takes your text and works out only the timing, placing each line against the audio instead of guessing the words. Lines it cannot match are listed after the run and left out rather than forced in. The text stays in this browser and is never uploaded, and timing from your words is most precise with High accuracy.",
+      },
+      {
+        question: "How accurate is the word timing?",
+        answer:
+          "Word timing comes from the model, and it can be off by a fraction of a second, so check the highlight and nudge a word if it comes in early or late.",
+      },
+      {
+        question: "Which files and devices work?",
+        answer:
+          "Common video and audio files work when your browser can decode them. Long videos are processed in parts, but they take a while, and phones are slower than computers. So far the tool has been verified only in desktop Chrome on Windows; other browsers and phones have not been tested. Phones may run out of memory with High accuracy. Burning captions into an MP4 needs a browser with video encoding support, such as current Chrome or Edge on a computer. SRT and VTT export work in any browser that runs the tool.",
+      },
+      {
+        question: "Can I use the captions on YouTube or Instagram?",
+        answer:
+          "SRT and VTT files can be uploaded to YouTube and most video platforms. For Instagram, TikTok, and Shorts, use the MP4 with the captions burned into the picture.",
+      },
+    ],
+    related: ["captions", "audio", "trim"],
   },
   {
     slug: "compress-image",

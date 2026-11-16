@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Link, NavLink } from "./Link";
 import { ArrowUpRight, Menu, X } from "lucide-react";
+import { isAdFreePath } from "../lib/ad-free";
 import { AdSlot } from "./AdSlot";
 import { ToolIcon } from "./ToolIcon";
 import { IMAGE_TOOLS, VIDEO_TOOLS } from "../lib/tools";
@@ -283,7 +284,7 @@ export function SiteLayout() {
         <Outlet />
       </main>
 
-      {SHOW_FOOTER_AD && (
+      {SHOW_FOOTER_AD && !isAdFreePath(location.pathname) && (
         <div className="shell footer-ad">
           <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_FOOTER} />
         </div>

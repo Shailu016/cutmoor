@@ -34,3 +34,46 @@
   Cache-Control: public, max-age=3600
 /feed.xml
   Cache-Control: public, max-age=3600
+
+# ---------------------------------------------------------------------------
+# Auto captions tool (/tools/auto-captions) - rules for THIS page only.
+#
+# The page runs speech models in the browser and promises that nothing the visitor
+# loads ever leaves the device. The Content-Security-Policy below makes the browser
+# itself enforce that: even a bug or a bad dependency cannot talk to any host except
+# our own model host. These headers are added on top of the /* ones above.
+#
+# These rules do not reach other pages, so ads (AdSense) elsewhere are unaffected.
+# This page must NOT load ad scripts: they would be blocked by the policy, and
+# Cross-Origin-Embedder-Policy would break ad frames anyway.
+#
+# Reach this page with a normal page load (a plain <a href> or reloadDocument link),
+# not a client-side router link: headers only apply to a real document load, and
+# without them the page is not cross-origin isolated (single-threaded WebAssembly).
+# ---------------------------------------------------------------------------
+/tools/auto-captions
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https://models.cutmoor.com blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+/tools/auto-captions/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https://models.cutmoor.com blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: credentialless
+
+# What each part of the policy is for:
+#   default-src 'self'          anything not listed below may only come from our own site.
+#   script-src 'self'           only our own bundled scripts run; no inline scripts, no third-party scripts.
+#     'wasm-unsafe-eval'        lets WebAssembly compile (ONNX Runtime). It does NOT allow eval() of strings.
+#     blob:                     ONNX Runtime starts its helper from a blob URL our own code creates.
+#   worker-src 'self' blob:     web workers (audio decode, model threads) from our bundle or blob URLs we create.
+#   connect-src                 the ONLY places the page may fetch/XHR/WebSocket/beacon to: this site, our model
+#                               host, and in-memory blob:/data: URLs. Any other host is refused by the browser.
+#   img-src / media-src         thumbnails and the user's video preview (a blob: URL of their own file).
+#   font-src, manifest-src      our own fonts (and inlined data: fonts); our own web manifest.
+#   style-src 'unsafe-inline'   React sets style="..." attributes (caption preview, progress bars). Styles cannot send data.
+#   object-src 'none'           no plugins. base-uri/form-action 'self': no re-pointing of links or form posts elsewhere.
+#   frame-ancestors 'self'      same as X-Frame-Options SAMEORIGIN above, in the modern form.
+# Cross-Origin-Opener-Policy: same-origin + Cross-Origin-Embedder-Policy: credentialless
+#   together make the page "cross-origin isolated", which the browser requires for SharedArrayBuffer, i.e. multi-threaded
+#   WebAssembly (several times faster). "credentialless" (not "require-corp") means cross-origin requests are sent
+#   without cookies instead of being blocked, so the model host needs no special headers beyond CORS.
