@@ -93,7 +93,7 @@ jobs:
         # request outside the policy, any ad script on the page, or any request while offline.
         run: node scripts/verify/captions-network.mjs http://localhost:4173
 
-      - name: Auto captions settings screen (model picker, names field: axe and phone width)
+      - name: "Auto captions settings screen (model picker, names field: axe and phone width)"
         # Uses a short silent WAV made on the spot, so no media file is needed in the repository. No model is downloaded.
         run: |
           node -e "const n=16000*3,b=Buffer.alloc(44+n*2);b.write('RIFF');b.writeUInt32LE(36+n*2,4);b.write('WAVEfmt ',8);b.writeUInt32LE(16,16);b.writeUInt16LE(1,20);b.writeUInt16LE(1,22);b.writeUInt32LE(16000,24);b.writeUInt32LE(32000,28);b.writeUInt16LE(2,32);b.writeUInt16LE(16,34);b.write('data',36);b.writeUInt32LE(n*2,40);require('fs').writeFileSync('silent.wav',b)"
