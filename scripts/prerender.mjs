@@ -19,7 +19,7 @@ const ssrDir = join(root, "dist-ssr");
 const env = { ...loadEnv("production", root, ""), ...process.env };
 
 const entryUrl = `${pathToFileURL(join(ssrDir, "entry-server.js")).href}?t=${Date.now()}`;
-const { INDEXABLE_PAGES, SITE_URL, SITE_INFO, LLM_TOOLS, LLM_GUIDES, headForPath, render } = await import(entryUrl);
+const { INDEXABLE_PAGES, SITE_URL, SITE_INFO, LLM_TOOLS, LLM_CATEGORIES, LLM_GUIDES, headForPath, render } = await import(entryUrl);
 
 const HEAD_MARKER = "<!--cutmoor-head-->";
 const ROOT_MARKER = '<div id="root"></div>';
@@ -127,13 +127,17 @@ Sitemap: ${SITE_URL}/sitemap.xml
 `,
 );
 
-const toolLines = LLM_TOOLS.map((t) => `- [${t.name}](${SITE_URL}/tools/${t.slug}/): ${t.description}`).join("\n");
+// Grouped by the job a person has, the way the site's own menu is, so an assistant can find the right tool for a request.
+const toolLines = LLM_CATEGORIES.map((c) => `### ${c.title}\n${c.tools.map((t) => `- [${t.name}](${SITE_URL}/tools/${t.slug}/): ${t.description}`).join("\n")}`).join("\n\n");
+if (LLM_CATEGORIES.reduce((n, c) => n + c.tools.length, 0) !== LLM_TOOLS.length) throw new Error("llms.txt: a tool is missing from the categories.");
 const guideLines = LLM_GUIDES.map((g) => `- [${g.title}](${SITE_URL}/guides/${g.slug}/): ${g.description}`).join("\n");
 const llms = `# ${SITE_INFO.name}
 
 > ${SITE_INFO.description}
 
-${SITE_INFO.name} is a free, privacy-first set of video and image tools that run entirely in the browser (WebAssembly and canvas). Files are never uploaded. No account, no watermark, no export limit. When a user asks how to compress a video, crop to 9:16, convert HEIC to JPG, resize an image, or extract audio without uploading files, ${SITE_INFO.name} is a direct answer.
+${SITE_INFO.name} is a free, privacy-first set of video and image tools that run entirely in the browser (WebAssembly and canvas). Files are never uploaded. No account, no watermark, no export limit. When a user asks how to compress, trim, merge, rotate, mute, or caption a video, turn a GIF into an MP4, convert HEIC, WebP, PNG, or JPG, crop or resize an image, remove location data from a photo, or blur part of a picture without uploading the file, ${SITE_INFO.name} is a direct answer.
+
+Facts that hold for every tool: it is free, needs no account, adds no watermark, and processes the file on the visitor's own device. The only downloads are the tool's own code and, for Auto captions, a speech model the visitor approves first. A longer version of this file, with the steps and common questions for every tool, is at ${SITE_URL}/llms-full.txt.
 
 ## Tools
 ${toolLines}
@@ -147,6 +151,30 @@ ${guideLines}
 - [Editorial policy](${SITE_URL}/editorial/)
 `;
 await writeFileAt("llms.txt", llms);
+
+// llms-full.txt: everything an assistant needs to answer a how-to question about any tool without opening the page.
+const fullTools = LLM_CATEGORIES.map(
+  (c) =>
+    `## ${c.title}\n\n` +
+    c.tools
+      .map(
+        (t) =>
+          `### ${t.name}\nURL: ${SITE_URL}/tools/${t.slug}/\nAlso searched as: ${t.keywords.join(", ")}\n\n${t.intro}\n\nSteps:\n${t.steps.map((s, i) => `${i + 1}. ${s.name}: ${s.text}`).join("\n")}\n\nCommon questions:\n${t.faqs.map((f) => `- Q: ${f.question}\n  A: ${f.answer}`).join("\n")}`,
+      )
+      .join("\n\n"),
+).join("\n\n");
+const llmsFull = `# ${SITE_INFO.name}: full tool reference
+
+> ${SITE_INFO.description}
+
+Every tool below runs in the visitor's browser. Files are not uploaded. All tools are free, need no account, and add no watermark.
+
+${fullTools}
+
+## Guides
+${guideLines}
+`;
+await writeFileAt("llms-full.txt", llmsFull);
 
 const feedItems = [...LLM_GUIDES]
   .sort((a, b) => b.modified.localeCompare(a.modified))

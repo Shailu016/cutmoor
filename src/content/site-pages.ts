@@ -28,7 +28,7 @@ const PRIVACY_UPDATED = "2026-11-13";
 /** The About page was revised for the Auto captions tool. */
 const CAPTIONS_UPDATED = "2026-11-13";
 /** The Licences page was revised when the second speech model shipped. */
-const LICENCES_UPDATED = "2026-11-14";
+const LICENCES_UPDATED = "2026-11-17";
 
 export const SITE_PAGES: SitePage[] = [
   {
@@ -351,7 +351,7 @@ export const SITE_PAGES: SitePage[] = [
     slug: "licences",
     title: "Third-party licences — Cutmoor",
     description:
-      "The open-source components that power Cutmoor, including FFmpeg, heic-to, libheif, ONNX Runtime Web, Mediabunny, the Auto captions models, React, Lucide, and the site fonts, with links to their licences.",
+      "The open-source components that power Cutmoor, including FFmpeg, libheif, ONNX Runtime Web, the AI models, React, and the site fonts, with their licences.",
     eyebrow: "Licences",
     updated: LICENCES_UPDATED,
     intro: [
@@ -396,6 +396,18 @@ export const SITE_PAGES: SitePage[] = [
         links: [
           { label: "ONNX Runtime", href: "https://github.com/microsoft/onnxruntime", description: "MIT." },
           { label: "Mediabunny", href: "https://github.com/Vanilagy/mediabunny", description: "MPL-2.0." },
+        ],
+      },
+      {
+        heading: "Remove background and Enlarge picture: neural networks",
+        paragraphs: [
+          "Two picture tools run a small neural network on your device. Remove background uses ISNet general-use, from the Dichotomous Image Segmentation project by Xuebin Qin and colleagues (Apache-2.0), in a half-precision ONNX build published by Ko033 on Hugging Face (Apache-2.0). Enlarge picture uses Real-ESRGAN general x4 v3 by Xintao Wang and colleagues (BSD-3-Clause), exported to ONNX by Qualcomm AI Hub.",
+          "Both download once from models.cutmoor.com after you agree, are checked against SHA-256 fingerprints shipped with the site, and are stored in your browser. Neither project publishes its training data, and we have not independently verified it.",
+        ],
+        links: [
+          { label: "DIS (ISNet)", href: "https://github.com/xuebinqin/DIS", description: "Apache-2.0." },
+          { label: "isnet-general-use-onnx (Ko033)", href: "https://huggingface.co/Ko033/isnet-general-use-onnx", description: "Apache-2.0; ONNX build of the rembg isnet-general-use model." },
+          { label: "Real-ESRGAN", href: "https://github.com/xinntao/Real-ESRGAN", description: "BSD-3-Clause." },
         ],
       },
       {

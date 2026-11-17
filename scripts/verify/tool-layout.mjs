@@ -37,6 +37,12 @@ const TOOLS = [
   { slug: "convert-image", file: PHOTO },
   { slug: "heic-to-jpg", file: PHOTO },
   { slug: "captions", file: null },
+  // The editing tools added later: their idle layout (panel size, nothing moving) is checked here; their real runs are in more-tools.mjs and more-image-tools.mjs.
+  ...[
+    "mute-video", "rotate-video", "video-speed", "reverse-video", "loop-video", "gif-to-mp4", "compress-gif", "resize-gif",
+    "merge-videos", "watermark-video", "add-audio-to-video", "slideshow-maker", "crop-image", "rotate-image",
+    "remove-photo-metadata", "blur-image", "watermark-image", "webp-to-jpg", "png-to-jpg", "jpg-to-png", "svg-to-png", "avif-to-jpg",
+  ].map((slug) => ({ slug, file: null, idleOnly: true })),
 ].filter((tool) => !only || only.includes(tool.slug));
 
 const browser = await puppeteer.launch({
@@ -156,7 +162,7 @@ for (const tool of TOOLS) {
       await clickText(".job-panel .button-ghost", ["start another", "process another", "try another"]);
       await new Promise((resolve) => setTimeout(resolve, 500));
       await snap("cleared");
-    } else {
+    } else if (!tool.idleOnly) {
       // Captions: no output panel, paste text and convert.
       await page.evaluate((text) => {
         const area = document.querySelector("textarea:not([readonly])");

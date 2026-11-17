@@ -5,7 +5,7 @@ export const meta: GuideMeta = {
   slug: "convert-video-to-gif",
   title: "How to convert a video to a GIF that is small and still looks good",
   description:
-    "Turn a short clip into a looping GIF without a 40 MB file. Why GIFs get so large, the length, width, and frame rate that keep them sharable, and when an MP4 loop is the better choice.",
+    "Turn a short clip into a looping GIF without a 40 MB file: the length, width, and frame rate that keep it sharable, and when MP4 is better.",
   excerpt:
     "A GIF stores every frame as a full picture with at most 256 colours. Keep it short, narrow, and at a low frame rate, and it stays small enough to share.",
   category: "Conversion",

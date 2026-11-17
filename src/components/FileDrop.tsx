@@ -12,6 +12,8 @@ interface FileDropProps {
   file: File | null;
   meta?: FileDropMeta | null;
   onFile: (file: File) => void;
+  /** When given, the box accepts several files at once and hands them all over here instead of calling `onFile`. */
+  onFiles?: (files: File[]) => void;
   onClear: () => void;
   accept?: string;
   hint: string;
@@ -23,6 +25,7 @@ export function FileDrop({
   file,
   meta,
   onFile,
+  onFiles,
   onClear,
   accept = "video/*,audio/*",
   hint,
@@ -35,6 +38,11 @@ export function FileDrop({
   const Icon = kind === "image" ? FileImage : kind === "audio" ? FileAudio : kind === "file" ? FileText : FileVideo;
 
   const take = (files: FileList | null) => {
+    if (onFiles) {
+      const all = Array.from(files ?? []);
+      if (all.length > 0) onFiles(all);
+      return;
+    }
     const next = files?.[0];
     if (next) onFile(next);
   };
@@ -92,6 +100,7 @@ export function FileDrop({
         ref={inputRef}
         type="file"
         accept={accept}
+        multiple={Boolean(onFiles)}
         hidden
         onChange={(event) => {
           take(event.target.files);

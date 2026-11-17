@@ -2,6 +2,7 @@ import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
 import { explainFailure } from "./ffmpeg-errors";
 import { extensionOf, mimeForName } from "./format";
+import { EMPTY_INFO, parseMediaInfo, type MediaInfo } from "./media-info";
 
 /**
  * One lazy ffmpeg instance for the whole tab. The core is ~32 MB, so it is
@@ -12,6 +13,19 @@ import { extensionOf, mimeForName } from "./format";
 
 let instance: FFmpeg | null = null;
 let loading: Promise<FFmpeg> | null = null;
+let jobsSinceLoad = 0;
+
+/**
+ * The WebAssembly encoder keeps its memory between jobs and, after many different jobs in one tab, can fail
+ * with "memory access out of bounds" on a perfectly good file (seen in the verification runs). Starting a fresh
+ * instance every few jobs avoids that; the next job reloads the encoder from the browser cache in a second or two.
+ */
+export const MAX_JOBS_PER_INSTANCE = 4;
+
+function countJobAndRecycle(): void {
+  jobsSinceLoad += 1;
+  if (jobsSinceLoad >= MAX_JOBS_PER_INSTANCE) resetFFmpeg();
+}
 
 const logListeners = new Set<(message: string) => void>();
 const progressListeners = new Set<(progress: number) => void>();
@@ -107,6 +121,7 @@ async function load(): Promise<FFmpeg> {
     await ffmpeg.load({ coreURL, wasmURL });
 
     instance = ffmpeg;
+    jobsSinceLoad = 0;
     return ffmpeg;
   })();
 
@@ -164,6 +179,77 @@ export async function runFFmpeg({ file, outputName, args, onTimings }: RunOption
     stopCapture();
     await ffmpeg.deleteFile(inputName).catch(() => undefined);
     await ffmpeg.deleteFile(outputName).catch(() => undefined);
+    countJobAndRecycle();
+  }
+}
+
+export interface JobInputs {
+  /** Names the files were written under (`in0.mp4`, `in1.png`, ...), in the order given. */
+  names: string[];
+  /** What the encoder reports about each file. All empty unless `probe` was asked for. */
+  infos: MediaInfo[];
+}
+
+export interface RunJobOptions {
+  /** Every input file. The first is the main one; the rest are a second clip, a logo, an audio track, and so on. */
+  inputs: Array<File | Blob>;
+  /** File names to give each input. Defaults to `in<N>.<extension>`. Only the extension matters to the encoder. */
+  inputNames?: string[];
+  outputName: string;
+  /** Read the streams of each input first (audio or not, length, frame rate) so the command can be built to match. */
+  probe?: boolean;
+  build: (inputs: JobInputs) => string[];
+  onTimings?: (timings: RunTimings) => void;
+}
+
+/**
+ * Like runFFmpeg, for tools with more than one input. All files are written to the encoder's in-memory
+ * folder, optionally probed, then the command is built from the real stream information and run.
+ */
+export async function runFFmpegJob({ inputs, inputNames, outputName, probe = false, build, onTimings }: RunJobOptions): Promise<Blob> {
+  const loadStarted = performance.now();
+  const ffmpeg = await load();
+  const engineLoadMs = performance.now() - loadStarted;
+  const names = inputs.map((input, index) => inputNames?.[index] ?? `in${index}.${extensionOf(input instanceof File ? input.name : "x.bin")}`);
+  const processStarted = performance.now();
+  const recentLog: string[] = [];
+  const stopCapture = onFFmpegLog((message) => {
+    recentLog.push(message);
+    if (recentLog.length > 60) recentLog.shift();
+  });
+
+  try {
+    for (let index = 0; index < inputs.length; index += 1) await ffmpeg.writeFile(names[index], await fetchFile(inputs[index]));
+    const infos: MediaInfo[] = [];
+    for (const name of names) {
+      if (!probe) {
+        infos.push({ ...EMPTY_INFO });
+        continue;
+      }
+      const lines: string[] = [];
+      const stopProbe = onFFmpegLog((message) => lines.push(message));
+      // With no output FFmpeg exits non-zero after printing the stream list; that is the normal result here.
+      await ffmpeg.exec(["-hide_banner", "-i", name]);
+      stopProbe();
+      infos.push(parseMediaInfo(lines));
+    }
+    recentLog.length = 0;
+    const command = build({ names, infos });
+    const exitCode = await ffmpeg.exec(command);
+    if (exitCode !== 0) {
+      throw new Error(
+        explainFailure(recentLog) ?? `The encoder exited with code ${exitCode}. Try a different input file or a smaller one.`,
+      );
+    }
+    const data = await ffmpeg.readFile(outputName);
+    if (typeof data === "string") throw new Error("The encoder returned text instead of a media file.");
+    onTimings?.({ engineLoadMs, processMs: performance.now() - processStarted });
+    return new Blob([data as unknown as BlobPart], { type: mimeForName(outputName) });
+  } finally {
+    stopCapture();
+    for (const name of names) await ffmpeg.deleteFile(name).catch(() => undefined);
+    await ffmpeg.deleteFile(outputName).catch(() => undefined);
+    countJobAndRecycle();
   }
 }
 

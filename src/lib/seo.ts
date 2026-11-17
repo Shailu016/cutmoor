@@ -1,7 +1,7 @@
 import { getGuideBody } from "../content/guide-content";
 import { GUIDES } from "../content/guides";
 import { SITE_PAGES } from "../content/site-pages";
-import { TOOLS } from "./tools";
+import { TOOL_CATEGORIES, TOOLS, toolsInCategory } from "./tools";
 
 export const SITE = {
   name: "Cutmoor",
@@ -9,7 +9,7 @@ export const SITE = {
   url: String(import.meta.env.VITE_SITE_URL || "http://localhost:4173").replace(/\/$/, ""),
   tagline: "Cut more. Upload less.",
   description:
-    "Compress, crop, trim, convert, and extract audio from video — or compress, resize, convert, and HEIC-to-JPG your images. Everything runs in your browser. No upload, no account, no watermark.",
+    "Compress, trim, merge, convert, and caption video — or compress, crop, convert, and clean up your photos. Everything runs in your browser. No upload, no account, no watermark.",
   email: "hello@cutmoor.com",
   locale: "en_US",
   language: "en",
@@ -142,6 +142,12 @@ export function websiteJsonLd() {
     description: SITE.description,
     publisher: { "@id": `${SITE.url}/#organization` },
     inLanguage: "en",
+    // The tools page reads ?q= and filters the list, so this is a real search, not a placeholder.
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${SITE.url}/tools/?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
   };
 }
 
@@ -155,20 +161,11 @@ export function softwareJsonLd() {
     url: `${SITE.url}/tools/`,
     description: SITE.description,
     offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tools supported by advertising." },
-    featureList: [
-      "Compress video to a target file size",
-      "Crop and resize video to 9:16, 1:1, and 4:5",
-      "Trim video with accurate cuts",
-      "Convert MP4, WebM, GIF, and audio",
-      "Extract a still frame",
-      "Convert SRT and VTT subtitles",
-      "Compress images to a target file size",
-      "Resize and crop images to social presets",
-      "Convert JPG, PNG, and WebP",
-      "Convert iPhone HEIC and HEIF photos to JPG",
-      "Local browser processing with no upload",
-    ],
+    // One line per real tool, so the list can never drift from what the site offers.
+    featureList: [...TOOLS.map((tool) => `${tool.name}: ${tool.short}`), "Local browser processing with no upload, no account, and no watermark"],
     isAccessibleForFree: true,
+    inLanguage: "en",
+    publisher: { "@id": `${SITE.url}/#organization` },
   };
 }
 
@@ -236,12 +233,25 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
       "@type": "CollectionPage",
       name: toolsIndex.title,
       description: toolsIndex.description,
+      isPartOf: { "@id": `${SITE.url}/#website` },
       hasPart: TOOLS.map((tool) => ({
         "@type": "WebApplication",
+        "@id": `${canonicalFor(`/tools/${tool.slug}`)}#app`,
         name: tool.name,
         url: canonicalFor(`/tools/${tool.slug}`),
         description: tool.description,
       })),
+      mainEntity: {
+        "@type": "ItemList",
+        name: "Cutmoor tools by job",
+        numberOfItems: TOOLS.length,
+        itemListElement: TOOL_CATEGORIES.flatMap((category) => toolsInCategory(category)).map((tool, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: tool.name,
+          url: canonicalFor(`/tools/${tool.slug}`),
+        })),
+      },
     });
   }
 
@@ -254,22 +264,48 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
         name: `${tool.name} — ${SITE.name}`,
         url: canonicalFor(path),
         description: tool.description,
+        alternateName: tool.name,
         applicationCategory: "MultimediaApplication",
+        applicationSubCategory: tool.kind === "video" ? "Video editing tool" : "Image editing tool",
         operatingSystem: "Any modern browser",
         browserRequirements: "Requires JavaScript and WebAssembly.",
         isAccessibleForFree: true,
-        offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+        inLanguage: "en",
+        keywords: tool.keywords.join(", "),
+        // What the tool does, in the page's own words: the steps a visitor takes.
+        featureList: tool.steps.map((step) => step.text),
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/InStock" },
+        image: absoluteUrl(SITE.ogImage),
         publisher: { "@id": `${SITE.url}/#organization` },
+        isPartOf: { "@id": `${SITE.url}/#app` },
+      });
+      graph.push({
+        "@type": "WebPage",
+        "@id": `${canonicalFor(path)}#webpage`,
+        url: canonicalFor(path),
+        name: tool.title,
+        description: tool.description,
+        inLanguage: "en",
+        isPartOf: { "@id": `${SITE.url}/#website` },
+        about: { "@id": `${canonicalFor(path)}#app` },
+        mainEntity: { "@id": `${canonicalFor(path)}#app` },
+        // Where the short, quotable answer to "what does this do" is on the page.
+        speakable: { "@type": "SpeakableSpecification", cssSelector: [".tool-hero h1", ".tool-hero p"] },
+        relatedLink: tool.related.map((slug) => canonicalFor(`/tools/${slug}`)),
       });
       graph.push({
         "@type": "HowTo",
+        "@id": `${canonicalFor(path)}#howto`,
         name: `How to use ${tool.name} with Cutmoor`,
         description: tool.intro,
+        inLanguage: "en",
+        tool: { "@type": "HowToTool", name: "A web browser" },
         step: tool.steps.map((step, index) => ({
           "@type": "HowToStep",
           position: index + 1,
           name: step.name,
           text: step.text,
+          url: `${canonicalFor(path)}#step-${index + 1}`,
         })),
       });
       graph.push(faqJsonLd(tool.faqs));
@@ -301,7 +337,16 @@ export function jsonLdForPath(pathname: string): Record<string, unknown> {
   if (path.startsWith("/guides/")) {
     const guide = GUIDES.find((item) => `/guides/${item.slug}` === path);
     if (guide) {
-      graph.push(articleJsonLd(guide));
+      graph.push({
+        ...articleJsonLd(guide),
+        inLanguage: "en",
+        articleSection: guide.category,
+        isPartOf: { "@id": `${SITE.url}/#website` },
+        // The tools the article walks through, as the same entities their own pages declare.
+        mentions: guide.tools
+          .filter((slug) => TOOLS.some((tool) => tool.slug === slug))
+          .map((slug) => ({ "@type": "WebApplication", "@id": `${canonicalFor(`/tools/${slug}`)}#app`, url: canonicalFor(`/tools/${slug}`) })),
+      });
       graph.push(
         breadcrumbJsonLd([
           { name: "Home", path: "/" },

@@ -7,7 +7,9 @@ import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
 import { HOME_FAQS } from "../lib/seo";
-import { IMAGE_TOOLS, TOOLS, VIDEO_TOOLS } from "../lib/tools";
+import { IMAGE_TOOLS, TOOLS, VIDEO_TOOLS, type ToolDef } from "../lib/tools";
+
+const homeTools = (slugs: string[]): ToolDef[] => slugs.map((slug) => TOOLS.find((tool) => tool.slug === slug)).filter((tool): tool is ToolDef => Boolean(tool));
 
 const FEATURED_GUIDES = [
   "compress-video-for-whatsapp",
@@ -28,6 +30,14 @@ const POPULAR_TASKS = [
   { label: "Trim a video online", to: "/guides/trim-video-online" },
   { label: "SRT to VTT", to: "/guides/convert-srt-to-vtt" },
   { label: "Auto captions without uploading", to: "/guides/how-to-add-captions-to-a-video-without-uploading" },
+  { label: "Merge videos", to: "/tools/merge-videos" },
+  { label: "GIF to MP4", to: "/tools/gif-to-mp4" },
+  { label: "WebP to JPG", to: "/tools/webp-to-jpg" },
+  { label: "PNG to JPG", to: "/tools/png-to-jpg" },
+  { label: "Remove location from a photo", to: "/tools/remove-photo-metadata" },
+  { label: "Blur a face in a photo", to: "/tools/blur-image" },
+  { label: "Mute a video", to: "/tools/mute-video" },
+  { label: "Rotate a video", to: "/tools/rotate-video" },
 ];
 
 const TRUST_STATS = [
@@ -36,6 +46,10 @@ const TRUST_STATS = [
   { value: "No", label: "watermark or sign-up" },
   { value: "100%", label: "runs in your browser" },
 ];
+
+/** The home page shows the tools people reach for first; the full list is one click away on the tools page. */
+const HOME_VIDEO = ["compress", "resize", "trim", "convert", "merge-videos", "video-speed", "gif-to-mp4", "auto-captions"];
+const HOME_IMAGE = ["compress-image", "resize-image", "crop-image", "convert-image", "heic-to-jpg", "remove-photo-metadata", "blur-image", "watermark-image"];
 
 const FEATURED_TOOLS = ["compress", "resize", "convert", "compress-image", "resize-image", "heic-to-jpg"];
 
@@ -63,8 +77,8 @@ export function HomePage() {
             <span className="grad-text">Never upload a thing.</span>
           </h1>
           <p className="hero-lede">
-            Compress video, crop to 9:16, resize photos and turn HEIC into JPG in seconds. Free, no sign-up, no
-            watermark — your files never leave your device.
+            Compress, trim, merge and caption video. Crop, convert and clean up photos. {TOOLS.length} free tools, no
+            sign-up, no watermark — your files never leave your device.
           </p>
           <div className="hero-actions">
             <Link className="button button-primary button-lg" to="/tools">
@@ -105,7 +119,7 @@ export function HomePage() {
             ))}
           </div>
           <div className="hero-strip">
-            {["MP4", "MOV", "WebM", "MKV", "AVI", "GIF", "JPG", "PNG", "WebP", "HEIC"].map((f) => (
+            {["MP4", "MOV", "WebM", "MKV", "AVI", "GIF", "JPG", "PNG", "WebP", "HEIC", "AVIF", "SVG"].map((f) => (
               <span key={f}>{f}</span>
             ))}
           </div>
@@ -137,11 +151,11 @@ export function HomePage() {
           <div className="tool-group-head">
             <div>
               <span className="mono-label">Video · {VIDEO_TOOLS.length} tools</span>
-              <h3>Cut, shrink, and convert footage</h3>
+              <h3>Cut, shrink, edit, and convert footage</h3>
             </div>
           </div>
           <div className="tool-grid">
-            {VIDEO_TOOLS.map((tool) => (
+            {homeTools(HOME_VIDEO).map((tool) => (
               <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
                 <span className={`tool-card-icon icon-${tool.accent}`}>
                   <ToolIcon icon={tool.icon} />
@@ -158,7 +172,7 @@ export function HomePage() {
                 <Sparkles size={20} />
               </span>
               <strong>One directory for every job</strong>
-              <p>Browse all {TOOLS.length} video and image tools, or find the right one by the problem you have.</p>
+              <p>Browse all {TOOLS.length} video and image tools, grouped by job, or find the right one by the problem you have.</p>
               <span className="tool-card-link">
                 Browse all tools <ArrowRight size={14} />
               </span>
@@ -170,11 +184,11 @@ export function HomePage() {
           <div className="tool-group-head">
             <div>
               <span className="mono-label">Images · {IMAGE_TOOLS.length} tools</span>
-              <h3>Resize, compress, and fix the format</h3>
+              <h3>Resize, crop, convert, and protect pictures</h3>
             </div>
           </div>
           <div className="tool-grid">
-            {IMAGE_TOOLS.map((tool) => (
+            {homeTools(HOME_IMAGE).map((tool) => (
               <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
                 <span className={`tool-card-icon icon-${tool.accent}`}>
                   <ToolIcon icon={tool.icon} />

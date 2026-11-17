@@ -1,9 +1,10 @@
 /**
- * Pages that must never load or show ads. The auto-captions page runs on a strict Content-Security-Policy
- * that only allows our own model host, and its privacy promise says it loads nothing from advertisers.
+ * Pages that must never load or show ads. The auto-captions page and the two neural-network picture tools (remove
+ * background, enlarge) run on a strict Content-Security-Policy that only allows our own model host, and their privacy
+ * promise says they load nothing from advertisers.
  * Every place that adds an ad script, an ad meta tag or an ad slot asks this first.
  */
-const AD_FREE_PREFIXES = ["/tools/auto-captions"];
+const AD_FREE_PREFIXES = ["/tools/auto-captions", "/tools/remove-background", "/tools/upscale-image"];
 
 export function isAdFreePath(pathname: string): boolean {
   const path = (pathname.split("?")[0].split("#")[0] || "/").replace(/\/+$/, "") || "/";
