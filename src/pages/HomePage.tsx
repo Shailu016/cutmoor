@@ -27,11 +27,12 @@ const POPULAR_TASKS = [
   { label: "Social media image sizes", to: "/guides/social-media-image-sizes" },
   { label: "Trim a video online", to: "/guides/trim-video-online" },
   { label: "SRT to VTT", to: "/guides/convert-srt-to-vtt" },
+  { label: "Auto captions without uploading", to: "/guides/how-to-add-captions-to-a-video-without-uploading" },
 ];
 
 const TRUST_STATS = [
   { value: "0", label: "bytes of media uploaded" },
-  { value: "11", label: "free tools" },
+  { value: String(TOOLS.length), label: "free tools" },
   { value: "No", label: "watermark or sign-up" },
   { value: "100%", label: "runs in your browser" },
 ];

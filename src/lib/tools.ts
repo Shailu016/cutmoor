@@ -333,9 +333,9 @@ export const TOOLS: ToolDef[] = [
     short: "Get Hinglish, Hindi, or English captions, timed to every word.",
     title: "Auto captions for video: Hinglish, Hindi, English, no upload",
     description:
-      "Turn speech into word-timed captions in your browser. Choose the Draft model for a quick first pass, or the larger High accuracy model when you need the accurate transcript. Edit the words, preview the highlight, and export SRT, VTT, or a captioned MP4. Your video never leaves your device.",
+      "Turn speech into word-timed Hinglish, Hindi, or English captions in your browser. Edit, preview, and export SRT, VTT, or a captioned MP4. No upload.",
     intro:
-      "Drop a video and Cutmoor listens to it on your device, then writes captions with a time for every word. You choose between two speech models before anything downloads: Draft, about 160 MB, is a quick first pass for clear speech; High accuracy, about 800 MB, is the accurate one and needs WebGPU, so it runs in recent Chrome or Edge on a computer. Fix any mistakes in the editor, watch the spoken word light up in the preview, and export SRT, VTT, or an MP4 with the captions burned in. The model you pick downloads once, after you agree, is checked against a fingerprint, and stays in your browser for next time. Your video, its sound, and the text never leave your device.",
+      "Drop a video and Cutmoor listens to it on your device, then writes captions with a time for every word. Fix any mistakes in the editor, watch the spoken word light up, and export SRT, VTT, or an MP4 with the captions burned in. A speech model downloads once, after you agree; your video, its sound, and the text never leave your device.",
     icon: "captions",
     accent: "rose",
     keywords: [
