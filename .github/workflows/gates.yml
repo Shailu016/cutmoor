@@ -70,11 +70,14 @@ jobs:
 
       - name: Lighthouse (mobile, throttled)
         run: |
-          npx --yes lighthouse@12.8.2 http://localhost:4173/ \
-            --chrome-flags="--headless=new --no-sandbox" \
-            --only-categories=performance,accessibility,best-practices,seo \
-            --output=json --output-path=lh.json --quiet
-          node scripts/check-lighthouse.mjs lh.json
+          # Three runs, judged by the median: a single run on a shared runner swings by 100 ms of blocking time.
+          for run in 1 2 3; do
+            npx --yes lighthouse@12.8.2 http://localhost:4173/ \
+              --chrome-flags="--headless=new --no-sandbox" \
+              --only-categories=performance,accessibility,best-practices,seo \
+              --output=json --output-path=lh-$run.json --quiet
+          done
+          node scripts/check-lighthouse.mjs lh-1.json lh-2.json lh-3.json
 
       - name: Demo layout stability (desktop)
         run: node scripts/verify/layout-shift.mjs http://localhost:4173 desktop

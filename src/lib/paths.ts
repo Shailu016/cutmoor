@@ -13,7 +13,7 @@ export function canonicalPath(to: string): string {
   const queryAt = beforeHash.indexOf("?");
   const query = queryAt >= 0 ? beforeHash.slice(queryAt) : "";
   const path = queryAt >= 0 ? beforeHash.slice(0, queryAt) : beforeHash;
-  // Files (/feed.xml, /og-image.png) have no slash form.
+  // Files (/feed.xml, /og-image-2.png) have no slash form.
   const lastSegment = path.slice(path.lastIndexOf("/") + 1);
   if (path.endsWith("/") || lastSegment.includes(".")) return to;
   return `${path}/${query}${hash}`;
