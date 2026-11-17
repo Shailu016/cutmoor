@@ -59,7 +59,10 @@ export function buildConvertArgs({ input, output, format }: { input: string; out
   if (format === "webm") {
     // VP8, not VP9: the VP9 encoder in the single-thread WebAssembly build crashes with
     // "memory access out of bounds" in every configuration we tried (tested 2026-11-13).
-    return ["-i", input, "-c:v", "libvpx", "-crf", "12", "-b:v", "6M", "-cpu-used", "5", "-c:a", "libopus", "-b:a", "128k", "-y", output];
+    // Vorbis, not Opus: the Opus encoder in this build crashes the same way on ANY stereo audio (tested 2026-11-17:
+    // stereo Opus fails at every bitrate and sample rate; mono Opus and Vorbis work). VP8 + Vorbis is standard WebM
+    // that every browser plays, and it keeps stereo.
+    return ["-i", input, "-c:v", "libvpx", "-crf", "12", "-b:v", "6M", "-cpu-used", "5", "-c:a", "libvorbis", "-b:a", "128k", "-y", output];
   }
   if (format === "gif") {
     return [

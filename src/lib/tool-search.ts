@@ -122,6 +122,10 @@ const PHRASES: Array<[RegExp, string]> = [
   [/\b(remove|delete|strip)\s+(the\s+)?(exif|metadata|location|gps)\b/, "remove-photo-metadata"],
   [/\b(extract|get|save|rip)\s+(the\s+)?(audio|sound|music|mp3)\b/, "audio"],
   [/\b(slow motion|slow mo|slowmo|speed up)\b/, "video-speed"],
+  // Making captions is the caption tool; converting or shifting a subtitle file is the "captions" converter page.
+  [/\b(add|generate|make|create|auto|automatic|burn|burned|burnt)\s+(the\s+|in\s+)?(captions?|subtitles?)\b/, "auto-captions"],
+  [/\b(caption|subtitle)s?\s+(generator|maker|creator)\b/, "auto-captions"],
+  [/^captions?$/, "auto-captions"],
 ];
 
 /**

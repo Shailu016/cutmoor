@@ -315,7 +315,7 @@ export function UnavailableCard({ checking }: { checking: boolean }) {
       ) : (
         <>
           <h3 className="cap-consent-title">
-            <AlertTriangle size={20} aria-hidden="true" /> Auto captions is not available in this build
+            <AlertTriangle size={20} aria-hidden="true" /> Add captions is not available in this build
           </h3>
           <p className="settings-note">
             The speech engine is not switched on here. Nothing was uploaded and nothing is broken on your side. The other Cutmoor tools work as usual, and the subtitle converter can still turn an SRT file into VTT.

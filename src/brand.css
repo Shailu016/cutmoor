@@ -1017,14 +1017,12 @@ main#main {
   gap: var(--space-5);
 }
 
-.format-list,
-.format-summary-grid > div {
+.format-list {
   min-width: 0;
 }
 
 .format-list h3,
 .format-list h4,
-.format-summary-grid h3,
 .format-limits h3 {
   margin: 0 0 var(--space-3);
   font-size: var(--text-md);
@@ -1137,20 +1135,9 @@ main#main {
   line-height: 1.55;
 }
 
-.format-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-7);
-}
-
-.format-summary .format-lists {
-  grid-template-columns: minmax(0, 1fr);
-}
-
 @media (max-width: 800px) {
   .format-lists,
-  .format-facts,
-  .format-summary-grid {
+  .format-facts {
     grid-template-columns: minmax(0, 1fr);
   }
 }

@@ -37,6 +37,9 @@ describe("buildConvertArgs", () => {
     const args = buildConvertArgs({ ...base, format: "webm" });
     expect(args).toContain("libvpx");
     expect(args).not.toContain("libvpx-vp9");
+    // The Opus encoder crashes the WebAssembly build on stereo sound; Vorbis is safe and keeps both channels.
+    expect(args).toContain("libvorbis");
+    expect(args).not.toContain("libopus");
   });
 
   it("builds a palette-based GIF at 12 fps and 640 px", () => {

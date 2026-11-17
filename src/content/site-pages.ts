@@ -25,7 +25,7 @@ export interface SitePage {
 const UPDATED = "2026-11-11";
 /** The privacy policy was revised separately: analytics disclosure, the network check, and Cloudflare Web Analytics. */
 const PRIVACY_UPDATED = "2026-11-17";
-/** The About page was revised for the Auto captions tool. */
+/** The About page was revised for the Add captions tool. */
 const CAPTIONS_UPDATED = "2026-11-13";
 /** The Licences page was revised when the second speech model shipped. */
 const LICENCES_UPDATED = "2026-11-17";
@@ -62,7 +62,7 @@ export const SITE_PAGES: SitePage[] = [
         paragraphs: [
           "Cutmoor does not download videos from YouTube, Instagram, TikTok, or any other platform. It only works with files you already have and have the right to use.",
           "We never receive your media: the tools do not upload, store, or share your files. They do not require an account, and they do not add a watermark.",
-          "One tool, Auto captions, downloads a speech-recognition model to your browser the first time you use it. The model comes to your device; your audio, video, and transcript never go the other way.",
+          "One tool, Add captions, downloads a speech-recognition model to your browser the first time you use it. The model comes to your device; your audio, video, and transcript never go the other way.",
         ],
       },
       {
@@ -114,7 +114,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Analytics and server logs",
         paragraphs: [
-          "Cutmoor counts visits with Cloudflare Web Analytics, the same company that hosts the site. It does not use cookies, does not follow you from one site to another, and does not build a profile of you. It records only what a normal web request already contains, such as the page visited, the country, the browser and device type, and how fast the page loaded. It never sees your files, their names, or any text you type: the tools run on your device and send nothing. The counting script is added by Cloudflare when a page is delivered; it is not part of Cutmoor's own code, and the Auto captions page does not load it, because that page's security policy refuses every host except our model host.",
+          "Cutmoor counts visits with Cloudflare Web Analytics, the same company that hosts the site. It does not use cookies, does not follow you from one site to another, and does not build a profile of you. It records only what a normal web request already contains, such as the page visited, the country, the browser and device type, and how fast the page loaded. It never sees your files, their names, or any text you type: the tools run on your device and send nothing. The counting script is added by Cloudflare when a page is delivered; it is not part of Cutmoor's own code, and the Add captions page does not load it, because that page's security policy refuses every host except our model host.",
           "Cloudflare and the other hosts we use may also keep standard request logs, such as IP address, user agent, and the requested URL, for security and reliability. Those logs are controlled by the provider, not by the browser tools. Search engines such as Google may also tell us which searches led people to the site, through their own search reports; that data comes from the search engine, not from your device.",
           "The video encoder program file (FFmpeg compiled to WebAssembly) may be delivered from a public content network, unpkg.com, which receives the same standard request data when your browser downloads it. Only the program file is fetched from there; your videos and photos are never sent anywhere. The site checks the file's SHA-256 fingerprint before running it.",
         ],
@@ -128,9 +128,9 @@ export const SITE_PAGES: SitePage[] = [
         ],
       },
       {
-        heading: "Auto captions and the model download",
+        heading: "Add captions and the model download",
         paragraphs: [
-          "The Auto captions tool needs a speech-recognition model, which is a large file. The first time you choose to use it, the page shows the download size and the host, and asks before anything is fetched. The model is downloaded from models.cutmoor.com, which is our own Cloudflare R2 storage, once, and your browser then keeps it so later jobs start without downloading again. The page checks each file against a known fingerprint (SHA-256) before using it.",
+          "The Add captions tool needs a speech-recognition model, which is a large file. The first time you choose to use it, the page shows the download size and the host, and asks before anything is fetched. The model is downloaded from models.cutmoor.com, which is our own Cloudflare R2 storage, once, and your browser then keeps it so later jobs start without downloading again. The page checks each file against a known fingerprint (SHA-256) before using it.",
           "Your audio, video, and transcript are processed on your device and never leave it. We never receive your media. The only thing the tool requests from the network is the model file itself.",
         ],
         bullets: [
@@ -389,9 +389,9 @@ export const SITE_PAGES: SitePage[] = [
         ],
       },
       {
-        heading: "Auto captions: runtime and video export",
+        heading: "Add captions: runtime and video export",
         paragraphs: [
-          "The Auto captions tool runs its speech models with ONNX Runtime Web 1.31, published by Microsoft under the MIT licence. Burned-in caption video is written with Mediabunny, published by Vanilagy under the Mozilla Public License 2.0 (MPL-2.0).",
+          "The Add captions tool runs its speech models with ONNX Runtime Web 1.31, published by Microsoft under the MIT licence. Burned-in caption video is written with Mediabunny, published by Vanilagy under the Mozilla Public License 2.0 (MPL-2.0).",
           "Cutmoor uses Mediabunny unmodified. MPL-2.0 is a file-level licence: its source files keep their licence headers, and anyone who changes those files and distributes them must publish the changes under the same licence. The video and audio codecs used for export come from your browser, not from Cutmoor.",
         ],
         links: [
@@ -400,11 +400,11 @@ export const SITE_PAGES: SitePage[] = [
         ],
       },
       {
-        heading: "Auto captions: speech models",
+        heading: "Add captions: speech models",
         paragraphs: [
           "The tool offers two speech-recognition models, both by Oriserve and both declared Apache-2.0. Draft is Whisper-Hindi2Hinglish-Swift, a fine-tune of OpenAI Whisper base. The Hugging Face user di12355 converted it to ONNX, and the download is about 160 MB. High accuracy is Whisper-Hindi2Hinglish-Apex, a fine-tune of OpenAI whisper-large-v3-turbo. Cutmoor converted it to ONNX and compressed the weights to 4-bit, and the download is about 800 MB. High accuracy needs WebGPU, so it runs in recent Chrome or Edge on a computer.",
           "Oriserve describes its training data as proprietary or partly proprietary and does not publish it. We rely on the Apache-2.0 licence each model page declares and have not independently verified the training data.",
-          "Silero VAD v6 by the Silero Team is part of the app's model files, but Auto captions does not run it: that page uses a small built-in vocal-activity detector to decide which stretches to read. The Silero repository's LICENSE file says MIT.",
+          "Silero VAD v6 by the Silero Team is part of the app's model files, but Add captions does not run it: that page uses a small built-in vocal-activity detector to decide which stretches to read. The Silero repository's LICENSE file says MIT.",
           "Both models download once from models.cutmoor.com after the visitor agrees, are checked against SHA-256 fingerprints shipped with the site, and are stored in the browser. Nothing else is sent anywhere.",
         ],
         links: [

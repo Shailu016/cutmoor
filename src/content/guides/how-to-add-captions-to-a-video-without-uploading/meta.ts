@@ -10,7 +10,7 @@ export const meta: GuideMeta = {
     "Most caption tools upload your video. This one downloads a speech model to your browser once and does the work on your device. Here is how the two models differ, and where the captions still get things wrong.",
   category: "Subtitles",
   published: "2026-11-13",
-  modified: "2026-11-15",
+  modified: "2026-11-18",
   readingMinutes: 7,
   tools: ["auto-captions", "captions"],
 };

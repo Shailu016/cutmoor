@@ -110,7 +110,7 @@ export function FileDrop({
       <div className="dropzone-icon">
         <Upload size={26} />
       </div>
-      <strong>Drop a file here, or click to choose</strong>
+      <strong>{dragging ? `Let go to add ${onFiles ? "the files" : "the file"}` : "Drop a file here, or click to choose"}</strong>
       <span>{hint}</span>
       <div className="dropzone-trust">
         <ShieldCheck size={14} /> Processed on your device — never uploaded

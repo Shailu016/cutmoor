@@ -9,7 +9,7 @@ type Format = ConvertFormat;
 
 const FORMATS: { value: Format; label: string; note: string }[] = [
   { value: "mp4", label: "MP4", note: "Plays everywhere. H.264 + AAC." },
-  { value: "webm", label: "WebM", note: "For the web. VP8 + Opus." },
+  { value: "webm", label: "WebM", note: "For the web. VP8 + Vorbis." },
   { value: "gif", label: "GIF", note: "Short silent loop. Keep it under 6s." },
   { value: "mp3", label: "MP3", note: "Audio only. Small and universal." },
   { value: "m4a", label: "M4A", note: "Audio only. AAC, Apple-friendly." },

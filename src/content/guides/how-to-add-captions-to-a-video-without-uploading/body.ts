@@ -5,7 +5,7 @@ export const body: GuideBody = {
     {
       heading: "The short version",
       paragraphs: [
-        "Open the Auto captions tool, drop in a video, pick a model, and wait while your browser listens to the audio and writes the words down. You then fix mistakes in an editor, preview the captions over the video, and export a subtitle file (SRT or VTT) or a new MP4 with the captions burned in.",
+        "Open the Add captions tool, drop in a video, pick a model, and wait while your browser listens to the audio and writes the words down. You then fix mistakes in an editor, preview the captions over the video, and export a subtitle file (SRT or VTT) or a new MP4 with the captions burned in.",
         "The difference from most caption sites is where the work happens. Your video is not sent anywhere. The first time you use the tool, your browser downloads a speech-recognition model, keeps it, and runs it locally. We never receive your media.",
       ],
     },
@@ -42,8 +42,9 @@ export const body: GuideBody = {
       ],
     },
     {
-      heading: "Hinglish, Hindi and English",
+      heading: "English, Hindi and Hinglish",
       paragraphs: [
+        "English speech is written as you would expect. Other languages, such as Spanish or Arabic, are not supported yet: the speech models were trained for Hindi and Hinglish and also write English, so captions for other languages would be wrong.",
         "Many people speak Hindi and English in the same sentence and write it in Roman letters, which is what Hinglish means here. That is hard for tools built for one language at a time, which tend to either force every word into one script or give up on the English words.",
         "The tool is built for that mix and writes the result in Roman letters. It reads Hindi or English speech the same way, so there is no language setting to pick. Spelling in Roman Hindi is not standardised, so the same word can be written in several valid ways. The tool makes common spellings consistent across the transcript, but it cannot know names. Put those in the Names and special words box before or after the run, and check them in the editor.",
       ],
