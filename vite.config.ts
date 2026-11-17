@@ -72,6 +72,9 @@ function dropOnnxRuntimeWasm(): Plugin {
 /** Code that only the captions tool uses. Named `captions-*` so the size budget can treat it as lazy. */
 const CAPTIONS_CODE = /[\/](src[\/](lib[\/]captioning|components[\/]captions|tools[\/]AutoCaptionsTool|hooks[\/]useCaptionJob)|node_modules[\/](onnxruntime-web|mediabunny))[\/]?/;
 
+/** The editing tools added after the first set (src/tools/more and the pieces only they use). Named `tools-*` so the size budget can treat them as lazy. */
+const MORE_TOOLS_CODE = /[\/]src[\/](tools[\/]more|components[\/](Controls|MultiFileList|MarkSettings|PictureStage)|lib[\/](video-edit-args|media-info|watermark|crop|exif|redact|picture-edit))/;
+
 export default defineConfig(async ({ command, mode }) => {
   const env = { ...loadEnv(mode, process.cwd(), ""), ...process.env };
   const site = resolveSiteUrl(env);
@@ -95,7 +98,12 @@ export default defineConfig(async ({ command, mode }) => {
   build: {
     rollupOptions: {
       output: {
-        chunkFileNames: (chunk: { moduleIds: string[] }) => (chunk.moduleIds.some((id: string) => CAPTIONS_CODE.test(id)) ? "assets/captions-[name]-[hash].js" : "assets/[name]-[hash].js"),
+        chunkFileNames: (chunk: { moduleIds: string[] }) =>
+          chunk.moduleIds.some((id: string) => CAPTIONS_CODE.test(id))
+            ? "assets/captions-[name]-[hash].js"
+            : chunk.moduleIds.some((id: string) => MORE_TOOLS_CODE.test(id))
+              ? "assets/tools-[name]-[hash].js"
+              : "assets/[name]-[hash].js",
         // Framework code changes rarely; a separate chunk stays cached across deploys.
         manualChunks(id: string) {
           if (id.includes("node_modules/react") || id.includes("node_modules/scheduler")) return "vendor";

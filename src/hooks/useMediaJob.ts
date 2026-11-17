@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { releaseBlobUrl } from "../lib/blob-url";
-import { onFFmpegLog, onFFmpegProgress, resetFFmpeg, runFFmpeg } from "../lib/ffmpeg";
+import { onFFmpegLog, onFFmpegProgress, resetFFmpeg, runFFmpeg, runFFmpegJob, type JobInputs } from "../lib/ffmpeg";
 import { readVideoMeta, type VideoMeta } from "../lib/media";
 
 export type JobPhase = "idle" | "ready" | "working" | "done" | "error";
@@ -31,6 +31,12 @@ export interface MediaJob {
   selectFile: (file: File) => Promise<void>;
   clear: () => void;
   run: (outputName: string, buildArgs: (inputName: string) => string[]) => Promise<void>;
+  /**
+   * Like `run`, for tools with several inputs (a second clip, a logo, a sound track). `inputs` are written to the
+   * encoder in order; the first should be the chosen file. With `probe`, `build` also receives what the encoder
+   * found in each file (audio or not, length, frame rate).
+   */
+  runMulti: (outputName: string, inputs: Array<File | Blob>, build: (inputs: JobInputs) => string[], options?: { probe?: boolean }) => Promise<void>;
   cancel: () => void;
 }
 
@@ -124,9 +130,9 @@ export function useMediaJob(): MediaJob {
     setWasCancelled(false);
   }, [releaseResult, releasePreview, unsubscribeAll]);
 
-  const run = useCallback(
-    async (outputName: string, buildArgs: (inputName: string) => string[]) => {
-      if (!file) return;
+  /** Shared by `run` and `runMulti`: progress, result, error and cleanup are the same whatever the command is. */
+  const execute = useCallback(
+    async (outputName: string, work: (onTimings: (value: { engineLoadMs: number; processMs: number }) => void) => Promise<Blob>) => {
       releaseResult();
       unsubscribeAll();
       cancelled.current = false;
@@ -154,13 +160,8 @@ export function useMediaJob(): MediaJob {
       );
 
       try {
-        const blob = await runFFmpeg({
-          file,
-          outputName,
-          args: buildArgs,
-          onTimings: (measured) => {
-            timings = measured;
-          },
+        const blob = await work((measured) => {
+          timings = measured;
         });
         if (cancelled.current) return;
         const url = URL.createObjectURL(blob);
@@ -186,7 +187,23 @@ export function useMediaJob(): MediaJob {
         unsubscribeAll();
       }
     },
-    [file, releaseResult, unsubscribeAll],
+    [releaseResult, unsubscribeAll],
+  );
+
+  const run = useCallback(
+    async (outputName: string, buildArgs: (inputName: string) => string[]) => {
+      if (!file) return;
+      await execute(outputName, (onTimings) => runFFmpeg({ file, outputName, args: buildArgs, onTimings }));
+    },
+    [file, execute],
+  );
+
+  const runMulti = useCallback(
+    async (outputName: string, inputs: Array<File | Blob>, build: (inputs: JobInputs) => string[], options?: { probe?: boolean }) => {
+      if (!file || inputs.length === 0) return;
+      await execute(outputName, (onTimings) => runFFmpegJob({ inputs, outputName, build, probe: options?.probe, onTimings }));
+    },
+    [file, execute],
   );
 
   const cancel = useCallback(() => {
@@ -215,6 +232,7 @@ export function useMediaJob(): MediaJob {
     selectFile,
     clear,
     run,
+    runMulti,
     cancel,
   };
 }

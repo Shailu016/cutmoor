@@ -4,6 +4,7 @@ import { Link } from "../components/Link";
 import { ArrowRight, ChevronRight, Lock, ShieldCheck, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { isAdFreePath } from "../lib/ad-free";
+import { hasMoreTool, MoreTool } from "../tools/more/registry";
 import { FormatCompat } from "../components/FormatCompat";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
@@ -66,6 +67,7 @@ function ToolRenderer({ slug }: { slug: string }) {
   if (slug === "resize-image") return <ResizeImageTool />;
   if (slug === "convert-image") return <ConvertImageTool />;
   if (slug === "heic-to-jpg") return <HeicTool />;
+  if (hasMoreTool(slug)) return <MoreTool slug={slug} />;
   return null;
 }
 
@@ -122,7 +124,7 @@ export function ToolPage() {
             <h2>From file to download, with no upload bar</h2>
             <ol className="steps">
               {tool.steps.map((step, index) => (
-                <li key={step.name}>
+                <li key={step.name} id={`step-${index + 1}`}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <div>
                     <strong>{step.name}</strong>

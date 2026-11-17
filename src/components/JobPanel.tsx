@@ -35,8 +35,9 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
         .join(" · ")
     : "";
 
-  const sourceKind: ScreenKind | null =
-    previewUrl && meta ? (meta.width > 0 && meta.height > 0 ? "video" : "audio") : null;
+  // A GIF or a picture (the GIF, slideshow and watermark tools take them) is shown as a picture, not as a sound.
+  const sourceIsImage = Boolean(file && (file.type.startsWith("image/") || /\.(gif|png|jpe?g|webp)$/i.test(file.name)));
+  const sourceKind: ScreenKind | null = previewUrl && meta ? (sourceIsImage ? "image" : meta.width > 0 && meta.height > 0 ? "video" : "audio") : null;
   const resultKind = result ? previewKind(result.name) : null;
   const [previewFailed, setPreviewFailed] = useState(false);
   const [view, setView] = useState<"before" | "after">("after");

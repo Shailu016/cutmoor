@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "../components/Link";
 import { ArrowRight, Search, Sparkles } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
-import { IMAGE_TOOLS, TOOLS, VIDEO_TOOLS } from "../lib/tools";
+import { IMAGE_TOOLS, TOOL_CATEGORIES, TOOLS, toolsInCategory, VIDEO_TOOLS } from "../lib/tools";
+import { searchTools } from "../lib/tool-search";
 
 const CHOICES = [
   { need: "An app says the video is too large", tool: "compress", answer: "Compress to a target size." },
@@ -18,6 +19,12 @@ const CHOICES = [
   { need: "The photo does not fit the feed", tool: "resize-image", answer: "Crop or pad to a platform preset." },
   { need: "An image is in the wrong format", tool: "convert-image", answer: "Convert JPG, PNG, and WebP." },
   { need: "Windows will not open an iPhone photo", tool: "heic-to-jpg", answer: "Turn HEIC into a standard JPG." },
+  { need: "The video plays sideways", tool: "rotate-video", answer: "Turn it upright, or mirror it." },
+  { need: "You have several clips to join", tool: "merge-videos", answer: "Put them in order and merge." },
+  { need: "A GIF is too heavy to send", tool: "gif-to-mp4", answer: "Turn it into a small MP4." },
+  { need: "A photo shows where you live", tool: "remove-photo-metadata", answer: "See and remove the hidden location." },
+  { need: "A face or plate must not be seen", tool: "blur-image", answer: "Pixelate, blur, or black it out." },
+  { need: "You want your name on your work", tool: "watermark-image", answer: "Stamp text or a logo." },
 ];
 
 type Filter = "all" | "video" | "image";
@@ -26,20 +33,29 @@ export function ToolsIndexPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return TOOLS.filter((tool) => {
-      if (filter !== "all" && tool.kind !== filter) return false;
-      if (!needle) return true;
-      const haystack = [tool.name, tool.short, tool.description, ...tool.keywords].join(" ").toLowerCase();
-      return haystack.includes(needle);
-    });
-  }, [filter, query]);
+  // A link such as /tools/?q=merge (the site search that search engines are told about) fills the box. It is read after
+  // the first paint, so the prerendered page and the first browser render stay identical.
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("q");
+    if (fromUrl) setQuery(fromUrl.slice(0, 80));
+  }, []);
 
-  const groups = [
-    { kind: "video" as const, title: "Cut, shrink, and convert footage", tools: filtered.filter((tool) => tool.kind === "video") },
-    { kind: "image" as const, title: "Resize, compress, and fix the format", tools: filtered.filter((tool) => tool.kind === "image") },
-  ].filter((group) => group.tools.length > 0);
+  const searching = query.trim().length > 0;
+  const filtered = useMemo(
+    () => searchTools(TOOLS.filter((tool) => filter === "all" || tool.kind === filter), query),
+    [filter, query],
+  );
+
+  // While searching, the results are one list, best match first; otherwise the tools are grouped by job.
+  const shown = new Set(filtered.map((tool) => tool.slug));
+  const groups = searching
+    ? filtered.length > 0
+      ? [{ category: { id: "results", kind: "results" as const, label: "Results", title: `Tools for “${query.trim()}”`, slugs: [] }, tools: filtered }]
+      : []
+    : TOOL_CATEGORIES.map((category) => ({
+        category,
+        tools: toolsInCategory(category).filter((tool) => shown.has(tool.slug)),
+      })).filter((group) => group.tools.length > 0);
 
   return (
     <>
@@ -83,14 +99,14 @@ export function ToolsIndexPage() {
         {groups.length === 0 ? (
           <p className="empty-state">No tools match “{query}”. Try a broader search.</p>
         ) : (
-          groups.map((group) => (
-            <div className="tool-group" key={group.kind} id={group.kind === "image" ? "image-tools" : undefined}>
+          groups.map((group, index) => (
+            <div className="tool-group" key={group.category.id} id={group.category.id === "image-size" ? "image-tools" : undefined}>
               <div className="tool-group-head">
                 <div>
                   <span className="mono-label">
-                    {group.kind === "video" ? "Video" : "Images"} · {group.tools.length} tools
+                    {group.category.kind === "results" ? "Best match first" : group.category.kind === "video" ? "Video" : "Images"} · {group.tools.length} {group.tools.length === 1 ? "tool" : "tools"}
                   </span>
-                  <h2>{group.title}</h2>
+                  <h2>{group.category.title}</h2>
                 </div>
               </div>
               <div className="tool-grid tool-grid-wide">
@@ -106,7 +122,7 @@ export function ToolsIndexPage() {
                     </span>
                   </Link>
                 ))}
-                {group.kind === "video" && (
+                {index === 0 && (
                   <a className="tool-card tool-card-cta" href="#choose">
                     <span className="tool-card-icon">
                       <Sparkles size={20} />

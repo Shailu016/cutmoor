@@ -12,6 +12,9 @@
  * tested setup only; other browsers and phones have not been tested.
  */
 
+import { MODEL_TOOLS_ENABLED } from "./modeltools/manifests";
+import { MODEL_TOOLS_COMPAT, MORE_IMAGE_COMPAT, MORE_IMAGE_SLUGS, MORE_VIDEO_COMPAT } from "./formats-more";
+
 export type FormatStatus = "supported" | "limited" | "unsupported";
 
 export interface FormatEntry {
@@ -261,10 +264,12 @@ TOOL_COMPAT["heic-to-jpg"] = {
   maxTested: "not tested with real HEIC files in this release",
 };
 
+Object.assign(TOOL_COMPAT, MORE_VIDEO_COMPAT, MORE_IMAGE_COMPAT, MODEL_TOOLS_ENABLED ? MODEL_TOOLS_COMPAT : {});
+
 /** The browser features a tool depends on. */
 export function browserRequirement(slug: string): string {
   if (slug === "captions") return "Any modern browser. Captions are converted as plain text.";
-  return IMAGE_TOOL_SLUGS.has(slug) ? IMAGE_BROWSER_NOTE : VIDEO_BROWSER_NOTE;
+  return IMAGE_TOOL_SLUGS.has(slug) || MORE_IMAGE_SLUGS.has(slug) || slug in MODEL_TOOLS_COMPAT ? IMAGE_BROWSER_NOTE : VIDEO_BROWSER_NOTE;
 }
 
 export function compatForTool(slug: string): ToolCompat | undefined {

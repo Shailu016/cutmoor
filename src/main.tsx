@@ -9,6 +9,7 @@ import { installCaptionRuntime } from "./lib/captioning/runtime";
 import "./styles.css";
 import "./brand.css";
 import "./captions.css";
+import "./editing.css";
 
 // Registers the real captioning engine for the captions tool. Does nothing until a model list has been published,
 // and imports nothing heavy: the engine itself is loaded only when a caption job starts.

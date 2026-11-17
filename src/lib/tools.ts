@@ -1,3 +1,8 @@
+import { MODEL_TOOLS_ENABLED } from "./modeltools/manifests";
+import { IMAGE_EDIT_TOOLS } from "./tools-image-edit";
+import { MODEL_TOOLS } from "./tools-model";
+import { VIDEO_EDIT_TOOLS } from "./tools-video-edit";
+
 export interface ToolFaq {
   question: string;
   answer: string;
@@ -22,7 +27,24 @@ export interface ToolDef {
     | "image-compress"
     | "image-resize"
     | "image-convert"
-    | "heic";
+    | "heic"
+    | "mute"
+    | "rotate"
+    | "speed"
+    | "reverse"
+    | "loop"
+    | "gif"
+    | "merge"
+    | "watermark"
+    | "add-audio"
+    | "slideshow"
+    | "image-crop"
+    | "image-rotate"
+    | "privacy"
+    | "blur"
+    | "image-watermark"
+    | "background"
+    | "upscale";
   accent: string;
   keywords: string[];
   steps: { name: string; text: string }[];
@@ -686,7 +708,40 @@ export const TOOLS: ToolDef[] = [
     ],
     related: ["convert-image", "compress-image", "resize-image"],
   },
+  ...VIDEO_EDIT_TOOLS,
+  ...IMAGE_EDIT_TOOLS,
+  // The two neural-network tools appear once their model files are on the model host; a development build always shows them.
+  ...(MODEL_TOOLS_ENABLED ? MODEL_TOOLS : []),
 ];
+
+export interface ToolCategory {
+  id: string;
+  kind: "video" | "image";
+  /** Short name used in menus. */
+  label: string;
+  /** Heading on the tools page. */
+  title: string;
+  slugs: string[];
+}
+
+/**
+ * Every tool belongs to exactly one category (a test checks this). Menus and the tools page group by category, so 36
+ * tools read as seven short lists instead of one long one.
+ */
+export const TOOL_CATEGORIES: ToolCategory[] = [
+  { id: "video-compress", kind: "video", label: "Compress and cut", title: "Shrink, crop, and cut footage", slugs: ["compress", "resize", "trim"] },
+  { id: "video-edit", kind: "video", label: "Edit", title: "Edit a clip", slugs: ["rotate-video", "video-speed", "reverse-video", "loop-video", "mute-video", "merge-videos", "watermark-video", "add-audio-to-video", "slideshow-maker"] },
+  { id: "video-convert", kind: "video", label: "Convert and extract", title: "Change the format or take a part out", slugs: ["convert", "gif-to-mp4", "compress-gif", "resize-gif", "audio", "frame"] },
+  { id: "video-captions", kind: "video", label: "Captions", title: "Captions and subtitles", slugs: ["auto-captions", "captions"] },
+  { id: "image-size", kind: "image", label: "Resize and edit", title: "Resize, crop, enlarge, and turn pictures", slugs: ["compress-image", "resize-image", "crop-image", "rotate-image", "upscale-image", "remove-background"] },
+  { id: "image-convert", kind: "image", label: "Convert", title: "Fix the file format", slugs: ["convert-image", "heic-to-jpg", "webp-to-jpg", "png-to-jpg", "jpg-to-png", "svg-to-png", "avif-to-jpg"] },
+  { id: "image-privacy", kind: "image", label: "Privacy and marks", title: "Hide details and add your mark", slugs: ["remove-photo-metadata", "blur-image", "watermark-image"] },
+];
+
+/** The tools of a category, in the category's own order. Slugs with no tool (a tool kept out of a build) are skipped. */
+export function toolsInCategory(category: ToolCategory): ToolDef[] {
+  return category.slugs.map((slug) => TOOLS.find((tool) => tool.slug === slug)).filter((tool): tool is ToolDef => Boolean(tool));
+}
 
 export const VIDEO_TOOLS = TOOLS.filter((tool) => tool.kind === "video");
 export const IMAGE_TOOLS = TOOLS.filter((tool) => tool.kind === "image");

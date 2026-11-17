@@ -24,9 +24,17 @@ const FORMATS: { value: ImageFormat; label: string; note: string }[] = [
 interface ConvertImageToolProps {
   defaultFormat?: ImageFormat;
   heicMode?: boolean;
+  /** The kinds of file the picker takes. Pages such as "WebP to JPG" narrow it to the one they are about. */
+  accept?: string;
+  /** The line under the drop box. */
+  hint?: string;
+  /** The output formats offered. Defaults to all three. */
+  formats?: ImageFormat[];
 }
 
-export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: ConvertImageToolProps) {
+const ANY_IMAGE = "image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/svg+xml,image/heic,image/heif";
+
+export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false, accept = ANY_IMAGE, hint, formats }: ConvertImageToolProps) {
   const job = useImageJob();
   const support = useImageEncoderSupport();
   const [format, setFormat] = useState<ImageFormat>(defaultFormat);
@@ -96,11 +104,12 @@ export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: C
           meta={job.meta}
           onFile={job.selectFile}
           onClear={job.clear}
-          accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/svg+xml,image/heic,image/heif"
+          accept={accept}
           hint={
-            heicMode
+            hint ??
+            (heicMode
               ? "HEIC or HEIF from an iPhone. Decoded locally; the photo is never uploaded."
-              : "JPG, PNG, WebP, AVIF, GIF, BMP, SVG, or HEIC. Transparency is handled in the browser."
+              : "JPG, PNG, WebP, AVIF, GIF, BMP, SVG, or HEIC. Transparency is handled in the browser.")
           }
           disabled={busy}
           kind="image"
@@ -126,7 +135,7 @@ export function ConvertImageTool({ defaultFormat = "jpeg", heicMode = false }: C
               </span>
             </div>
             <div className="segmented" role="group" aria-label="Output format">
-              {FORMATS.map((item) => {
+              {FORMATS.filter((item) => !formats || formats.includes(item.value)).map((item) => {
                 const disabled = item.value === "webp" && !support.webp;
                 return (
                   <button

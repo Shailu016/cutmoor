@@ -5,7 +5,7 @@ import { ArrowUpRight, Menu, X } from "lucide-react";
 import { isAdFreePath } from "../lib/ad-free";
 import { AdSlot } from "./AdSlot";
 import { ToolIcon } from "./ToolIcon";
-import { IMAGE_TOOLS, VIDEO_TOOLS } from "../lib/tools";
+import { TOOL_CATEGORIES, toolsInCategory, VIDEO_TOOLS } from "../lib/tools";
 
 const FOOTER = [
   {
@@ -16,6 +16,10 @@ const FOOTER = [
       { to: "/tools/trim", label: "Trim video" },
       { to: "/tools/convert", label: "Convert video" },
       { to: "/tools/audio", label: "Extract audio" },
+      { to: "/tools/merge-videos", label: "Merge videos" },
+      { to: "/tools/gif-to-mp4", label: "GIF to MP4" },
+      { to: "/tools/mute-video", label: "Mute video" },
+      { to: "/tools/auto-captions", label: "Auto captions" },
     ],
   },
   {
@@ -25,6 +29,10 @@ const FOOTER = [
       { to: "/tools/resize-image", label: "Resize image" },
       { to: "/tools/convert-image", label: "Convert image" },
       { to: "/tools/heic-to-jpg", label: "HEIC to JPG" },
+      { to: "/tools/crop-image", label: "Crop image" },
+      { to: "/tools/webp-to-jpg", label: "WebP to JPG" },
+      { to: "/tools/remove-photo-metadata", label: "Remove photo metadata" },
+      { to: "/tools/blur-image", label: "Blur part of an image" },
     ],
   },
   {
@@ -196,18 +204,19 @@ export function SiteLayout() {
               </button>
               {toolsOpen && (
                 <div className="nav-dropdown-panel" id="tools-menu" ref={toolsPanelRef}>
-                  <div>
-                    <div className="nav-dropdown-title">Video</div>
-                    {VIDEO_TOOLS.map((tool) => (
-                      <ToolLink key={tool.slug} tool={tool} />
-                    ))}
-                  </div>
-                  <div>
-                    <div className="nav-dropdown-title">Images</div>
-                    {IMAGE_TOOLS.map((tool) => (
-                      <ToolLink key={tool.slug} tool={tool} />
-                    ))}
-                  </div>
+                  {TOOL_CATEGORIES.map((category) => (
+                    <div key={category.id}>
+                      <div className="nav-dropdown-title">
+                        {category.kind === "video" ? "Video" : "Images"} · {category.label}
+                      </div>
+                      {toolsInCategory(category).map((tool) => (
+                        <ToolLink key={tool.slug} tool={tool} />
+                      ))}
+                    </div>
+                  ))}
+                  <Link className="nav-dropdown-all" to="/tools">
+                    See all tools <ArrowUpRight size={14} />
+                  </Link>
                 </div>
               )}
             </div>
@@ -245,22 +254,18 @@ export function SiteLayout() {
 
         {mobileOpen && (
           <nav className="mobile-nav" id="mobile-menu" aria-label="Mobile" ref={mobileNavRef}>
-            <div className="mobile-nav-group">
-              <div className="mobile-nav-title">Video tools</div>
-              {VIDEO_TOOLS.map((tool) => (
-                <NavLink key={tool.slug} to={`/tools/${tool.slug}`} className="mobile-link">
-                  {tool.name}
-                </NavLink>
-              ))}
-            </div>
-            <div className="mobile-nav-group">
-              <div className="mobile-nav-title">Image tools</div>
-              {IMAGE_TOOLS.map((tool) => (
-                <NavLink key={tool.slug} to={`/tools/${tool.slug}`} className="mobile-link">
-                  {tool.name}
-                </NavLink>
-              ))}
-            </div>
+            {TOOL_CATEGORIES.map((category) => (
+              <div className="mobile-nav-group" key={category.id}>
+                <div className="mobile-nav-title">
+                  {category.kind === "video" ? "Video" : "Images"} · {category.label}
+                </div>
+                {toolsInCategory(category).map((tool) => (
+                  <NavLink key={tool.slug} to={`/tools/${tool.slug}`} className="mobile-link">
+                    {tool.name}
+                  </NavLink>
+                ))}
+              </div>
+            ))}
             <div className="mobile-nav-group">
               <div className="mobile-nav-title">Explore</div>
               <NavLink to="/tools" className="mobile-link">

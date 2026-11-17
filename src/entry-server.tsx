@@ -11,7 +11,7 @@ import {
   metaForPath,
   type PageMeta,
 } from "./lib/seo";
-import { TOOLS } from "./lib/tools";
+import { TOOL_CATEGORIES, TOOLS, toolsInCategory } from "./lib/tools";
 import { primeGuideBodies } from "./content/guide-content";
 import { GUIDES } from "./content/guides";
 import { GUIDE_BODIES } from "./content/guides.server";
@@ -26,6 +26,11 @@ export const SITE_URL = SITE.url;
 export const SITE_EMAIL = SITE.email;
 export const SITE_INFO = { name: SITE.name, tagline: SITE.tagline, description: SITE.description, themeColor: SITE.themeColor };
 export const LLM_TOOLS = TOOLS.map((t) => ({ slug: t.slug, name: t.name, description: t.description }));
+/** The tools grouped by job, with the facts an assistant needs to answer "how do I ...": steps and common questions. */
+export const LLM_CATEGORIES = TOOL_CATEGORIES.map((category) => ({
+  title: `${category.kind === "video" ? "Video" : "Images"}: ${category.title}`,
+  tools: toolsInCategory(category).map((t) => ({ slug: t.slug, name: t.name, short: t.short, description: t.description, intro: t.intro, keywords: t.keywords, steps: t.steps, faqs: t.faqs })),
+})).filter((category) => category.tools.length > 0);
 export const LLM_GUIDES = GUIDES.map((g) => ({
   slug: g.slug,
   title: g.title,
