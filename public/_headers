@@ -77,26 +77,3 @@
 #   together make the page "cross-origin isolated", which the browser requires for SharedArrayBuffer, i.e. multi-threaded
 #   WebAssembly (several times faster). "credentialless" (not "require-corp") means cross-origin requests are sent
 #   without cookies instead of being blocked, so the model host needs no special headers beyond CORS.
-
-# ---------------------------------------------------------------------------
-# Remove background and Enlarge picture (/tools/remove-background, /tools/upscale-image): the two tools that run a
-# neural network on the visitor's device. Same rules and same reasons as the Auto captions page above: the browser
-# itself refuses any host except our own model host, the pages load no ad scripts, and cross-origin isolation gives
-# the runtime its threads. Reach them with a normal page load (see ad-free.ts).
-# ---------------------------------------------------------------------------
-/tools/remove-background
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https://models.cutmoor.com blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
-  Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: credentialless
-/tools/remove-background/*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https://models.cutmoor.com blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
-  Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: credentialless
-/tools/upscale-image
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https://models.cutmoor.com blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
-  Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: credentialless
-/tools/upscale-image/*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; connect-src 'self' https://models.cutmoor.com blob: data:; img-src 'self' data: blob:; media-src 'self' blob:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'
-  Cross-Origin-Opener-Policy: same-origin
-  Cross-Origin-Embedder-Policy: credentialless

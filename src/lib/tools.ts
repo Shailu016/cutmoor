@@ -1,6 +1,4 @@
-import { MODEL_TOOLS_ENABLED } from "./modeltools/manifests";
 import { IMAGE_EDIT_TOOLS } from "./tools-image-edit";
-import { MODEL_TOOLS } from "./tools-model";
 import { VIDEO_EDIT_TOOLS } from "./tools-video-edit";
 
 export interface ToolFaq {
@@ -42,9 +40,7 @@ export interface ToolDef {
     | "image-rotate"
     | "privacy"
     | "blur"
-    | "image-watermark"
-    | "background"
-    | "upscale";
+    | "image-watermark";
   accent: string;
   keywords: string[];
   steps: { name: string; text: string }[];
@@ -710,8 +706,6 @@ export const TOOLS: ToolDef[] = [
   },
   ...VIDEO_EDIT_TOOLS,
   ...IMAGE_EDIT_TOOLS,
-  // The two neural-network tools appear once their model files are on the model host; a development build always shows them.
-  ...(MODEL_TOOLS_ENABLED ? MODEL_TOOLS : []),
 ];
 
 export interface ToolCategory {
@@ -733,7 +727,7 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
   { id: "video-edit", kind: "video", label: "Edit", title: "Edit a clip", slugs: ["rotate-video", "video-speed", "reverse-video", "loop-video", "mute-video", "merge-videos", "watermark-video", "add-audio-to-video", "slideshow-maker"] },
   { id: "video-convert", kind: "video", label: "Convert and extract", title: "Change the format or take a part out", slugs: ["convert", "gif-to-mp4", "compress-gif", "resize-gif", "audio", "frame"] },
   { id: "video-captions", kind: "video", label: "Captions", title: "Captions and subtitles", slugs: ["auto-captions", "captions"] },
-  { id: "image-size", kind: "image", label: "Resize and edit", title: "Resize, crop, enlarge, and turn pictures", slugs: ["compress-image", "resize-image", "crop-image", "rotate-image", "upscale-image", "remove-background"] },
+  { id: "image-size", kind: "image", label: "Resize and edit", title: "Resize, crop, and turn pictures", slugs: ["compress-image", "resize-image", "crop-image", "rotate-image"] },
   { id: "image-convert", kind: "image", label: "Convert", title: "Fix the file format", slugs: ["convert-image", "heic-to-jpg", "webp-to-jpg", "png-to-jpg", "jpg-to-png", "svg-to-png", "avif-to-jpg"] },
   { id: "image-privacy", kind: "image", label: "Privacy and marks", title: "Hide details and add your mark", slugs: ["remove-photo-metadata", "blur-image", "watermark-image"] },
 ];

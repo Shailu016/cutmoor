@@ -16,7 +16,6 @@ export function ImageOutputControls({
   background,
   onBackground,
   showBackground,
-  allowJpeg = true,
   disabled = false,
 }: {
   label?: string;
@@ -28,8 +27,6 @@ export function ImageOutputControls({
   onBackground: (color: string) => void;
   /** True when the picture has see-through areas (a circle crop, a tilted picture, a PNG with alpha). */
   showBackground: boolean;
-  /** False when the result must stay see-through, so JPG is not offered. */
-  allowJpeg?: boolean;
   disabled?: boolean;
 }) {
   const support = useImageEncoderSupport();
@@ -46,7 +43,7 @@ export function ImageOutputControls({
         disabled={disabled}
         onChange={onFormat}
         options={[
-          ...(allowJpeg ? [{ value: "jpeg" as ImageFormat, label: "JPG" }] : []),
+          { value: "jpeg", label: "JPG" },
           { value: "png", label: "PNG" },
           ...(support.webp ? [{ value: "webp" as ImageFormat, label: "WebP" }] : []),
         ]}

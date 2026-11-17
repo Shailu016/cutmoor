@@ -22,8 +22,6 @@ const loaders: Record<string, () => Promise<{ default: ComponentType }>> = {
   "remove-photo-metadata": () => import("./RemoveMetadataTool").then((m) => ({ default: m.RemoveMetadataTool })),
   "blur-image": () => import("./BlurImageTool").then((m) => ({ default: m.BlurImageTool })),
   "watermark-image": () => import("./WatermarkImageTool").then((m) => ({ default: m.WatermarkImageTool })),
-  "remove-background": () => import("./RemoveBackgroundTool").then((m) => ({ default: m.RemoveBackgroundTool })),
-  "upscale-image": () => import("./UpscaleTool").then((m) => ({ default: m.UpscaleTool })),
   "webp-to-jpg": () => import("./FormatPages").then((m) => ({ default: m.WebpToJpg })),
   "png-to-jpg": () => import("./FormatPages").then((m) => ({ default: m.PngToJpg })),
   "jpg-to-png": () => import("./FormatPages").then((m) => ({ default: m.JpgToPng })),

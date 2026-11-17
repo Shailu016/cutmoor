@@ -399,18 +399,6 @@ export const SITE_PAGES: SitePage[] = [
         ],
       },
       {
-        heading: "Remove background and Enlarge picture: neural networks",
-        paragraphs: [
-          "Two picture tools run a small neural network on your device. Remove background uses ISNet general-use, from the Dichotomous Image Segmentation project by Xuebin Qin and colleagues (Apache-2.0), in a half-precision ONNX build published by Ko033 on Hugging Face (Apache-2.0). Enlarge picture uses Real-ESRGAN general x4 v3 by Xintao Wang and colleagues (BSD-3-Clause), exported to ONNX by Qualcomm AI Hub.",
-          "Both download once from models.cutmoor.com after you agree, are checked against SHA-256 fingerprints shipped with the site, and are stored in your browser. Neither project publishes its training data, and we have not independently verified it.",
-        ],
-        links: [
-          { label: "DIS (ISNet)", href: "https://github.com/xuebinqin/DIS", description: "Apache-2.0." },
-          { label: "isnet-general-use-onnx (Ko033)", href: "https://huggingface.co/Ko033/isnet-general-use-onnx", description: "Apache-2.0; ONNX build of the rembg isnet-general-use model." },
-          { label: "Real-ESRGAN", href: "https://github.com/xinntao/Real-ESRGAN", description: "BSD-3-Clause." },
-        ],
-      },
-      {
         heading: "Auto captions: speech models",
         paragraphs: [
           "The tool offers two speech-recognition models, both by Oriserve and both declared Apache-2.0. Draft is Whisper-Hindi2Hinglish-Swift, a fine-tune of OpenAI Whisper base. The Hugging Face user di12355 converted it to ONNX, and the download is about 160 MB. High accuracy is Whisper-Hindi2Hinglish-Apex, a fine-tune of OpenAI whisper-large-v3-turbo. Cutmoor converted it to ONNX and compressed the weights to 4-bit, and the download is about 800 MB. High accuracy needs WebGPU, so it runs in recent Chrome or Edge on a computer.",

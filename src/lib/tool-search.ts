@@ -58,10 +58,6 @@ const SAME_WORD: Record<string, string> = {
   hide: "blur",
   face: "blur",
   faces: "blur",
-  enlarge: "upscale",
-  bigger: "upscale",
-  cutout: "background",
-  transparent: "background",
   iphone: "heic",
   thumbnail: "frame",
   screenshot: "frame",
@@ -123,7 +119,6 @@ export function matchesSearch(tool: ToolDef, words: readonly string[]): boolean 
 const PHRASES: Array<[RegExp, string]> = [
   [/\b(remove|delete|strip|take out|no|without)\s+(the\s+)?(sound|audio|music)\b/, "mute-video"],
   [/\bmute\b/, "mute-video"],
-  [/\b(remove|delete|erase)\s+(the\s+)?(background|bg)\b/, "remove-background"],
   [/\b(remove|delete|strip)\s+(the\s+)?(exif|metadata|location|gps)\b/, "remove-photo-metadata"],
   [/\b(extract|get|save|rip)\s+(the\s+)?(audio|sound|music|mp3)\b/, "audio"],
   [/\b(slow motion|slow mo|slowmo|speed up)\b/, "video-speed"],

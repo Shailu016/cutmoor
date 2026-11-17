@@ -9,7 +9,6 @@ import {
   FlipHorizontal2,
   Gauge,
   Image,
-  ImageUp,
   Images,
   Merge,
   Minimize2,
@@ -24,7 +23,6 @@ import {
   Smartphone,
   Stamp,
   VolumeX,
-  Wand2,
 } from "lucide-react";
 import type { ToolDef } from "../lib/tools";
 
@@ -55,8 +53,6 @@ const ICONS = {
   privacy: EyeOff,
   blur: Blend,
   "image-watermark": Stamp,
-  background: Wand2,
-  upscale: ImageUp,
 };
 
 

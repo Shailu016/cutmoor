@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 import { hasMoreTool } from "../tools/more/registry";
 import { TOOL_CATEGORIES, TOOLS, toolsInCategory } from "./tools";
 
-const MODEL_TOOLS_PENDING = new Set<string>();
-
 describe("tool list", () => {
   it("has a unique slug for every tool", () => {
     const slugs = TOOLS.map((tool) => tool.slug);
@@ -60,7 +58,6 @@ describe("every tool has a page to show", () => {
   const BUILT_IN = new Set(["compress", "resize", "trim", "convert", "audio", "frame", "captions", "auto-captions", "compress-image", "resize-image", "convert-image", "heic-to-jpg"]);
   for (const tool of TOOLS) {
     it(`${tool.slug} is wired to a component`, () => {
-      if (MODEL_TOOLS_PENDING.has(tool.slug)) return;
       expect(BUILT_IN.has(tool.slug) || hasMoreTool(tool.slug), `${tool.slug} has no component`).toBe(true);
     });
   }

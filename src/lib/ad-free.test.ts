@@ -8,13 +8,6 @@ describe("isAdFreePath", () => {
     }
   });
 
-  it("is true for the two neural-network picture tools", () => {
-    for (const path of ["/tools/remove-background", "/tools/remove-background/", "/tools/upscale-image/", "/tools/upscale-image/?x=1"]) {
-      expect(isAdFreePath(path), path).toBe(true);
-    }
-    expect(isAdFreePath("/tools/remove-background-extra/")).toBe(false);
-  });
-
   it("is false for every other page, including look-alikes", () => {
     for (const path of ["/", "/tools", "/tools/", "/tools/compress/", "/tools/auto-captions-extra", "/tools/captions/", "/guides/", "/tools/auto-caption"]) {
       expect(isAdFreePath(path), path).toBe(false);
