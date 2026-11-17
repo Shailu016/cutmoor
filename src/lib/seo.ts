@@ -14,7 +14,7 @@ export const SITE = {
   locale: "en_US",
   language: "en",
   themeColor: "#0b0f17",
-  ogImage: "/og-image.png",
+  ogImage: "/og-image-2.png",
   ogImageAlt: "Cutmoor — edit video and photos in your browser, never upload a thing",
 };
 

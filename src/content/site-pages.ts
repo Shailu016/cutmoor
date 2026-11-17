@@ -23,8 +23,8 @@ export interface SitePage {
 }
 
 const UPDATED = "2026-11-11";
-/** The privacy policy was revised separately: analytics disclosure and the network check. */
-const PRIVACY_UPDATED = "2026-11-13";
+/** The privacy policy was revised separately: analytics disclosure, the network check, and Cloudflare Web Analytics. */
+const PRIVACY_UPDATED = "2026-11-17";
 /** The About page was revised for the Auto captions tool. */
 const CAPTIONS_UPDATED = "2026-11-13";
 /** The Licences page was revised when the second speech model shipped. */
@@ -114,7 +114,8 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Analytics and server logs",
         paragraphs: [
-          "Cutmoor uses no analytics service: its own code includes no analytics script, and the Cloudflare Web Analytics beacon is not enabled. Cloudflare and the other hosts we use may also keep standard request logs, such as IP address, user agent, and the requested URL, for security and reliability. Those logs are controlled by the provider, not by the browser tools.",
+          "Cutmoor counts visits with Cloudflare Web Analytics, the same company that hosts the site. It does not use cookies, does not follow you from one site to another, and does not build a profile of you. It records only what a normal web request already contains, such as the page visited, the country, the browser and device type, and how fast the page loaded. It never sees your files, their names, or any text you type: the tools run on your device and send nothing. The counting script is added by Cloudflare when a page is delivered; it is not part of Cutmoor's own code, and the Auto captions page does not load it, because that page's security policy refuses every host except our model host.",
+          "Cloudflare and the other hosts we use may also keep standard request logs, such as IP address, user agent, and the requested URL, for security and reliability. Those logs are controlled by the provider, not by the browser tools. Search engines such as Google may also tell us which searches led people to the site, through their own search reports; that data comes from the search engine, not from your device.",
           "The video encoder program file (FFmpeg compiled to WebAssembly) may be delivered from a public content network, unpkg.com, which receives the same standard request data when your browser downloads it. Only the program file is fetched from there; your videos and photos are never sent anywhere. The site checks the file's SHA-256 fingerprint before running it.",
         ],
       },
