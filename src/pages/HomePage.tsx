@@ -7,7 +7,7 @@ import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
 import { HOME_FAQS } from "../lib/seo";
-import { IMAGE_TOOLS, TOOLS, VIDEO_TOOLS, type ToolDef } from "../lib/tools";
+import { IMAGE_TOOLS, TOOL_CATEGORIES, TOOLS, toolsInCategory, VIDEO_TOOLS, type ToolDef } from "../lib/tools";
 
 const homeTools = (slugs: string[]): ToolDef[] => slugs.map((slug) => TOOLS.find((tool) => tool.slug === slug)).filter((tool): tool is ToolDef => Boolean(tool));
 
@@ -225,6 +225,32 @@ export function HomePage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="shell section all-tools" aria-labelledby="all-tools-heading">
+        <div className="section-head">
+          <div>
+            <span className="mono-label">Every tool</span>
+            <h2 id="all-tools-heading">All {TOOLS.length} tools, by the job you have.</h2>
+          </div>
+          <p>The same list as the Tools menu, in plain links. Each one runs on your device and never uploads your file.</p>
+        </div>
+        <div className="all-tools-grid">
+          {TOOL_CATEGORIES.map((category) => (
+            <div key={category.id}>
+              <h3>
+                {category.kind === "video" ? "Video" : "Images"} · {category.label}
+              </h3>
+              <ul>
+                {toolsInCategory(category).map((tool) => (
+                  <li key={tool.slug}>
+                    <Link to={`/tools/${tool.slug}`}>{tool.name}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="shell section">
