@@ -92,28 +92,6 @@ libraries are distributed in the JavaScript bundle.
 | Geist | OFL-1.1 | https://github.com/vercel/geist-font |
 | Geist Mono | OFL-1.1 | https://github.com/vercel/geist-font |
 
-### Remove background and Enlarge picture (neural networks)
-
-Two picture tools run a small neural network on the visitor's device with the same
-ONNX Runtime Web build listed above. Their files are hosted by Cutmoor at
-`https://models.cutmoor.com`, downloaded once after the visitor agrees, checked
-against SHA-256 fingerprints bundled with the site, and kept in the browser.
-
-- **Remove background:** ISNet "general use" from the Dichotomous Image
-  Segmentation project by Xuebin Qin and colleagues, Apache-2.0
-  (https://github.com/xuebinqin/DIS). The file is the half-precision ONNX build
-  published by Ko033 on Hugging Face under Apache-2.0
-  (https://huggingface.co/Ko033/isnet-general-use-onnx), which states that it was
-  converted from the `isnet-general-use.onnx` distributed by the rembg project
-  (MIT, https://github.com/danielgatis/rembg). About 88 MB.
-- **Enlarge picture:** Real-ESRGAN "general x4 v3" by Xintao Wang and colleagues,
-  BSD-3-Clause (https://github.com/xinntao/Real-ESRGAN), exported to ONNX by
-  Qualcomm AI Hub (BSD-3-Clause) and mirrored on Hugging Face as
-  `TheGuy444/Real-ESRGAN-ONNX`. Cutmoor merged its external weight file into one
-  ONNX file without changing any weight. About 5 MB.
-- Neither model's training data is published by its authors. Cutmoor relies on the
-  licence each project declares and has not independently verified the training data.
-
 ## Full licence texts
 
 The complete licence files are installed with each npm package under
