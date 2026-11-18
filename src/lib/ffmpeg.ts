@@ -1,6 +1,6 @@
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
-import { explainFailure } from "./ffmpeg-errors";
+import { explainFailure, isUnsupportedDecodeError, unsupportedVideoMessage } from "./ffmpeg-errors";
 import { extensionOf, mimeForName } from "./format";
 import { EMPTY_INFO, parseMediaInfo, type MediaInfo } from "./media-info";
 
@@ -148,6 +148,25 @@ export interface RunOptions {
   onTimings?: (timings: RunTimings) => void;
 }
 
+/** Runs a command, but gives up at the first sign that the video cannot be decoded at all. */
+async function execUnlessUndecodable(ffmpeg: FFmpeg, command: string[], recentLog: string[]): Promise<number> {
+  let giveUp: (reason: Error) => void = () => undefined;
+  const undecodable = new Promise<never>((_, reject) => {
+    giveUp = reject;
+  });
+  const stopWatching = onFFmpegLog((message) => {
+    if (!isUnsupportedDecodeError(message)) return;
+    // In this order: stopping the worker also fails the running command, and this message must be the one reported.
+    giveUp(new Error(unsupportedVideoMessage(recentLog)));
+    resetFFmpeg();
+  });
+  try {
+    return await Promise.race([ffmpeg.exec(command), undecodable]);
+  } finally {
+    stopWatching();
+  }
+}
+
 export async function runFFmpeg({ file, outputName, args, onTimings }: RunOptions): Promise<Blob> {
   const loadStarted = performance.now();
   const ffmpeg = await load();
@@ -164,7 +183,7 @@ export async function runFFmpeg({ file, outputName, args, onTimings }: RunOption
 
   try {
     await ffmpeg.writeFile(inputName, await fetchFile(file));
-    const exitCode = await ffmpeg.exec(command);
+    const exitCode = await execUnlessUndecodable(ffmpeg, command, recentLog);
     if (exitCode !== 0) {
       throw new Error(
         explainFailure(recentLog) ??
@@ -235,7 +254,7 @@ export async function runFFmpegJob({ inputs, inputNames, outputName, probe = fal
     }
     recentLog.length = 0;
     const command = build({ names, infos });
-    const exitCode = await ffmpeg.exec(command);
+    const exitCode = await execUnlessUndecodable(ffmpeg, command, recentLog);
     if (exitCode !== 0) {
       throw new Error(
         explainFailure(recentLog) ?? `The encoder exited with code ${exitCode}. Try a different input file or a smaller one.`,

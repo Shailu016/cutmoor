@@ -1,4 +1,18 @@
 /**
+ * The encoder keeps going after this error, failing on every remaining frame, so a long video would look busy for
+ * hours and produce nothing. It appears only while a stream is really being decoded: reading an AV1 file also logs AV1
+ * errors, but those are harmless for jobs that never decode the picture, such as extracting the audio.
+ */
+export function isUnsupportedDecodeError(line: string): boolean {
+  return /Error while decoding stream #\d+:\d+: Function not implemented/i.test(line);
+}
+
+export function unsupportedVideoMessage(logLines: string[]): string {
+  const format = logLines.some((line) => /\[av1\b/i.test(line)) ? "AV1 video" : "this video format";
+  return `Cutmoor cannot read ${format} yet, so the job was stopped. Try a copy of the video in H.264 MP4.`;
+}
+
+/**
  * Turns the encoder's own log into a message a person can act on. FFmpeg
  * exits with a bare code, so the reason has to be read from its log lines.
  * Returns null when the log has no recognisable cause.
