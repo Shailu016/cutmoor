@@ -115,8 +115,15 @@ export default defineConfig(async ({ command, mode }) => {
       },
     },
   },
+  // The video worker loads only for a compression job, so the size budget counts it with the other on-demand media code.
+  worker: { format: "es" as const, rollupOptions: { output: { entryFileNames: "assets/captions-[name]-[hash].js", chunkFileNames: "assets/captions-[name]-[hash].js" } } },
   plugins: [react(), prettyUrlPreview(), dropOnnxRuntimeWasm()],
-  server: { port: 5173, host: true },
+  server: {
+    port: 5173,
+    host: true,
+    // .team holds local models and scratch work (about 32 GB). Watching it stalls every dev request on Windows.
+    watch: { ignored: ["**/.team/**"] },
+  },
   // ffmpeg ships its own worker; pre-bundling it with esbuild breaks the worker URL.
   optimizeDeps: { exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"] },
   test: {

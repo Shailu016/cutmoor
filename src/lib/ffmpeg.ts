@@ -1,5 +1,4 @@
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile } from "@ffmpeg/util";
+import { FFmpeg, type FFFSType } from "@ffmpeg/ffmpeg";
 import { explainFailure, isUnsupportedDecodeError, unsupportedVideoMessage } from "./ffmpeg-errors";
 import { extensionOf, mimeForName } from "./format";
 import { EMPTY_INFO, parseMediaInfo, type MediaInfo } from "./media-info";
@@ -148,6 +147,33 @@ export interface RunOptions {
   onTimings?: (timings: RunTimings) => void;
 }
 
+let mountsMade = 0;
+
+/** A file name that is safe inside the encoder's file system, keeping the extension FFmpeg may use as a hint. */
+export function inputFileName(base: string, sourceName: string): string {
+  const extension = extensionOf(sourceName).slice(0, 12);
+  return `${base}.${extension}`;
+}
+
+/**
+ * Gives the encoder read access to the files without copying them. It reads each part as it needs it, so a file does
+ * not have to fit in one block of browser memory, which fails at about 2 GB in Chrome and sooner on phones.
+ */
+async function mountInputs(ffmpeg: FFmpeg, inputs: Array<File | Blob>, names: string[]) {
+  mountsMade += 1;
+  const folder = `/job-input-${mountsMade}`;
+  await ffmpeg.createDir(folder);
+  // A plain string: the package's Node build, used while prerendering, does not export this enum.
+  await ffmpeg.mount("WORKERFS" as unknown as FFFSType, { blobs: names.map((name, index) => ({ name, data: inputs[index] })) }, folder);
+  return {
+    paths: names.map((name) => `${folder}/${name}`),
+    release: async () => {
+      await ffmpeg.unmount(folder).catch(() => undefined);
+      await ffmpeg.deleteDir(folder).catch(() => undefined);
+    },
+  };
+}
+
 /** Runs a command, but gives up at the first sign that the video cannot be decoded at all. */
 async function execUnlessUndecodable(ffmpeg: FFmpeg, command: string[], recentLog: string[]): Promise<number> {
   let giveUp: (reason: Error) => void = () => undefined;
@@ -171,8 +197,6 @@ export async function runFFmpeg({ file, outputName, args, onTimings }: RunOption
   const loadStarted = performance.now();
   const ffmpeg = await load();
   const engineLoadMs = performance.now() - loadStarted;
-  const inputName = `input.${extensionOf(file.name)}`;
-  const command = args(inputName);
   const processStarted = performance.now();
   // Keep the encoder's last log lines so a failure can be explained in plain words.
   const recentLog: string[] = [];
@@ -181,9 +205,11 @@ export async function runFFmpeg({ file, outputName, args, onTimings }: RunOption
     if (recentLog.length > 40) recentLog.shift();
   });
 
+  let release = async () => undefined as void;
   try {
-    await ffmpeg.writeFile(inputName, await fetchFile(file));
-    const exitCode = await execUnlessUndecodable(ffmpeg, command, recentLog);
+    const mounted = await mountInputs(ffmpeg, [file], [inputFileName("input", file.name)]);
+    release = mounted.release;
+    const exitCode = await execUnlessUndecodable(ffmpeg, args(mounted.paths[0]), recentLog);
     if (exitCode !== 0) {
       throw new Error(
         explainFailure(recentLog) ??
@@ -196,14 +222,14 @@ export async function runFFmpeg({ file, outputName, args, onTimings }: RunOption
     return new Blob([data as unknown as BlobPart], { type: mimeForName(outputName) });
   } finally {
     stopCapture();
-    await ffmpeg.deleteFile(inputName).catch(() => undefined);
+    await release();
     await ffmpeg.deleteFile(outputName).catch(() => undefined);
     countJobAndRecycle();
   }
 }
 
 export interface JobInputs {
-  /** Names the files were written under (`in0.mp4`, `in1.png`, ...), in the order given. */
+  /** Paths the encoder reads the files from, in the order given. */
   names: string[];
   /** What the encoder reports about each file. All empty unless `probe` was asked for. */
   infos: MediaInfo[];
@@ -229,7 +255,7 @@ export async function runFFmpegJob({ inputs, inputNames, outputName, probe = fal
   const loadStarted = performance.now();
   const ffmpeg = await load();
   const engineLoadMs = performance.now() - loadStarted;
-  const names = inputs.map((input, index) => inputNames?.[index] ?? `in${index}.${extensionOf(input instanceof File ? input.name : "x.bin")}`);
+  const fileNames = inputs.map((input, index) => inputNames?.[index] ?? inputFileName(`in${index}`, input instanceof File ? input.name : "x.bin"));
   const processStarted = performance.now();
   const recentLog: string[] = [];
   const stopCapture = onFFmpegLog((message) => {
@@ -237,8 +263,11 @@ export async function runFFmpegJob({ inputs, inputNames, outputName, probe = fal
     if (recentLog.length > 60) recentLog.shift();
   });
 
+  let release = async () => undefined as void;
   try {
-    for (let index = 0; index < inputs.length; index += 1) await ffmpeg.writeFile(names[index], await fetchFile(inputs[index]));
+    const mounted = await mountInputs(ffmpeg, inputs, fileNames);
+    release = mounted.release;
+    const names = mounted.paths;
     const infos: MediaInfo[] = [];
     for (const name of names) {
       if (!probe) {
@@ -266,7 +295,7 @@ export async function runFFmpegJob({ inputs, inputNames, outputName, probe = fal
     return new Blob([data as unknown as BlobPart], { type: mimeForName(outputName) });
   } finally {
     stopCapture();
-    for (const name of names) await ffmpeg.deleteFile(name).catch(() => undefined);
+    await release();
     await ffmpeg.deleteFile(outputName).catch(() => undefined);
     countJobAndRecycle();
   }

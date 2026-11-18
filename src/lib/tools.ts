@@ -58,20 +58,20 @@ export const TOOLS: ToolDef[] = [
     description:
       "Compress MP4, MOV, and WebM videos to a target size for WhatsApp, Discord, Instagram, or email. Runs in your browser, so the file never leaves your device.",
     intro:
-      "Pick a target size and Cutmoor calculates a video bitrate that fits. The file is decoded and re-encoded on your device, not on a server. Use it when an app rejects a video for being too large, or when a 4K clip is 400 MB and you only need a clean 1080p share.",
+      "Choose how much smaller the video should be, and Cutmoor picks the resolution and quality that fit. The file is decoded and re-encoded on your device, not on a server. Use it when an app rejects a video for being too large, or when a 4K clip is 400 MB and you only need a clean 1080p share.",
     icon: "compress",
     accent: "lime",
     keywords: ["compress video", "video compressor", "reduce video size", "video under 25mb"],
     steps: [
       { name: "Choose the video", text: "Drop an MP4, MOV, WebM, or MKV file. Metadata is read locally to calculate the right bitrate." },
-      { name: "Pick a target", text: "Select a preset such as 25 MB for Instagram or 10 MB for Discord, or choose a quality-first CRF encode." },
+      { name: "Choose how much smaller", text: "Pick a percentage, or enter an exact size such as 10 MB for Discord. Cutmoor sets the resolution and quality for you." },
       { name: "Compress and download", text: "The browser encoder produces a new MP4. Nothing is uploaded while it runs." },
     ],
     faqs: [
       {
         question: "Will compression make my video blurry?",
         answer:
-          "Some quality loss is unavoidable when the file gets smaller. Cutmoor keeps the original resolution unless you lower it, and it reserves 128 kbps for audio so dialogue stays clear. For a mild reduction, use the Balanced preset instead of an aggressive target size.",
+          "Some quality loss is unavoidable when the file gets smaller. Cutmoor lowers the resolution only when your size needs it, and it reserves 128 kbps for audio so dialogue stays clear. For a mild reduction, use the Balanced preset instead of an aggressive target size.",
       },
       {
         question: "What is the best target size for WhatsApp?",

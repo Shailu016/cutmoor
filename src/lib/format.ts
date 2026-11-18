@@ -74,9 +74,9 @@ export function targetVideoKbps(targetMb: number, durationSeconds: number, audio
 }
 
 /** The smallest result a target can reach for this length, at the lowest video bitrate plus the audio. */
-export function smallestTargetMb(durationSeconds: number, audioKbps = 128): number {
+export function smallestTargetMb(durationSeconds: number, audioKbps = 128, minVideoKbps = MIN_VIDEO_KBPS): number {
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return 0;
-  return Math.ceil(((MIN_VIDEO_KBPS + audioKbps) * durationSeconds) / (8 * 1024));
+  return Math.ceil(((minVideoKbps + audioKbps) * durationSeconds) / (8 * 1024));
 }
 
 export function clamp(value: number, min: number, max: number): number {
