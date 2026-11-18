@@ -7,8 +7,16 @@ import {
   formatDuration,
   mimeForName,
   parseTimecode,
+  smallestTargetMb,
   targetVideoKbps,
 } from "./format";
+
+describe("smallestTargetMb", () => {
+  it("is the size of the lowest video bitrate plus audio", () => {
+    expect(smallestTargetMb(8586)).toBe(260);
+    expect(smallestTargetMb(0)).toBe(0);
+  });
+});
 
 describe("formatBytes", () => {
   it("formats common sizes", () => {

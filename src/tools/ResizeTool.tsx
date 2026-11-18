@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Crop, RectangleHorizontal } from "lucide-react";
 import { FileDrop } from "../components/FileDrop";
 import { JobPanel } from "../components/JobPanel";
+import { DimensionInput } from "../components/NumberFields";
 import { VideoCropPreview } from "../components/Previews";
 import { useMediaJob } from "../hooks/useMediaJob";
 import { baseName } from "../lib/format";
@@ -92,25 +93,11 @@ export function ResizeTool() {
               <div className="inline-fields">
                 <label>
                   Width
-                  <input
-                    type="number"
-                    min={16}
-                    max={3840}
-                    step={2}
-                    value={customWidth}
-                    onChange={(event) => setCustomWidth(Math.max(16, Math.min(3840, Number(event.target.value) || 16)))}
-                  />
+                  <DimensionInput value={customWidth} min={16} max={3840} step={2} onChange={setCustomWidth} />
                 </label>
                 <label>
                   Height
-                  <input
-                    type="number"
-                    min={16}
-                    max={3840}
-                    step={2}
-                    value={customHeight}
-                    onChange={(event) => setCustomHeight(Math.max(16, Math.min(3840, Number(event.target.value) || 16)))}
-                  />
+                  <DimensionInput value={customHeight} min={16} max={3840} step={2} onChange={setCustomHeight} />
                 </label>
               </div>
             )}

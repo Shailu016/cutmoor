@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Crop, RectangleHorizontal } from "lucide-react";
 import { FileDrop } from "../components/FileDrop";
 import { ImageJobPanel } from "../components/ImageJobPanel";
+import { DimensionInput } from "../components/NumberFields";
 import { LiveCropPreview } from "../components/Previews";
 import { useImageEncoderSupport } from "../hooks/useImageEncoderSupport";
 import { useImageJob } from "../hooks/useImageJob";
@@ -198,25 +199,11 @@ export function ResizeImageTool() {
               <div className="inline-fields">
                 <label>
                   Width
-                  <input
-                    type="number"
-                    min={16}
-                    max={8192}
-                    step={1}
-                    value={customWidth}
-                    onChange={(event) => setCustomWidth(Math.max(16, Math.min(8192, Number(event.target.value) || 16)))}
-                  />
+                  <DimensionInput value={customWidth} min={16} max={8192} step={1} onChange={setCustomWidth} />
                 </label>
                 <label>
                   Height
-                  <input
-                    type="number"
-                    min={16}
-                    max={8192}
-                    step={1}
-                    value={customHeight}
-                    onChange={(event) => setCustomHeight(Math.max(16, Math.min(8192, Number(event.target.value) || 16)))}
-                  />
+                  <DimensionInput value={customHeight} min={16} max={8192} step={1} onChange={setCustomHeight} />
                 </label>
               </div>
             )}

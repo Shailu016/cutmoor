@@ -61,6 +61,8 @@ export function mimeForName(name: string): string {
   return map[ext] ?? "application/octet-stream";
 }
 
+const MIN_VIDEO_KBPS = 120;
+
 /**
  * Video bitrate needed to land near a target file size. Audio is reserved first
  * because losing audio is more noticeable than a slightly softer image.
@@ -68,7 +70,13 @@ export function mimeForName(name: string): string {
 export function targetVideoKbps(targetMb: number, durationSeconds: number, audioKbps = 128): number {
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return 0;
   const totalKbps = (targetMb * 8 * 1024) / durationSeconds;
-  return Math.max(120, Math.round(totalKbps - audioKbps));
+  return Math.max(MIN_VIDEO_KBPS, Math.round(totalKbps - audioKbps));
+}
+
+/** The smallest result a target can reach for this length, at the lowest video bitrate plus the audio. */
+export function smallestTargetMb(durationSeconds: number, audioKbps = 128): number {
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) return 0;
+  return Math.ceil(((MIN_VIDEO_KBPS + audioKbps) * durationSeconds) / (8 * 1024));
 }
 
 export function clamp(value: number, min: number, max: number): number {

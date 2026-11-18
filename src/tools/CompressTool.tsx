@@ -2,20 +2,29 @@ import { useState } from "react";
 import { Gauge, Sparkles } from "lucide-react";
 import { FileDrop } from "../components/FileDrop";
 import { JobPanel } from "../components/JobPanel";
+import { CustomSizeChip } from "../components/NumberFields";
 import { useMediaJob } from "../hooks/useMediaJob";
 import { buildCompressArgs } from "../lib/compress";
-import { baseName, formatBytes, targetVideoKbps } from "../lib/format";
+import { baseName, formatBytes, smallestTargetMb, targetVideoKbps } from "../lib/format";
+import { parseNumberInput } from "../lib/number-input";
 
 const SIZES = [8, 10, 16, 25, 50, 100];
+const MIN_CUSTOM_MB = 1;
 
 export function CompressTool() {
   const job = useMediaJob();
   const [mode, setMode] = useState<"size" | "quality">("size");
-  const [target, setTarget] = useState(25);
+  const [preset, setPreset] = useState(25);
+  const [custom, setCustom] = useState("");
   const [resolution, setResolution] = useState<"original" | "1080" | "720" | "480">("original");
 
+  const customMb = parseNumberInput(custom, MIN_CUSTOM_MB);
+  const customInvalid = mode === "size" && custom !== "" && customMb === null;
+  const target = customMb ?? preset;
   const duration = job.meta?.duration ?? 0;
   const estimatedKbps = mode === "size" && duration > 0 ? targetVideoKbps(target, duration) : 0;
+  const smallest = smallestTargetMb(duration);
+  const originalSize = job.file?.size ?? 0;
 
   const run = () => {
     if (!job.file) return;
@@ -73,30 +82,32 @@ export function CompressTool() {
                     <button
                       key={size}
                       type="button"
-                      className={target === size ? "chip active" : "chip"}
-                      aria-pressed={target === size}
-                      onClick={() => setTarget(size)}
+                      className={custom === "" && preset === size ? "chip active" : "chip"}
+                      aria-pressed={custom === "" && preset === size}
+                      onClick={() => {
+                        setPreset(size);
+                        setCustom("");
+                      }}
                     >
                       {size} MB
                     </button>
                   ))}
-                  <label className="chip chip-input">
-                    <input
-                      type="number"
-                      min={2}
-                      max={500}
-                      value={target}
-                      onChange={(event) => setTarget(Math.max(2, Math.min(500, Number(event.target.value) || 2)))}
-                      aria-label="Custom target size in megabytes"
-                    />
-                    <span>MB</span>
-                  </label>
+                  <CustomSizeChip value={custom} unit="MB" label="Custom target size in megabytes" onChange={setCustom} />
                 </div>
-                {estimatedKbps > 0 && (
-                  <p className="settings-note">
-                    About <strong>{estimatedKbps} kbps</strong> for video and 128 kbps for audio. Short clips get a
-                    generous bitrate; long clips get a lean one.
-                  </p>
+                {customInvalid ? (
+                  <p className="settings-note">Enter a size of at least {MIN_CUSTOM_MB} MB.</p>
+                ) : (
+                  estimatedKbps > 0 && (
+                    <p className="settings-note">
+                      About <strong>{estimatedKbps} kbps</strong> for video and 128 kbps for audio. Short clips get a
+                      generous bitrate; long clips get a lean one.
+                      {target < smallest &&
+                        ` This video needs about ${smallest} MB at the lowest bitrate, so the result will be larger than your target.`}
+                      {originalSize > 0 &&
+                        target * 1024 * 1024 >= originalSize &&
+                        ` Your target is not smaller than the original (${formatBytes(originalSize)}), so the file may not shrink.`}
+                    </p>
+                  )
                 )}
               </>
             ) : (
@@ -127,7 +138,7 @@ export function CompressTool() {
               className="button button-primary button-block button-lg"
               type="button"
               onClick={run}
-              disabled={job.phase === "working"}
+              disabled={job.phase === "working" || customInvalid}
             >
               {job.phase === "working" ? "Compressing…" : "Compress video"}
             </button>

@@ -1452,7 +1452,7 @@ code {
 }
 
 .chip-input input {
-  width: 64px;
+  width: 88px;
   text-align: right;
   appearance: textfield;
   -moz-appearance: textfield;
