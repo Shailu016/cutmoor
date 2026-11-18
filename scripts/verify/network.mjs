@@ -59,6 +59,8 @@ phase = "job";
 const input = await page.$('input[type="file"]');
 await input.uploadFile(FILE);
 await page.waitForFunction(() => /Ready/.test(document.querySelector(".job-state")?.textContent || ""), { timeout: 30000 });
+// Compress video shows its button only after checking which options suit the file.
+await page.waitForFunction(() => [...document.querySelectorAll("main button")].some((b) => /^Compress/.test(b.innerText.trim())), { timeout: 30000 });
 const clickByText = (t) => page.evaluate((text) => { const b = [...document.querySelectorAll("button")].find((x) => x.innerText.trim().includes(text)); if (!b) throw new Error("no button: " + text); b.click(); }, t);
 const buttons = await page.evaluate(() => [...document.querySelectorAll("main button")].map((b) => b.innerText.trim()).filter(Boolean));
 const runLabel = buttons.find((b) => /^Compress video/.test(b) || /^Compress/.test(b));
