@@ -305,7 +305,7 @@ export const VIDEO_EDIT_TOOLS: ToolDef[] = [
         answer: "Every clip is held in your browser's memory while it is joined. Ten keeps the job reliable on ordinary laptops. For more, merge in two rounds.",
       },
     ],
-    related: ["trim", "compress", "resize"],
+    related: ["trim", "compress", "slideshow-maker"],
   },
   {
     slug: "watermark-video",
@@ -371,7 +371,7 @@ export const VIDEO_EDIT_TOOLS: ToolDef[] = [
         answer: "Cutmoor does not check rights. Use music you made, own, or are licensed to use, especially if you post the video publicly.",
       },
     ],
-    related: ["mute-video", "audio", "trim"],
+    related: ["mute-video", "audio", "slideshow-maker"],
   },
   {
     slug: "slideshow-maker",

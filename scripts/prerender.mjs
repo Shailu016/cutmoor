@@ -118,8 +118,11 @@ const AI_BOTS = [
 ];
 await writeFileAt(
   "robots.txt",
+  // Cloudflare rewrites the contact page's email links to /cdn-cgi/l/email-protection, which answers
+  // 404 to a crawler and would otherwise be reported as a broken page in Search Console.
   `User-agent: *
 Allow: /
+Disallow: /cdn-cgi/l/
 
 ${AI_BOTS.map((bot) => `User-agent: ${bot}\nAllow: /`).join("\n\n")}
 

@@ -31,6 +31,11 @@ const SAME_WORD: Record<string, string> = {
   smaller: "compress",
   reduce: "compress",
   compressor: "compress",
+  compression: "compress",
+  resizer: "resize",
+  trimming: "trim",
+  trimmer: "trim",
+  frames: "frame",
   join: "merge",
   combine: "merge",
   stitch: "merge",
@@ -87,10 +92,14 @@ function canonical(word: string): string {
   return word in SAME_WORD ? SAME_WORD[word] : word;
 }
 
+/** Promises every tool makes. People add them to a search, and they say nothing about which tool is wanted. */
+const PROMISES = /\b(?:(?:without|no)\s+(?:losing\s+)?quality(?:\s+loss)?|no\s+upload|without\s+(?:a\s+)?watermark)\b/g;
+
 /** The meaningful words of a search, lower-case, with filler words dropped and spellings unified. */
 export function searchWords(query: string): string[] {
   return query
     .toLowerCase()
+    .replace(PROMISES, " ")
     .split(/[^a-z0-9]+/)
     .map(canonical)
     .filter((word) => word.length > 0);
@@ -120,7 +129,13 @@ const PHRASES: Array<[RegExp, string]> = [
   [/\b(remove|delete|strip|take out|no|without)\s+(the\s+)?(sound|audio|music)\b/, "mute-video"],
   [/\bmute\b/, "mute-video"],
   [/\b(remove|delete|strip)\s+(the\s+)?(exif|metadata|location|gps)\b/, "remove-photo-metadata"],
-  [/\b(extract|get|save|rip)\s+(the\s+)?(audio|sound|music|mp3)\b/, "audio"],
+  [/\b(extract|get|save|rip|export|pull|take)\s+(the\s+)?(audio|sound|music|mp3)\b|\baudio\s+rip\b/, "audio"],
+  [/\b(extract|export|save|grab|download)\s+(a\s+|the\s+|video\s+)*frames?\b|\bvideo\s+to\s+frames?\b/, "frame"],
+  [/\b(video|convert)\s+to\s+gif\b/, "convert"],
+  [/\b16\s*[:x ]\s*9\s+to\s+9\s*[:x ]\s*16\b|\bvideo\s+to\s+9\s*[:x ]\s*16\b/, "resize"],
+  [/\b(resize|resizer|scale)\b.*\b(image|photo|picture|png|jpe?g)\b|\b(image|photo|picture|png|jpe?g)\s+(resize|resizer)\b/, "resize-image"],
+  [/\bsocial media\b.*\bsizes?\b|\bsizes?\b.*\bsocial media\b/, "resize-image"],
+  [/\bsrt\b.*\bvtt\b|\bvtt\b.*\bsrt\b/, "captions"],
   [/\b(slow motion|slow mo|slowmo|speed up)\b/, "video-speed"],
   // Making captions is the caption tool; converting or shifting a subtitle file is the "captions" converter page.
   [/\b(add|generate|make|create|auto|automatic|burn|burned|burnt)\s+(the\s+|in\s+)?(captions?|subtitles?)\b/, "auto-captions"],
@@ -140,8 +155,8 @@ export function searchTools(tools: readonly ToolDef[], query: string): ToolDef[]
     const hit = pattern.test(lower) ? tools.find((tool) => tool.slug === slug) : undefined;
     if (hit) return [hit];
   }
-  const conversion = lower.match(/\b([a-z0-9]+)\s*(?:to|2|->|into)\s*([a-z0-9]+)\b/);
-  if (conversion) {
+  // Every "x to y" in the search counts: in "how to turn heic to jpg" the conversion is the second one.
+  for (const conversion of lower.matchAll(/\b([a-z0-9]+)\s*(?:to|2|->|into)\s*([a-z0-9]+)\b/g)) {
     const exact = tools.find((tool) => tool.slug === `${canonical(conversion[1])}-to-${canonical(conversion[2])}`);
     if (exact) return [exact];
   }

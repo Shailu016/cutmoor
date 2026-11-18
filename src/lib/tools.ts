@@ -132,7 +132,7 @@ export const TOOLS: ToolDef[] = [
           "Yes. Pick Custom and enter the width and height in pixels. Keep both dimensions even numbers; most video encoders require it.",
       },
     ],
-    related: ["compress", "trim", "convert"],
+    related: ["compress", "trim", "rotate-video"],
   },
   {
     slug: "trim",
@@ -174,7 +174,7 @@ export const TOOLS: ToolDef[] = [
           "Players round to the nearest second, and some containers store a slightly different duration than the visible video. Use the preview timecode as a guide, then check the exported clip.",
       },
     ],
-    related: ["compress", "resize", "convert"],
+    related: ["compress", "resize", "frame"],
   },
   {
     slug: "convert",
@@ -230,7 +230,7 @@ export const TOOLS: ToolDef[] = [
       "Useful for turning a recorded talk into a podcast track, saving a voice memo, or pulling a music bed out of your own footage. Choose MP3 for small files, WAV for editing, or M4A for a good size-to-quality balance.",
     icon: "audio",
     accent: "gold",
-    keywords: ["extract audio from video", "video to mp3", "mp4 to mp3", "video to wav"],
+    keywords: ["extract audio from video", "rip audio from video", "video to mp3", "mp4 to mp3", "video to wav"],
     steps: [
       { name: "Add the video", text: "Cutmoor reads the file and shows its duration." },
       { name: "Choose audio settings", text: "Pick MP3, WAV, or M4A and a bitrate. 192 kbps is a good default for music and speech." },
@@ -272,7 +272,7 @@ export const TOOLS: ToolDef[] = [
       "A good cover frame can decide whether someone stops scrolling. Scrub to the moment, pick a timestamp, and export a full-resolution still. PNG keeps text and graphics sharp; JPG is smaller for the web.",
     icon: "frame",
     accent: "rose",
-    keywords: ["extract frame from video", "video screenshot", "thumbnail from video", "save video frame"],
+    keywords: ["extract frame from video", "export frame from video", "video screenshot", "thumbnail from video", "save video frame"],
     steps: [
       { name: "Load the video", text: "Drop the clip and check the duration." },
       { name: "Choose a timestamp", text: "Enter the moment you want, such as 0:03.5." },
@@ -351,7 +351,7 @@ export const TOOLS: ToolDef[] = [
     short: "Word-timed captions for your video, made on your device.",
     title: "Add captions to video: free caption generator, no upload",
     description:
-      "Add word-timed captions to a video in your browser. Edit every word, preview the highlight, and export SRT, VTT, or an MP4 with the captions burned in. English, Hindi, and Hinglish. No upload, no account.",
+      "Add word-timed captions to a video in your browser. Edit every word, then export SRT, VTT, or a burned-in MP4. English, Hindi, Hinglish. No upload, no account.",
     intro:
       "Drop a video and Cutmoor listens to it on your device, then writes captions with a time for every word, in English, Hindi, or Hinglish. Fix any mistake in the editor, watch each word light up as it is spoken, and export SRT, VTT, or an MP4 with the captions burned in for Reels, Shorts, and TikTok. A speech model downloads once, after you agree; your video, its sound, and the text never leave your device.",
     icon: "captions",
@@ -708,7 +708,7 @@ export const TOOLS: ToolDef[] = [
           "A little. HEIC is more efficient, so the same visual quality takes fewer bytes. Exporting at 90 percent JPG keeps the photo clean for sharing and printing at normal sizes, but the file will usually be larger than the HEIC original. That is the cost of compatibility.",
       },
     ],
-    related: ["convert-image", "compress-image", "resize-image"],
+    related: ["convert-image", "compress-image", "avif-to-jpg"],
   },
   ...VIDEO_EDIT_TOOLS,
   ...IMAGE_EDIT_TOOLS,

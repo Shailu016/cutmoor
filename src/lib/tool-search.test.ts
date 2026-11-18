@@ -66,6 +66,31 @@ describe("tool search", () => {
     },
   );
 
+  // Wording people used in Google searches that showed Cutmoor (Search Console, November 2026).
+  it.each([
+    ["export frame from video", "frame"],
+    ["export video frames", "frame"],
+    ["video to frames converter", "frame"],
+    ["how to take audio from a video", "audio"],
+    ["export audio from video", "audio"],
+    ["audio rip from video", "audio"],
+    ["image resizer without losing quality", "resize-image"],
+    ["resize a photo without losing quality", "resize-image"],
+    ["social media image sizes", "resize-image"],
+    ["16:9 to 9:16 converter", "resize"],
+    ["video to gif compressor", "convert"],
+    ["srt vs vtt", "captions"],
+    ["how to turn heic to jpg", "heic-to-jpg"],
+    ["trim video without losing quality online", "trim"],
+  ])('"%s" puts %s first', (query, slug) => {
+    expect(best(query)[0]).toBe(slug);
+  });
+
+  it("keeps sound removal apart from sound extraction", () => {
+    expect(best("take out the audio")[0]).toBe("mute-video");
+    expect(best("take the audio")[0]).toBe("audio");
+  });
+
   it("still sends subtitle-file jobs to the converter", () => {
     expect(best("srt to vtt")[0]).toBe("captions");
   });

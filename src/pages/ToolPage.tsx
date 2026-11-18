@@ -19,6 +19,7 @@ import { CompressImageTool } from "../tools/CompressImageTool";
 import { ResizeImageTool } from "../tools/ResizeImageTool";
 import { ConvertImageTool } from "../tools/ConvertImageTool";
 import { HeicTool } from "../tools/HeicTool";
+import { guidesForTool } from "../content/guide-helpers";
 import { GUIDES } from "../content/guides";
 import { toolBySlug, TOOLS } from "../lib/tools";
 import { NotFoundPage } from "./NotFoundPage";
@@ -78,7 +79,7 @@ export function ToolPage() {
   if (!tool) return <NotFoundPage />;
 
   const related = tool.related.map((item) => TOOLS.find((entry) => entry.slug === item)).filter(Boolean);
-  const toolGuides = GUIDES.filter((guide) => guide.tools.includes(tool.slug)).slice(0, 4);
+  const toolGuides = guidesForTool(tool.slug, GUIDES);
 
   return (
     <>

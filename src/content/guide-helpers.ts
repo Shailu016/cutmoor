@@ -13,18 +13,33 @@ export function toolsForGuide(guide: GuideMeta, tools: ToolDef[]): ToolDef[] {
     .filter((tool): tool is ToolDef => Boolean(tool));
 }
 
-/** Prefer guides in the same medium, then the same category, then the rest. */
+/**
+ * The guides to show on a tool's page, most relevant first: a guide lists its main tool first, so
+ * guides that are mainly about this tool come before guides that only mention it. Without this,
+ * the oldest guides fill every slot and newer ones are never linked.
+ */
+export function guidesForTool(slug: string, guides: GuideMeta[], limit = 4): GuideMeta[] {
+  return guides
+    .filter((guide) => guide.tools.includes(slug))
+    .map((guide, index) => ({ guide, index, rank: guide.tools.indexOf(slug) }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .slice(0, limit)
+    .map((entry) => entry.guide);
+}
+
+/** Prefer guides about the same tools, then the same medium, then the same category, then the rest. */
 export function relatedGuides(guide: GuideMeta, guides: GuideMeta[], tools: ToolDef[], limit = 3): GuideMeta[] {
   const kindsFor = (item: GuideMeta) => new Set(toolsForGuide(item, tools).map((tool) => tool.kind));
   const current = kindsFor(guide);
   const score = (candidate: GuideMeta) => {
+    const sharedTools = candidate.tools.filter((slug) => guide.tools.includes(slug)).length;
     const candidateKinds = kindsFor(candidate);
     const sameMedium =
       current.size === 1 &&
       candidateKinds.size === 1 &&
       [...current][0] === [...candidateKinds][0];
     const sameCategory = candidate.category === guide.category;
-    return (sameMedium ? 2 : 0) + (sameCategory ? 1 : 0);
+    return sharedTools * 4 + (sameMedium ? 2 : 0) + (sameCategory ? 1 : 0);
   };
 
   return guides
