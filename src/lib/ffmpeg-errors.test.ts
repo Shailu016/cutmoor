@@ -1,5 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { explainFailure, isUnsupportedDecodeError, unsupportedVideoMessage } from "./ffmpeg-errors";
+import { describeJobError, explainFailure, isUnsupportedDecodeError, unsupportedVideoMessage } from "./ffmpeg-errors";
+
+describe("describeJobError", () => {
+  it("never shows the raw file read code", () => {
+    expect(describeJobError(new Error("File could not be read! Code=-1"))).toMatch(/could not read this file/);
+    expect(describeJobError(new Error("File could not be read! Code=-1"))).not.toMatch(/Code=/);
+  });
+
+  it("explains when part of the tool could not be loaded", () => {
+    expect(describeJobError(new TypeError("Failed to fetch"))).toMatch(/could not load part of the video tool/);
+    expect(describeJobError(new TypeError("Failed to fetch dynamically imported module: /assets/a.js"))).toMatch(/reload the page/);
+  });
+
+  it("explains running out of memory", () => {
+    expect(describeJobError(new Error("RuntimeError: memory access out of bounds"))).toMatch(/ran out of memory/);
+    expect(describeJobError("Array buffer allocation failed")).toMatch(/ran out of memory/);
+  });
+
+  it("keeps a message that is already clear, and has a fallback", () => {
+    expect(describeJobError(new Error("Cutmoor cannot read AV1 video yet."))).toBe("Cutmoor cannot read AV1 video yet.");
+    expect(describeJobError(undefined)).toMatch(/encoder failed/);
+  });
+});
 
 describe("unsupported video", () => {
   it("recognises a stream the encoder cannot decode", () => {

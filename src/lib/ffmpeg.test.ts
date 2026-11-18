@@ -1,6 +1,13 @@
 import { createHash } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { isRemoteBase, verifiedBlobURL } from "./ffmpeg";
+import { inputFileName, isRemoteBase, verifiedBlobURL } from "./ffmpeg";
+
+describe("inputFileName", () => {
+  it("ignores everything in the visitor's file name except a safe extension", () => {
+    expect(inputFileName("input", "My holiday (final) #2.MKV")).toBe("input.mkv");
+    expect(inputFileName("in1", "../../odd name")).toBe("in1.mp4");
+  });
+});
 
 const BODY = new TextEncoder().encode("pretend this is the encoder");
 const GOOD = createHash("sha256").update(BODY).digest("base64");

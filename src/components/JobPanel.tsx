@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Check, Download, Film, Loader2, RotateCcw, ShieldCheck, X } from "lucide-react";
 import { extensionOf, formatBytes, formatDuration } from "../lib/format";
 import { formatElapsed } from "../lib/results";
@@ -8,6 +8,9 @@ import { ScreenMedia, type ScreenKind } from "./ScreenMedia";
 import type { MediaJob } from "../hooks/useMediaJob";
 
 type PreviewKind = ScreenKind | null;
+
+const COMPRESSING = "Compressing…";
+const MIN_PROGRESS_FOR_ESTIMATE = 0.005;
 
 function previewKind(name: string): PreviewKind {
   const ext = name.split(".").pop()?.toLowerCase() ?? "";
@@ -24,11 +27,17 @@ function previewKind(name: string): PreviewKind {
  * the page.
  */
 export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string }) {
-  const { phase, progress, result, error, logs, file, meta, previewUrl, startedAt, wasCancelled, cancel, clear } = job;
-  const loadingEncoder = phase === "working" && progress === 0;
+  const { phase, progress, result, error, logs, file, meta, previewUrl, startedAt, wasCancelled, cancel, clear, status, outputBytes } = job;
+  const loadingEncoder = phase === "working" && progress === 0 && !status;
   // Progress is only shown as a percentage when the encoder can measure it: it needs the source duration.
   const measurable = !loadingEncoder && (meta ? meta.duration > 0 : true);
   const elapsed = useElapsed(startedAt, phase === "working");
+  // Time left comes from the speed of the main step only: the short preparation before it runs at a different pace.
+  const mainStep = useRef<{ elapsed: number; progress: number } | null>(null);
+  if (status !== COMPRESSING) mainStep.current = null;
+  else mainStep.current ??= { elapsed, progress };
+  const doneInStep = mainStep.current ? progress - mainStep.current.progress : 0;
+  const remaining = mainStep.current && doneInStep >= MIN_PROGRESS_FOR_ESTIMATE && progress < 1 ? ((elapsed - mainStep.current.elapsed) * (1 - progress)) / doneInStep : null;
   const originalDetail = meta
     ? [meta.width > 0 && meta.height > 0 ? `${meta.width}×${meta.height}` : null, meta.duration > 0 ? formatDuration(meta.duration) : null]
         .filter(Boolean)
@@ -136,7 +145,7 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
         {phase === "working" && (
           <>
             <div className="progress-top">
-              <span>{loadingEncoder ? "Loading the encoder…" : "Encoding…"}</span>
+              <span>{status ?? (loadingEncoder ? "Loading the encoder…" : "Encoding…")}</span>
               <span>{measurable ? `${Math.round(progress * 100)}%` : "Working"}</span>
             </div>
             <div
@@ -152,11 +161,17 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
                 style={measurable ? { width: `${Math.max(2, progress * 100)}%` } : undefined}
               />
             </div>
-            <p className="job-elapsed">Elapsed {formatElapsed(elapsed)}</p>
+            <p className="job-elapsed">
+              Elapsed {formatElapsed(elapsed)}
+              {remaining !== null && ` · about ${formatElapsed(remaining)} left`}
+              {outputBytes > 0 && ` · ${formatBytes(outputBytes)} written`}
+            </p>
             <p className="job-note">
               {loadingEncoder
                 ? "The ~32 MB encoder is downloading once and will be cached by your browser."
-                : "Keep this tab open. Encoding uses your device's CPU, so it may take a little while."}
+                : status
+                  ? "Keep this tab open and your screen on. A phone may stop a job that moves to the background."
+                  : "Keep this tab open. Encoding uses your device's CPU, so it may take a little while."}
             </p>
             <button className="button button-ghost button-small" type="button" onClick={cancel}>
               <X size={15} /> Cancel job
@@ -180,6 +195,7 @@ export function JobPanel({ job, idleHint }: { job: MediaJob; idleHint: string })
                 engineLoadMs={result.engineLoadMs}
               />
             )}
+            {result.note && <p className="job-note">{result.note}</p>}
             {previewFailed && (
               <p className="job-note">
                 This browser cannot preview the output format inline. Download the file to check it in your media player.

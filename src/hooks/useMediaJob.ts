@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { releaseBlobUrl } from "../lib/blob-url";
 import { onFFmpegLog, onFFmpegProgress, resetFFmpeg, runFFmpeg, runFFmpegJob, type JobInputs } from "../lib/ffmpeg";
+import { describeJobError } from "../lib/ffmpeg-errors";
 import { readVideoMeta, type VideoMeta } from "../lib/media";
+import { holdScreenAwake } from "../lib/wake-lock";
 
 export type JobPhase = "idle" | "ready" | "working" | "done" | "error";
 
@@ -13,6 +15,24 @@ export interface JobResult {
   processMs: number;
   /** Measured encoder download and start-up time for this run; near zero when already loaded. */
   engineLoadMs: number;
+  /** Something worth saying about this result. */
+  note?: string;
+}
+
+/** What a job that does not go through the FFmpeg runner can report while it works. */
+export interface CustomJobContext {
+  signal: AbortSignal;
+  setProgress: (value: number) => void;
+  setStatus: (text: string | null) => void;
+  setOutputBytes: (bytes: number) => void;
+  log: (message: string) => void;
+}
+
+export interface CustomJobOutput {
+  blob: Blob;
+  note?: string;
+  /** Frees storage kept for the result, once it is replaced or cleared. */
+  release?: () => void | Promise<void>;
 }
 
 export interface MediaJob {
@@ -28,6 +48,10 @@ export interface MediaJob {
   startedAt: number | null;
   /** True after the user cancelled the last run, until the next run or file. */
   wasCancelled: boolean;
+  /** What a custom job is doing right now, in plain words. */
+  status: string | null;
+  /** Bytes a custom job has written so far. */
+  outputBytes: number;
   selectFile: (file: File) => Promise<void>;
   clear: () => void;
   run: (outputName: string, buildArgs: (inputName: string) => string[]) => Promise<void>;
@@ -37,6 +61,8 @@ export interface MediaJob {
    * found in each file (audio or not, length, frame rate).
    */
   runMulti: (outputName: string, inputs: Array<File | Blob>, build: (inputs: JobInputs) => string[], options?: { probe?: boolean }) => Promise<void>;
+  /** Runs work that reports its own progress, with the same result, error and cancel handling as other jobs. */
+  runCustom: (outputName: string, work: (context: CustomJobContext) => Promise<CustomJobOutput>) => Promise<void>;
   cancel: () => void;
 }
 
@@ -56,17 +82,24 @@ export function useMediaJob(): MediaJob {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [wasCancelled, setWasCancelled] = useState(false);
+  const [status, setStatus] = useState<string | null>(null);
+  const [outputBytes, setOutputBytes] = useState(0);
 
+  const abort = useRef<AbortController | null>(null);
+  const releaseStorage = useRef<(() => void | Promise<void>) | null>(null);
   const resultUrl = useRef<string | null>(null);
   const previewUrlRef = useRef<string | null>(null);
   const subscriptions = useRef<Array<() => void>>([]);
-  const cancelled = useRef(false);
+  /** Changes whenever the current run ends early or a new one starts, so late results from an old run are ignored. */
+  const currentRun = useRef(0);
 
   const releaseResult = useCallback(() => {
     if (resultUrl.current) {
       releaseBlobUrl(resultUrl.current);
       resultUrl.current = null;
     }
+    void releaseStorage.current?.();
+    releaseStorage.current = null;
   }, []);
 
   const releasePreview = useCallback(() => {
@@ -95,7 +128,7 @@ export function useMediaJob(): MediaJob {
       releaseResult();
       releasePreview();
       unsubscribeAll();
-      cancelled.current = false;
+      currentRun.current += 1;
       setFile(next);
       setResult(null);
       setError(null);
@@ -105,6 +138,8 @@ export function useMediaJob(): MediaJob {
       setMeta(null);
       setStartedAt(null);
       setWasCancelled(false);
+      setStatus(null);
+      setOutputBytes(0);
       const url = URL.createObjectURL(next);
       previewUrlRef.current = url;
       setPreviewUrl(url);
@@ -118,7 +153,10 @@ export function useMediaJob(): MediaJob {
     releaseResult();
     releasePreview();
     unsubscribeAll();
-    cancelled.current = true;
+    currentRun.current += 1;
+    abort.current?.abort();
+    setStatus(null);
+    setOutputBytes(0);
     setFile(null);
     setMeta(null);
     setPhase("idle");
@@ -132,17 +170,26 @@ export function useMediaJob(): MediaJob {
 
   /** Shared by `run` and `runMulti`: progress, result, error and cleanup are the same whatever the command is. */
   const execute = useCallback(
-    async (outputName: string, work: (onTimings: (value: { engineLoadMs: number; processMs: number }) => void) => Promise<Blob>) => {
+    async (
+      outputName: string,
+      work: (onTimings: (value: { engineLoadMs: number; processMs: number }) => void) => Promise<Blob | CustomJobOutput>,
+      encoderProgress = true,
+    ) => {
       releaseResult();
       unsubscribeAll();
-      cancelled.current = false;
+      currentRun.current += 1;
+      const run = currentRun.current;
       setPhase("working");
       setProgress(0);
       setLogs([]);
       setResult(null);
       setError(null);
       setWasCancelled(false);
-      setStartedAt(performance.now());
+      setStatus(null);
+      setOutputBytes(0);
+      const started = performance.now();
+      setStartedAt(started);
+      const releaseScreen = holdScreenAwake();
       let timings = { engineLoadMs: 0, processMs: 0 };
 
       subscriptions.current.push(
@@ -153,38 +200,42 @@ export function useMediaJob(): MediaJob {
           setLogs((previous) => [...previous.slice(-6), message]);
         }),
       );
-      subscriptions.current.push(
-        onFFmpegProgress((value) => {
-          setProgress(value);
-        }),
-      );
+      if (encoderProgress) {
+        subscriptions.current.push(
+          onFFmpegProgress((value) => {
+            setProgress(value);
+          }),
+        );
+      }
 
       try {
-        const blob = await work((measured) => {
+        const finished = await work((measured) => {
           timings = measured;
         });
-        if (cancelled.current) return;
-        const url = URL.createObjectURL(blob);
+        const output = finished instanceof Blob ? { blob: finished } : finished;
+        if (run !== currentRun.current) {
+          await output.release?.();
+          return;
+        }
+        if (!timings.processMs) timings = { engineLoadMs: 0, processMs: performance.now() - started };
+        const url = URL.createObjectURL(output.blob);
         resultUrl.current = url;
-        setResult({ url, name: outputName, size: blob.size, ...timings });
+        releaseStorage.current = output.release ?? null;
+        setResult({ url, name: outputName, size: output.blob.size, note: output.note, ...timings });
+        setStatus(null);
         setProgress(1);
         setPhase("done");
       } catch (jobError) {
-        if (cancelled.current) return;
-        // The ffmpeg worker reports failures as strings, so handle both shapes.
-        const message =
-          jobError instanceof Error
-            ? jobError.message
-            : typeof jobError === "string" && jobError.trim()
-              ? jobError
-              : "The encoder failed. Try a smaller file or a different format.";
-        setError(message);
+        if (run !== currentRun.current) return;
+        setError(describeJobError(jobError));
+        setStatus(null);
         setPhase("error");
         // A failed job can leave the wasm worker in a bad state. Throw it away
         // so the next attempt starts from a clean instance.
         resetFFmpeg();
       } finally {
-        unsubscribeAll();
+        releaseScreen();
+        if (run === currentRun.current) unsubscribeAll();
       }
     },
     [releaseResult, unsubscribeAll],
@@ -206,14 +257,46 @@ export function useMediaJob(): MediaJob {
     [file, execute],
   );
 
+  const runCustom = useCallback(
+    async (outputName: string, work: (context: CustomJobContext) => Promise<CustomJobOutput>) => {
+      if (!file) return;
+      const controller = new AbortController();
+      abort.current = controller;
+      await execute(
+        outputName,
+        () =>
+          work({
+            signal: controller.signal,
+            setProgress: (value) => {
+              if (!controller.signal.aborted) setProgress(value);
+            },
+            setStatus: (text) => {
+              if (!controller.signal.aborted) setStatus(text);
+            },
+            setOutputBytes: (bytes) => {
+              if (!controller.signal.aborted) setOutputBytes(bytes);
+            },
+            log: (message) => {
+              if (!controller.signal.aborted) setLogs((previous) => [...previous.slice(-6), message]);
+            },
+          }),
+        false,
+      );
+    },
+    [file, execute],
+  );
+
   const cancel = useCallback(() => {
-    cancelled.current = true;
+    currentRun.current += 1;
+    abort.current?.abort();
     resetFFmpeg();
     unsubscribeAll();
     setPhase(file ? "ready" : "idle");
     setProgress(0);
     setError(null);
     setStartedAt(null);
+    setStatus(null);
+    setOutputBytes(0);
     setWasCancelled(true);
     setLogs((previous) => [...previous, "Job cancelled."]);
   }, [file, unsubscribeAll]);
@@ -229,10 +312,13 @@ export function useMediaJob(): MediaJob {
     previewUrl,
     startedAt,
     wasCancelled,
+    status,
+    outputBytes,
     selectFile,
     clear,
     run,
     runMulti,
+    runCustom,
     cancel,
   };
 }
