@@ -136,6 +136,8 @@ for (const tool of TOOLS) {
     if (tool.file) {
       await (await page.$('input[type="file"]')).uploadFile(tool.file);
       await waitState("ready", 60_000);
+      // Compress video checks the file first, so its settings and run button arrive shortly after "Ready".
+      await page.waitForSelector(".tool-input .button-primary", { timeout: 30_000 });
       await snap("ready");
       // Choosing a file swaps the picker for the file card and settings. That is the visitor's own
       // action, but the browser cannot tell (a file dialog is not "recent input"), so the unprompted
