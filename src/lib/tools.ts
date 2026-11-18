@@ -347,27 +347,28 @@ export const TOOLS: ToolDef[] = [
   {
     slug: "auto-captions",
     kind: "video",
-    name: "Auto captions",
-    short: "Get Hinglish, Hindi, or English captions, timed to every word.",
-    title: "Auto captions for video: Hinglish, Hindi, English, no upload",
+    name: "Add captions",
+    short: "Word-timed captions for your video, made on your device.",
+    title: "Add captions to video: free caption generator, no upload",
     description:
-      "Turn speech into word-timed Hinglish, Hindi, or English captions in your browser. Edit, preview, and export SRT, VTT, or a captioned MP4. No upload.",
+      "Add word-timed captions to a video in your browser. Edit every word, preview the highlight, and export SRT, VTT, or an MP4 with the captions burned in. English, Hindi, and Hinglish. No upload, no account.",
     intro:
-      "Drop a video and Cutmoor listens to it on your device, then writes captions with a time for every word. Fix any mistakes in the editor, watch the spoken word light up, and export SRT, VTT, or an MP4 with the captions burned in. A speech model downloads once, after you agree; your video, its sound, and the text never leave your device.",
+      "Drop a video and Cutmoor listens to it on your device, then writes captions with a time for every word, in English, Hindi, or Hinglish. Fix any mistake in the editor, watch each word light up as it is spoken, and export SRT, VTT, or an MP4 with the captions burned in for Reels, Shorts, and TikTok. A speech model downloads once, after you agree; your video, its sound, and the text never leave your device.",
     icon: "captions",
     accent: "rose",
     keywords: [
-      "auto captions",
-      "hinglish captions",
-      "hindi subtitles generator",
       "add captions to video",
+      "caption generator",
+      "subtitle generator",
       "video to srt",
+      "captions for reels and shorts",
       "caption generator without upload",
+      "hindi and hinglish captions",
     ],
     steps: [
       {
         name: "Choose the video",
-        text: "Drop an MP4, MOV, WebM, or MKV file, or an audio recording. Hinglish, Hindi, and English speech are all written in English letters, and there is nothing to set up: the tool reads whichever it hears.",
+        text: "Drop an MP4, MOV, WebM, or MKV file, or an audio recording. English, Hindi, and Hinglish speech are all written in English (Latin) letters, and there is nothing to set up: the tool reads whichever it hears.",
       },
       {
         name: "Choose a model",
@@ -408,7 +409,12 @@ export const TOOLS: ToolDef[] = [
           "We do not quote an accuracy percentage, because it depends on the recording. Machine captions can be wrong, especially with background noise, music, heavy accents, or several people talking at once. Draft is a quick first pass: it can miss words on fast, noisy or accented speech. High accuracy is the accurate one, and much better on fast, noisy, or children's speech. Songs, rap, and speech over loud music are the hardest case: where there is singing, music behind or under the voice gives more wrong words and some missing lines. Some singing, especially a chorus over dense music, may not be heard at all, and the tool leaves a gap rather than making words up; pasting the lyrics in the Lyrics or script box is the fix for a song. Words the model was unsure about are marked in the editor, but always read the captions through and fix them before you publish.",
       },
       {
-        question: "What is Hinglish mode?",
+        question: "Which languages does it support?",
+        answer:
+          "English, Hindi, and Hinglish (Hindi and English mixed in one sentence). The captions are written in English (Latin) letters. The speech models were trained for Hindi and Hinglish and also write English; other languages, such as Spanish or Arabic, are not supported yet, so the captions for them would be wrong.",
+      },
+      {
+        question: "What is Hinglish?",
         answer:
           "Hinglish is Hindi and English mixed in one sentence, written in English letters, the way many people type messages. Hindi and English speech are written in English letters too, and there is nothing to choose. Hinglish spelling varies; the tool makes common spellings consistent, but it cannot know names, places or brands. List them in the Names and special words box: the model is told to expect them, and a heard word that sounds like one is changed to your spelling.",
       },

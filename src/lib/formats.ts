@@ -115,7 +115,7 @@ export const TOOL_COMPAT: Record<string, ToolCompat> = {
     inputs: VIDEO_INPUTS,
     outputs: [
       { label: "MP4 (H.264 + AAC)", status: "supported" },
-      { label: "WebM (VP8 + Opus)", status: "supported", note: "Usually larger than MP4 at similar quality." },
+      { label: "WebM (VP8 + Vorbis)", status: "supported", note: "Usually larger than MP4 at similar quality." },
       { label: "WebM (VP9)", status: "unsupported", note: "The VP9 encoder crashes in this browser build, so Cutmoor uses VP8." },
       { label: "GIF", status: "supported", note: "640 px wide, 12 fps, no sound. Best under 6 seconds." },
       { label: "MP3", status: "supported", note: "Audio only, 192 kbps." },
@@ -124,7 +124,7 @@ export const TOOL_COMPAT: Record<string, ToolCompat> = {
     ],
     maxTested: "1-second, 320×180 clips (every output); WebM also with a 6-second, 1280×720 clip",
     resolutions: "MP4 and WebM keep the source resolution. GIF is scaled to 640 px wide.",
-    codecs: "MP4 is H.264 + AAC. WebM is VP8 + Opus. Audio exports re-encode the sound track.",
+    codecs: "MP4 is H.264 + AAC. WebM is VP8 + Vorbis. Audio exports re-encode the sound track.",
     audio: "Kept in MP4 and WebM. GIF has no audio. Audio exports need a video that has sound.",
     metadata: VIDEO_LIMITATIONS[3],
     limitations: [VIDEO_LIMITATIONS[0], VIDEO_LIMITATIONS[1], VIDEO_LIMITATIONS[2], "GIF is a poor format for long or detailed video; the file can be very large."],

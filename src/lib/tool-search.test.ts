@@ -59,6 +59,17 @@ describe("tool search", () => {
 
   const best = (query: string) => searchTools(TOOLS, query).map((tool) => tool.slug);
 
+  it.each(["add captions", "caption generator", "subtitle generator", "auto captions", "captions", "generate subtitles", "burn in captions"])(
+    '"%s" goes straight to the caption tool',
+    (query) => {
+      expect(best(query)[0]).toBe("auto-captions");
+    },
+  );
+
+  it("still sends subtitle-file jobs to the converter", () => {
+    expect(best("srt to vtt")[0]).toBe("captions");
+  });
+
   it("gives one tool for a phrase that names one job", () => {
     expect(best("remove sound")).toEqual(["mute-video"]);
     expect(best("how to remove audio from video")).toEqual(["mute-video"]);

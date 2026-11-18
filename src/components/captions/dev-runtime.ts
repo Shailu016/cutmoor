@@ -8,7 +8,8 @@
  *
  * Modes (comma separated after `?captions-test=`): `no-audio`, `no-speech`, `fail` (the model
  * fails half way), `download-fail`, `cached` (the model counts as already downloaded), `fast`
- * (no pauses), `no-burn` (no MP4 export in this build), `long` (pretends the file is 40 minutes long, to try a big transcript).
+ * (no pauses), `no-burn` (no MP4 export in this build), `long` (pretends the file is 40 minutes long, to try a big transcript),
+ * `english` / `hindi` / `hinglish` (write the sample words in that language, whatever the tool's setting is).
  */
 import {
   CaptionError,
@@ -157,7 +158,8 @@ export function createUiTestRuntimeFactory(mode: string): CaptionRuntimeFactory 
         }
 
         const durationMs = flags.has("long") ? 40 * 60_000 : Math.max(4000, Math.round((meta.duration || 10) * 1000));
-        const { words, uncovered } = makeSampleWords(durationMs, options.language);
+        const forced = (["english", "hindi", "hinglish"] as const).find((language) => flags.has(language));
+        const { words, uncovered } = makeSampleWords(durationMs, forced ?? options.language);
         const windows = Math.max(3, Math.ceil(durationMs / 30_000));
         for (let k = 1; k <= windows; k += 1) {
           if (flags.has("fail") && k === 2) throw new CaptionError("inference", "model failed");

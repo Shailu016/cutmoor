@@ -1,8 +1,11 @@
 import { Link } from "../components/Link";
-import { ArrowRight, Check, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Check, Lock, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { FormatSummary } from "../components/FormatSummary";
 import { DemoStage } from "../components/DemoStage";
+import { LiveDemo } from "../components/home/LiveDemo";
+import { ShowcaseCard } from "../components/home/ShowcaseCard";
+import { TrustRow } from "../components/home/TrustRow";
 import { Seo } from "../components/Seo";
 import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
@@ -29,7 +32,7 @@ const POPULAR_TASKS = [
   { label: "Social media image sizes", to: "/guides/social-media-image-sizes" },
   { label: "Trim a video online", to: "/guides/trim-video-online" },
   { label: "SRT to VTT", to: "/guides/convert-srt-to-vtt" },
-  { label: "Auto captions without uploading", to: "/guides/how-to-add-captions-to-a-video-without-uploading" },
+  { label: "Add captions without uploading", to: "/guides/how-to-add-captions-to-a-video-without-uploading" },
   { label: "Merge videos", to: "/tools/merge-videos" },
   { label: "GIF to MP4", to: "/tools/gif-to-mp4" },
   { label: "WebP to JPG", to: "/tools/webp-to-jpg" },
@@ -40,16 +43,9 @@ const POPULAR_TASKS = [
   { label: "Rotate a video", to: "/tools/rotate-video" },
 ];
 
-const TRUST_STATS = [
-  { value: "0", label: "bytes of media uploaded" },
-  { value: String(TOOLS.length), label: "free tools" },
-  { value: "No", label: "watermark or sign-up" },
-  { value: "100%", label: "runs in your browser" },
-];
-
 /** The home page shows the tools people reach for first; the full list is one click away on the tools page. */
-const HOME_VIDEO = ["compress", "resize", "trim", "convert", "merge-videos", "video-speed", "gif-to-mp4", "auto-captions"];
-const HOME_IMAGE = ["compress-image", "resize-image", "crop-image", "convert-image", "heic-to-jpg", "remove-photo-metadata", "blur-image", "watermark-image"];
+const HOME_VIDEO = ["compress", "auto-captions", "trim", "video-speed", "rotate-video", "resize"];
+const HOME_IMAGE = ["compress-image", "resize-image", "crop-image", "convert-image", "blur-image", "watermark-image"];
 
 const FEATURED_TOOLS = ["compress", "resize", "convert", "compress-image", "resize-image", "heic-to-jpg"];
 
@@ -126,14 +122,9 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="shell trust-band" aria-label="Cutmoor at a glance">
-        {TRUST_STATS.map((stat) => (
-          <div key={stat.label}>
-            <strong>{stat.value}</strong>
-            <span>{stat.label}</span>
-          </div>
-        ))}
-      </section>
+      <TrustRow />
+
+      <LiveDemo />
 
       <section className="section shell" id="tools">
         <div className="section-head">
@@ -154,18 +145,9 @@ export function HomePage() {
               <h3>Cut, shrink, edit, and convert footage</h3>
             </div>
           </div>
-          <div className="tool-grid">
-            {homeTools(HOME_VIDEO).map((tool) => (
-              <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
-                <span className={`tool-card-icon icon-${tool.accent}`}>
-                  <ToolIcon icon={tool.icon} />
-                </span>
-                <strong>{tool.name}</strong>
-                <p>{tool.short}</p>
-                <span className="tool-card-link">
-                  Open tool <ArrowRight size={14} />
-                </span>
-              </Link>
+          <div className="tool-grid tool-grid-showcase">
+            {homeTools(HOME_VIDEO).map((tool, index) => (
+              <ShowcaseCard key={tool.slug} tool={tool} index={index} />
             ))}
             <Link className="tool-card tool-card-cta" to="/tools">
               <span className="tool-card-icon">
@@ -187,18 +169,9 @@ export function HomePage() {
               <h3>Resize, crop, convert, and protect pictures</h3>
             </div>
           </div>
-          <div className="tool-grid">
-            {homeTools(HOME_IMAGE).map((tool) => (
-              <Link key={tool.slug} className="tool-card" to={`/tools/${tool.slug}`}>
-                <span className={`tool-card-icon icon-${tool.accent}`}>
-                  <ToolIcon icon={tool.icon} />
-                </span>
-                <strong>{tool.name}</strong>
-                <p>{tool.short}</p>
-                <span className="tool-card-link">
-                  Open tool <ArrowRight size={14} />
-                </span>
-              </Link>
+          <div className="tool-grid tool-grid-showcase">
+            {homeTools(HOME_IMAGE).map((tool, index) => (
+              <ShowcaseCard key={tool.slug} tool={tool} index={index} />
             ))}
           </div>
         </div>
@@ -316,16 +289,25 @@ export function HomePage() {
             <span>01</span>
             <strong>Drop your file</strong>
             <p>The browser reads the duration, format, and dimensions locally. Nothing is sent anywhere.</p>
+            <span className="local-badge">
+              <Lock size={12} aria-hidden="true" /> Nothing leaves your device
+            </span>
           </li>
           <li>
             <span>02</span>
             <strong>Pick the outcome</strong>
             <p>Target size, aspect ratio, format, or timestamp. The presets match the platforms people actually use.</p>
+            <span className="local-badge">
+              <Lock size={12} aria-hidden="true" /> Nothing leaves your device
+            </span>
           </li>
           <li>
             <span>03</span>
             <strong>Take the export</strong>
             <p>Download a clean file. No watermark, no account, no “upgrade to remove the limit” screen.</p>
+            <span className="local-badge">
+              <Lock size={12} aria-hidden="true" /> Nothing leaves your device
+            </span>
           </li>
         </ol>
       </section>

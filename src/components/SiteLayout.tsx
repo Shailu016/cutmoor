@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Link, NavLink } from "./Link";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { isAdFreePath } from "../lib/ad-free";
+import { takeTransitionFlag } from "../lib/motion";
 import { AdSlot } from "./AdSlot";
 import { ToolIcon } from "./ToolIcon";
 import { TOOL_CATEGORIES, toolsInCategory, VIDEO_TOOLS } from "../lib/tools";
@@ -19,7 +20,7 @@ const FOOTER = [
       { to: "/tools/merge-videos", label: "Merge videos" },
       { to: "/tools/gif-to-mp4", label: "GIF to MP4" },
       { to: "/tools/mute-video", label: "Mute video" },
-      { to: "/tools/auto-captions", label: "Auto captions" },
+      { to: "/tools/auto-captions", label: "Add captions" },
     ],
   },
   {
@@ -85,7 +86,9 @@ function Logo() {
 function ToolLink({ tool }: { tool: (typeof VIDEO_TOOLS)[number] }) {
   return (
     <Link className="nav-dropdown-link" to={`/tools/${tool.slug}`}>
-      <ToolIcon icon={tool.icon} size={16} />
+      <span className="nav-ico" aria-hidden="true">
+        <ToolIcon icon={tool.icon} size={14} />
+      </span>
       <span>{tool.name}</span>
     </Link>
   );
@@ -110,6 +113,8 @@ export function SiteLayout() {
       firstRender.current = false;
       return;
     }
+    // A link click already animated this change inside a view transition; do not animate it twice.
+    if (takeTransitionFlag()) return;
     document.documentElement.classList.add("page-anim");
     const timer = window.setTimeout(() => document.documentElement.classList.remove("page-anim"), 320);
     return () => window.clearTimeout(timer);
@@ -204,8 +209,8 @@ export function SiteLayout() {
               </button>
               {toolsOpen && (
                 <div className="nav-dropdown-panel" id="tools-menu" ref={toolsPanelRef}>
-                  {TOOL_CATEGORIES.map((category) => (
-                    <div key={category.id}>
+                  {TOOL_CATEGORIES.map((category, index) => (
+                    <div key={category.id} data-tone={index}>
                       <div className="nav-dropdown-title">
                         {category.kind === "video" ? "Video" : "Images"} · {category.label}
                       </div>

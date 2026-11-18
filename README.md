@@ -63,6 +63,19 @@ npm run preview  # serve the built dist/ with pretty URLs
   whenever the demo screen, the samples, or a tool's settings change, and raise
   `MEDIA_VERSION` in `src/lib/samples.ts`: these files are cached for a week under
   fixed names, so the version in the URL is what makes visitors fetch the new ones.
+- The **home-page tool cards and the "See it work" loop** (`src/components/home/`) show real output, not mock-ups.
+  Each card plays its tool's change: a crop frame closes in, a sideways clip turns upright, trim brackets close, a
+  file-size bar shrinks. The sources are our own scenes, drawn in code (`scripts/card-scenes.js`, rendered by
+  `node scripts/make-card-sources.mjs` into the git-ignored `.team/card-sources/`). `node scripts/make-card-art.mjs`
+  then drives the REAL tool pages on a production build, presses their own buttons, and saves each tool's actual output
+  as `public/cards/*.webp` plus every number a card shows in `src/lib/card-art.generated.ts` (never edit that by hand).
+  The **Auto captions** card is made by `node scripts/make-captions-card.mjs` on a development server: it drives the
+  tool's real screen with the tool's own development stand-in engine (`?captions-test`, made-up sample words, because
+  the speech model is not published yet), takes eight frames of the real live preview (real caption overlay, real word
+  highlight) and the card says "Sample captions". Replace it with a real run once the model is published.
+  Re-run both and raise `MEDIA_VERSION` when a tool's behaviour or the scenes change; `src/lib/card-art.test.ts` checks
+  that the data and the picture files agree. The pictures are built only when a card is near the screen
+  (`useNearScreen`), and the animations run only while it is on screen, so they stay out of the first load.
 - **Layout rule:** the demo may never move the page. The screen is always 16:9,
   its overlays are sized from its own width, and the control area has a fixed
   height. `scripts/verify/layout-shift.mjs` steps through every tab and state and

@@ -1,0 +1,720 @@
+/* ============================================================
+   CUTMOOR MOTION — one timing system for every click, hover, and page change.
+   Loaded last, so it sets the final word on transitions.
+
+   Principles (the ones Linear, Vercel, Stripe and Apple share):
+   - Motion explains: a thing that appears comes from somewhere, a thing that finishes says so.
+   - Fast in, faster out: 160-260 ms for UI, never more than 450 ms. Nothing makes you wait.
+   - One curve family: an expo ease-out for movement, a gentle spring only for small "pops".
+   - Pressing is physical: everything you can click gives way a little under the pointer.
+   - Only transform and opacity move, so nothing reflows and nothing jumps (no layout shift).
+   - Reduced motion turns all of it off (see the rule at the end of styles.css and the guards below).
+   ============================================================ */
+
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-press: 90ms;
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+
+  accent-color: var(--accent);
+}
+
+::selection {
+  background: rgba(45, 75, 240, 0.18);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ---------- Focus: the ring grows in instead of snapping on ---------- */
+:focus-visible {
+  outline-offset: 3px;
+  transition: outline-offset var(--dur-fast) var(--ease-out);
+}
+
+/* ---------- Buttons: lift on hover, give way on press ---------- */
+.button,
+.header-cta,
+.icon-button,
+.chip,
+.segment,
+.preset,
+.popular-list a,
+.nav-link,
+.menu-button {
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.button:active:not(:disabled),
+.header-cta:active,
+.icon-button:active:not(:disabled),
+.chip:active,
+.segment:active:not(:disabled),
+.preset:active,
+.popular-list a:active,
+.menu-button:active {
+  transform: scale(0.97);
+  transition-duration: var(--dur-press);
+}
+
+/* The primary button carries a soft sheen that crosses it on hover. */
+.button-primary,
+.header-cta {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.button-primary::after,
+.header-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.22) 50%, transparent 70%);
+  transform: translateX(-110%);
+  pointer-events: none;
+}
+
+.button-primary:hover::after,
+.header-cta:hover::after {
+  transform: translateX(110%);
+  transition: transform 700ms var(--ease-out);
+}
+
+.header-cta {
+  position: relative;
+}
+
+.header-cta:hover {
+  transform: translateY(-1px);
+}
+
+/* Arrows inside links and buttons point the way: they slide on hover. */
+.button svg:last-child:not(:first-child),
+.header-cta svg,
+.tool-card-link svg,
+.popular-list a svg,
+.nav-dropdown-all svg,
+.guide-card svg:last-child {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.button:hover svg:last-child:not(:first-child),
+.tool-card:hover .tool-card-link svg,
+.popular-list a:hover svg,
+.guide-card:hover svg:last-child {
+  transform: translateX(3px);
+}
+
+.header-cta:hover svg,
+.nav-dropdown-all:hover svg {
+  transform: translate(2px, -2px);
+}
+
+/* ---------- Cards: lift, deepen, and a light that follows the pointer ---------- */
+.tool-card,
+.guide-card,
+.tool-card-cta {
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+
+.tool-card::before,
+.guide-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 0%), rgba(45, 75, 240, 0.07), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+  pointer-events: none;
+}
+
+.tool-card:hover::before,
+.guide-card:hover::before {
+  opacity: 1;
+}
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(45, 75, 240, 0.28);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 18px 40px -12px rgba(16, 24, 40, 0.16);
+}
+
+.tool-card:active,
+.guide-card:active {
+  transform: translateY(-1px) scale(0.99);
+  transition-duration: var(--dur-press);
+}
+
+.tool-card-icon {
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+
+.tool-card:hover .tool-card-icon {
+  transform: translateY(-2px) rotate(-4deg) scale(1.06);
+}
+
+/* ---------- Header: a hairline and a shadow appear once the page scrolls ---------- */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .site-header {
+      animation: header-lift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 80px;
+    }
+  }
+}
+
+@keyframes header-lift {
+  from {
+    box-shadow: 0 0 0 rgba(16, 24, 40, 0);
+  }
+  to {
+    box-shadow: 0 1px 0 var(--line), 0 8px 24px -16px rgba(16, 24, 40, 0.25);
+  }
+}
+
+/* The nav underline grows from the middle instead of appearing. */
+.nav-link {
+  position: relative;
+}
+
+/* ---------- Tools menu and phone menu: drop in, items follow in a quick wave ---------- */
+.nav-dropdown-panel {
+  animation: menu-in var(--dur-base) var(--ease-out) backwards;
+  transform-origin: 50% 0;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+}
+
+.nav-dropdown-panel > div {
+  animation: fade-up var(--dur-base) var(--ease-out) backwards;
+}
+
+.nav-dropdown-panel > div:nth-child(2) { animation-delay: 20ms; }
+.nav-dropdown-panel > div:nth-child(3) { animation-delay: 40ms; }
+.nav-dropdown-panel > div:nth-child(4) { animation-delay: 60ms; }
+.nav-dropdown-panel > div:nth-child(5) { animation-delay: 80ms; }
+.nav-dropdown-panel > div:nth-child(6) { animation-delay: 100ms; }
+.nav-dropdown-panel > div:nth-child(7) { animation-delay: 120ms; }
+
+.nav-link svg {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.nav-link[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown-link {
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.nav-dropdown-link:hover {
+  transform: translateX(2px);
+}
+
+.mobile-nav {
+  animation: sheet-in var(--dur-base) var(--ease-out) backwards;
+  transform-origin: 50% 0;
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.mobile-nav-group {
+  animation: fade-up var(--dur-base) var(--ease-out) backwards;
+}
+
+.mobile-nav-group:nth-child(2) { animation-delay: 25ms; }
+.mobile-nav-group:nth-child(3) { animation-delay: 50ms; }
+.mobile-nav-group:nth-child(4) { animation-delay: 75ms; }
+.mobile-nav-group:nth-child(5) { animation-delay: 100ms; }
+.mobile-nav-group:nth-child(n + 6) { animation-delay: 125ms; }
+
+.menu-button svg {
+  animation: icon-turn var(--dur-base) var(--ease-out);
+}
+
+@keyframes icon-turn {
+  from {
+    opacity: 0;
+    transform: rotate(-90deg) scale(0.7);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Page changes: the header stays put, the page cross-fades and settles ---------- */
+@view-transition {
+  navigation: auto;
+}
+
+.site-header {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--dur-slow);
+}
+
+::view-transition-old(root) {
+  animation: vt-out 180ms var(--ease-in-out) both;
+}
+
+::view-transition-new(root) {
+  animation: vt-in 380ms var(--ease-out) backwards;
+}
+
+::view-transition-group(site-header) {
+  animation: none;
+}
+
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ---------- Drop zone: it answers when a file is dragged over it ---------- */
+.dropzone {
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+
+.dropzone:hover {
+  border-color: var(--accent);
+  background-color: rgba(45, 75, 240, 0.025);
+}
+
+.dropzone:active {
+  transform: scale(0.995);
+}
+
+.dropzone.dragging {
+  border-style: solid;
+  border-color: var(--accent);
+  background-color: rgba(45, 75, 240, 0.06);
+  box-shadow: 0 0 0 4px rgba(45, 75, 240, 0.12), 0 20px 48px -20px rgba(45, 75, 240, 0.45);
+  transform: scale(1.01);
+}
+
+.dropzone-icon {
+  transition: transform var(--dur-base) var(--ease-spring), box-shadow var(--dur-base) var(--ease-out);
+}
+
+.dropzone:hover .dropzone-icon {
+  transform: translateY(-3px);
+}
+
+.dropzone.dragging .dropzone-icon {
+  transform: translateY(-6px) scale(1.08);
+  animation: drop-bob 900ms var(--ease-in-out) infinite alternate;
+}
+
+.dropzone-icon svg {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.dropzone:hover .dropzone-icon svg {
+  transform: translateY(-1px);
+}
+
+@keyframes drop-bob {
+  from {
+    transform: translateY(-4px) scale(1.08);
+  }
+  to {
+    transform: translateY(-9px) scale(1.08);
+  }
+}
+
+/* A file that lands slides into place. */
+.file-card {
+  animation: land var(--dur-slow) var(--ease-out) backwards;
+}
+
+.file-card .file-icon {
+  animation: pop var(--dur-slow) var(--ease-spring) 60ms backwards;
+}
+
+@keyframes land {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Choices: the picked option settles in with a small pop ---------- */
+.segment.active,
+.chip.active,
+.preset.active {
+  animation: picked var(--dur-base) var(--ease-spring);
+}
+
+@keyframes picked {
+  from {
+    transform: scale(0.96);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Range sliders: a thumb that grows when held. */
+input[type="range"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.18);
+}
+
+/* ---------- Output panel: every state change is visible, nothing jumps ---------- */
+.job-state {
+  transition:
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+
+.job-state-working {
+  position: relative;
+  padding-left: 20px;
+}
+
+.job-state-working::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: live-dot 1.2s var(--ease-in-out) infinite;
+}
+
+@keyframes live-dot {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.job-state-done,
+.job-state-error {
+  animation: pop var(--dur-slow) var(--ease-spring) backwards;
+}
+
+/* Each block of the panel body rises as it arrives. Movement only, no fade: the text is readable (and passes
+   contrast checks) from the first frame. */
+.job-body > * {
+  animation: rise var(--dur-base) var(--ease-out) backwards;
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(6px);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.job-body > *:nth-child(2) { animation-delay: 40ms; }
+.job-body > *:nth-child(3) { animation-delay: 80ms; }
+.job-body > *:nth-child(4) { animation-delay: 120ms; }
+.job-body > *:nth-child(n + 5) { animation-delay: 160ms; }
+
+/* The progress bar: a moving sheen says "alive", the width eases between updates. */
+.progress-fill,
+.demo-progress > span {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(90deg, var(--accent), #6b83ff);
+  transition: width 320ms var(--ease-out);
+}
+
+.progress-fill::after,
+.demo-progress > span::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  transform: translateX(-100%);
+  animation: sheen 1.6s var(--ease-in-out) infinite;
+}
+
+@keyframes sheen {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.progress-fill.indeterminate,
+.demo-progress > span.indeterminate {
+  width: 40% !important;
+  animation: indeterminate 1.3s var(--ease-in-out) infinite;
+}
+
+@keyframes indeterminate {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/* Done: the tick draws itself, the download button arrives with a glow. */
+.result-badge {
+  animation: pop var(--dur-slow) var(--ease-spring) backwards;
+}
+
+.result-badge svg {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: draw 480ms var(--ease-out) 160ms forwards;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.job-panel a.button-primary[download],
+.image-panel a.button-primary[download] {
+  animation: arrive-glow 1.4s var(--ease-out) 200ms backwards;
+}
+
+@keyframes arrive-glow {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+    box-shadow: 0 0 0 0 rgba(45, 75, 240, 0);
+  }
+  25% {
+    opacity: 1;
+    transform: none;
+    box-shadow: 0 0 0 0 rgba(107, 131, 255, 0.55);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    box-shadow: 0 0 0 14px rgba(107, 131, 255, 0);
+  }
+}
+
+/* Failed: one short shake, then still. */
+.result-badge-error {
+  animation: shake 420ms var(--ease-out) backwards;
+}
+
+.result-badge-error svg {
+  stroke-dasharray: none;
+  stroke-dashoffset: 0;
+  animation: none;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-2px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+/* Before / after switch and the screen media cross-fade. */
+.demo-switch button {
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-press) var(--ease-out);
+}
+
+.demo-switch button:active {
+  transform: scale(0.95);
+}
+
+.job-screen video,
+.job-screen img,
+.job-screen audio {
+  animation: screen-in var(--dur-slow) var(--ease-out) backwards;
+}
+
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Open/close of FAQ answers and logs. */
+details > summary {
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+details[open] > *:not(summary) {
+  animation: fade-up var(--dur-base) var(--ease-out) backwards;
+}
+
+/* ---------- Scroll: sections rise into view as you reach them (no script) ---------- */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section .tool-card,
+    .section .guide-card,
+    .section-head,
+    .popular-list li,
+    .all-tools-grid > *,
+    .steps-section li,
+    .faq-section details {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+  }
+}
+
+/* Uses `translate`, not `transform`, so it stacks with the hover lift instead of overriding it. */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+/* ---------- Thin, quiet scrollbars inside panels ---------- */
+.job-log pre,
+.nav-dropdown-panel {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+@media print {
+  .section .tool-card,
+  .section .guide-card,
+  .section-head,
+  .popular-list li,
+  .all-tools-grid > *,
+  .steps-section li,
+  .faq-section details {
+    animation: none !important;
+    opacity: 1 !important;
+    translate: none !important;
+  }
+}
