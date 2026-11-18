@@ -12,5 +12,5 @@ export const meta: GuideMeta = {
   published: "2026-11-11",
   modified: "2026-11-11",
   readingMinutes: 8,
-  tools: ["resize-image", "compress-image"],
+  tools: ["resize-image", "compress-image", "crop-image"],
 };

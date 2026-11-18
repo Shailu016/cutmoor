@@ -205,7 +205,7 @@ export const IMAGE_EDIT_TOOLS: ToolDef[] = [
         answer: "Often yes. WebP is more efficient, so the same picture usually takes more bytes as a JPG. That is the price of compatibility.",
       },
     ],
-    related: ["convert-image", "png-to-jpg", "compress-image"],
+    related: ["convert-image", "png-to-jpg", "avif-to-jpg"],
   },
   {
     slug: "png-to-jpg",
@@ -271,7 +271,7 @@ export const IMAGE_EDIT_TOOLS: ToolDef[] = [
         answer: "No. A JPG has no transparency, so the PNG has none either. Removing a background needs a different tool.",
       },
     ],
-    related: ["convert-image", "png-to-jpg", "resize-image"],
+    related: ["convert-image", "png-to-jpg", "svg-to-png"],
   },
   {
     slug: "svg-to-png",

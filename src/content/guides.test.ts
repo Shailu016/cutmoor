@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { TOOLS } from "../lib/tools";
-import { relatedGuides, toolsForGuide } from "./guide-helpers";
+import { guidesForTool, relatedGuides, toolsForGuide } from "./guide-helpers";
 import { GUIDES } from "./guides";
 import { GUIDES_FULL, GUIDE_BODIES } from "./guides.server";
 
@@ -77,6 +77,29 @@ describe("relatedGuides", () => {
   it("respects the requested limit", () => {
     const guide = GUIDES[0];
     expect(relatedGuides(guide, GUIDES, TOOLS, 2).length).toBe(2);
+  });
+});
+
+describe("internal links", () => {
+  it("shows a tool the guides mainly about it first", () => {
+    const shown = guidesForTool("resize", GUIDES);
+    expect(shown.length).toBeLessThanOrEqual(4);
+    expect(shown.map((guide) => guide.slug)).toContain("best-video-size-for-reels-shorts-tiktok");
+    const ranks = shown.map((guide) => guide.tools.indexOf("resize"));
+    expect(ranks).toEqual([...ranks].sort((a, b) => a - b));
+  });
+
+  it("links every guide from a tool page or another guide, not only from the lists", () => {
+    const linked = new Set([
+      ...TOOLS.flatMap((tool) => guidesForTool(tool.slug, GUIDES)),
+      ...GUIDES.flatMap((guide) => relatedGuides(guide, GUIDES, TOOLS, 3)),
+    ].map((guide) => guide.slug));
+    expect(GUIDES.filter((guide) => !linked.has(guide.slug)).map((guide) => guide.slug)).toEqual([]);
+  });
+
+  it("links every tool from another tool's page", () => {
+    const linked = new Set(TOOLS.flatMap((tool) => tool.related));
+    expect(TOOLS.filter((tool) => !linked.has(tool.slug)).map((tool) => tool.slug)).toEqual([]);
   });
 });
 

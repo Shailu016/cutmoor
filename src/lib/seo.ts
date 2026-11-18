@@ -72,6 +72,7 @@ const GUIDE_SEO_TITLES: Record<string, string> = {
   "heic-to-jpg-guide": "HEIC to JPG: why iPhone photos need converting",
   "convert-video-to-gif": "Convert video to GIF: small files that still look good",
   "extract-frame-from-video": "Save a frame from a video as a high-quality image",
+  "remove-location-data-from-photos": "Remove location and EXIF data from photos before sharing",
 };
 
 function guideSeoTitle(guide: { slug: string; title: string }): string {
