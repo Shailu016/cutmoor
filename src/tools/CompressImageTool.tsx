@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Gauge, Sparkles } from "lucide-react";
 import { FileDrop } from "../components/FileDrop";
 import { ImageJobPanel } from "../components/ImageJobPanel";
+import { CustomSizeChip } from "../components/NumberFields";
 import { useImageEncoderSupport } from "../hooks/useImageEncoderSupport";
 import { useImageJob } from "../hooks/useImageJob";
 import { baseName } from "../lib/format";
+import { parseNumberInput } from "../lib/number-input";
 import {
   clampDimensions,
   compressToTarget,
@@ -22,6 +24,7 @@ type FormatChoice = "auto" | ImageFormat;
 type MaxEdge = "original" | "2560" | "1920" | "1280" | "800";
 
 const TARGETS = [100, 200, 500, 1024, 2048, 5120];
+const MIN_CUSTOM_KB = 10;
 const FORMATS: { value: FormatChoice; label: string; note: string }[] = [
   { value: "auto", label: "Auto", note: "WebP when the browser can encode it, otherwise JPG." },
   { value: "jpeg", label: "JPG", note: "The safest photo format. No transparency." },
@@ -33,7 +36,8 @@ export function CompressImageTool() {
   const job = useImageJob();
   const support = useImageEncoderSupport();
   const [mode, setMode] = useState<Mode>("size");
-  const [targetKb, setTargetKb] = useState(200);
+  const [presetKb, setPresetKb] = useState(200);
+  const [custom, setCustom] = useState("");
   const [quality, setQuality] = useState(80);
   const [format, setFormat] = useState<FormatChoice>("auto");
   const [maxEdge, setMaxEdge] = useState<MaxEdge>("original");
@@ -46,7 +50,10 @@ export function CompressImageTool() {
     if (format === "webp" && !support.webp) setFormat("auto");
   }, [format, support.webp]);
 
-  const targetBytes = Math.max(10, targetKb) * 1024;
+  const customKb = parseNumberInput(custom, MIN_CUSTOM_KB);
+  const customInvalid = mode === "size" && custom !== "" && customKb === null;
+  const targetKb = customKb ?? presetKb;
+  const targetBytes = Math.round(targetKb * 1024);
 
   const run = () => {
     if (!job.file || !job.meta) return;
@@ -187,32 +194,27 @@ export function CompressImageTool() {
                     <button
                       key={size}
                       type="button"
-                      className={targetKb === size ? "chip active" : "chip"}
-                      aria-pressed={targetKb === size}
-                      onClick={() => setTargetKb(size)}
+                      className={custom === "" && presetKb === size ? "chip active" : "chip"}
+                      aria-pressed={custom === "" && presetKb === size}
+                      onClick={() => {
+                        setPresetKb(size);
+                        setCustom("");
+                      }}
                     >
                       {formatTargetSize(size * 1024)}
                     </button>
                   ))}
-                  <label className="chip chip-input">
-                    <input
-                      type="number"
-                      min={10}
-                      max={51200}
-                      value={targetKb}
-                      onChange={(event) =>
-                        setTargetKb(Math.max(10, Math.min(51_200, Number(event.target.value) || 10)))
-                      }
-                      aria-label="Custom target size in kilobytes"
-                    />
-                    <span>KB</span>
-                  </label>
+                  <CustomSizeChip value={custom} unit="KB" label="Custom target size in kilobytes" onChange={setCustom} />
                 </div>
-                <p className="settings-note">
-                  Cutmoor encodes the image at several quality levels and keeps the highest quality that fits under{" "}
-                  <strong>{formatTargetSize(targetKb * 1024)}</strong>. If even the lowest quality is too large, it reduces the
-                  dimensions in steps and tells you exactly what it did.
-                </p>
+                {customInvalid ? (
+                  <p className="settings-note">Enter a size of at least {MIN_CUSTOM_KB} KB.</p>
+                ) : (
+                  <p className="settings-note">
+                    Cutmoor encodes the image at several quality levels and keeps the highest quality that fits under{" "}
+                    <strong>{formatTargetSize(targetBytes)}</strong>. If even the lowest quality is too large, it reduces the
+                    dimensions in steps and tells you exactly what it did.
+                  </p>
+                )}
               </>
             ) : (
               <>
@@ -292,7 +294,7 @@ export function CompressImageTool() {
               className="button button-primary button-block button-lg"
               type="button"
               onClick={run}
-              disabled={busy || unsupported}
+              disabled={busy || unsupported || customInvalid}
             >
               {busy ? "Compressing…" : "Compress image"}
             </button>
