@@ -188,7 +188,8 @@ export function CompressTool() {
 
         {file &&
           (!meta || codec === undefined ? (
-            <div className="settings-card">
+            // Holds about the height of the options, so the page barely moves when they arrive.
+            <div className="settings-card" style={{ minHeight: 460 }}>
               <p className="settings-note" role="status">
                 Checking which options work for this video…
               </p>
