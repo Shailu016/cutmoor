@@ -37,6 +37,10 @@ describe("chooseCompressEngine", () => {
     expect(chooseCompressEngine(video({ audioChannels: 6, canDecodeAudio: false }))).toEqual({ engine: "native", audio: "ffmpeg" });
   });
 
+  it("converts sound in the browser even when it has no AAC encoder, because one is added", () => {
+    expect(chooseCompressEngine(video({ audioCodec: "opus", canEncodeAudio: false }))).toEqual({ engine: "native", audio: "native" });
+  });
+
   it("uses the browser for AV1 when it can decode it", () => {
     expect(chooseCompressEngine(video({ videoCodec: "av1" })).engine).toBe("native");
   });

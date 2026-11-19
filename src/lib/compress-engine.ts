@@ -25,7 +25,8 @@ export function chooseCompressEngine(video: VideoInspection | null): CompressRou
     if (video.audioCodec === "aac" && video.audioChannels <= 2 && (video.audioKbps === undefined || video.audioKbps <= COPY_AAC_UP_TO_KBPS || !video.canEncodeAudio)) {
       return { engine: "native", audio: "copy" };
     }
-    return { engine: "native", audio: video.canDecodeAudio && video.canEncodeAudio ? "native" : "ffmpeg" };
+    // A browser with no AAC encoder gets one added when the sound is converted, so only decoding decides here.
+    return { engine: "native", audio: video.canDecodeAudio ? "native" : "ffmpeg" };
   }
 
   // The FFmpeg build has no AV1 decoder, so the browser is the only way to read these files.

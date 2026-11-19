@@ -153,8 +153,17 @@ async function canCopyAudio(job: CompressJob): Promise<boolean> {
   }
 }
 
+/** Some browsers (Firefox, many phones) cannot encode AAC. Their encoder is then added from a small package, loaded only now. */
+async function ensureAacEncoder(): Promise<void> {
+  const { canEncodeAudio } = await import("mediabunny");
+  if (await canEncodeAudio("aac").catch(() => false)) return;
+  const { registerAacEncoder } = await import("@mediabunny/aac-encoder");
+  registerAacEncoder();
+}
+
 /** Converts the sound on its own first, which also mixes surround down to stereo. */
 async function convertAudio(job: CompressJob, onProgress: (value: number) => void): Promise<Blob> {
+  await ensureAacEncoder();
   const { ALL_FORMATS, BlobSource, Conversion, Input, Mp4OutputFormat, Output, StreamTarget } = await import("mediabunny");
   const input = new Input({ formats: ALL_FORMATS, source: new BlobSource(job.file) });
   const sink = memorySink(() => undefined);
