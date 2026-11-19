@@ -21,6 +21,7 @@ const BUDGET = {
   articleChunkGz: 15 * KB, // one guide article, loaded only on its own page
   cssGz: 26 * KB, // all CSS together (24 until the 2026-11 motion + home showcase work, which added about 2 KB)
   lazyHeicGz: 850 * KB,
+  lazyAacGz: 300 * KB, // the AAC sound encoder, fetched only when a browser has none and sound must be converted
   captionsChunkGz: 250 * KB, // any one captions-* chunk
   captionsTotalGz: 500 * KB, // all captions-* chunks together
   toolsChunkGz: 30 * KB, // any one tools-* chunk (an editing tool, loaded only on its own page)
@@ -43,7 +44,7 @@ let css = 0;
 for (const name of files) {
   const bytes = await readFile(join(assets, name));
   const gz = gzipSync(bytes).length;
-  const lazy = name.startsWith("heic-to");
+  const lazy = name.startsWith("heic-to") || name.startsWith("aac-encoder");
   const captions = name.startsWith("captions-") && name.endsWith(".js");
   const editing = name.startsWith("tools-") && name.endsWith(".js");
   // Guide articles (guides/<slug>/body.ts) are separate chunks named body-<hash>.js.
@@ -64,7 +65,8 @@ for (const name of files) {
     if (gz > BUDGET.captionsChunkGz) failures.push(`${name}: ${(gz / KB).toFixed(1)} KB gzip is over the ${BUDGET.captionsChunkGz / KB} KB per-captions-chunk limit`);
   }
   if (kind === "article" && gz > BUDGET.articleChunkGz) failures.push(`${name}: ${(gz / KB).toFixed(1)} KB gzip is over the ${BUDGET.articleChunkGz / KB} KB per-article limit`);
-  if (lazy && gz > BUDGET.lazyHeicGz) failures.push(`${name}: ${(gz / KB).toFixed(1)} KB gzip is over the ${BUDGET.lazyHeicGz / KB} KB lazy-chunk limit`);
+  const lazyLimit = name.startsWith("aac-encoder") ? BUDGET.lazyAacGz : BUDGET.lazyHeicGz;
+  if (lazy && gz > lazyLimit) failures.push(`${name}: ${(gz / KB).toFixed(1)} KB gzip is over the ${lazyLimit / KB} KB lazy-chunk limit`);
 }
 if (toolsGz > BUDGET.toolsTotalGz) failures.push(`Editing tools JS is ${(toolsGz / KB).toFixed(1)} KB gzip, over the ${BUDGET.toolsTotalGz / KB} KB budget`);
 if (firstLoadJs > BUDGET.firstLoadJsGz) failures.push(`First-load JS is ${(firstLoadJs / KB).toFixed(1)} KB gzip, over the ${BUDGET.firstLoadJsGz / KB} KB budget`);

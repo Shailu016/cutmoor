@@ -116,7 +116,7 @@ export default defineConfig(async ({ command, mode }) => {
     },
   },
   // The video worker loads only for a compression job, so the size budget counts it with the other on-demand media code.
-  worker: { format: "es" as const, rollupOptions: { output: { entryFileNames: "assets/captions-[name]-[hash].js", chunkFileNames: "assets/captions-[name]-[hash].js" } } },
+  worker: { format: "es" as const, rollupOptions: { output: { entryFileNames: "assets/captions-[name]-[hash].js", chunkFileNames: (chunk: { moduleIds: string[] }) => (chunk.moduleIds.some((id: string) => id.includes("@mediabunny/aac-encoder")) ? "assets/aac-encoder-[hash].js" : "assets/captions-[name]-[hash].js") } } },
   plugins: [react(), prettyUrlPreview(), dropOnnxRuntimeWasm()],
   server: {
     port: 5173,
