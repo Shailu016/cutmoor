@@ -23,11 +23,22 @@ const video = (changes: Partial<VideoInspection> = {}): VideoInspection => ({
 
 describe("chooseCompressEngine", () => {
   it("uses the browser when it can do everything", () => {
-    expect(chooseCompressEngine(video())).toEqual({ engine: "native", audio: "native" });
+    expect(chooseCompressEngine(video({ audioCodec: "opus" }))).toEqual({ engine: "native", audio: "native" });
+  });
+
+  it("copies stereo AAC sound as it is, so a phone without a sound encoder still keeps it", () => {
+    expect(chooseCompressEngine(video())).toEqual({ engine: "native", audio: "copy" });
+    expect(chooseCompressEngine(video({ audioKbps: 160, canDecodeAudio: false, canEncodeAudio: false }))).toEqual({ engine: "native", audio: "copy" });
+    expect(chooseCompressEngine(video({ audioKbps: 320, canEncodeAudio: false }))).toEqual({ engine: "native", audio: "copy" });
+  });
+
+  it("converts large AAC sound when the browser can, and does not copy surround sound", () => {
+    expect(chooseCompressEngine(video({ audioKbps: 320 }))).toEqual({ engine: "native", audio: "native" });
+    expect(chooseCompressEngine(video({ audioChannels: 6, canDecodeAudio: false }))).toEqual({ engine: "native", audio: "ffmpeg" });
   });
 
   it("uses the browser for AV1 when it can decode it", () => {
-    expect(chooseCompressEngine(video({ videoCodec: "av1" }))).toEqual({ engine: "native", audio: "native" });
+    expect(chooseCompressEngine(video({ videoCodec: "av1" })).engine).toBe("native");
   });
 
   it("blocks AV1 the browser cannot decode, because FFmpeg cannot either", () => {

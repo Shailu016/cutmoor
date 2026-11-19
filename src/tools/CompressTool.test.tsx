@@ -217,7 +217,7 @@ describe("CompressTool chooses an engine", () => {
     expect(mocks.encoder.calls).toHaveLength(0);
     const options = mocks.native.calls[0];
     expect(options.file.name).toBe("clip.mp4");
-    expect(options.audio).toBe("native");
+    expect(options.audio).toBe("copy");
     expect(options.height).toBeNull();
     expect(options.videoKbps).toBeGreaterThan(0);
     expect(options.signal.aborted).toBe(false);
@@ -320,6 +320,7 @@ describe("CompressTool options", () => {
 
 describe("CompressTool when the sound cannot be converted", () => {
   it("offers to continue without sound only for that message, and then runs a silent job", async () => {
+    mocks.inspection.value = inspection({ audioCodec: "ac3", canDecodeAudio: false });
     mocks.native.error = new Error(NO_AUDIO_ROUTE_MESSAGE);
     await pick(videoFile());
 
@@ -328,7 +329,7 @@ describe("CompressTool when the sound cannot be converted", () => {
     await click(run);
 
     expect(mocks.native.calls).toHaveLength(1);
-    expect(mocks.native.calls[0].audio).toBe("native");
+    expect(mocks.native.calls[0].audio).toBe("ffmpeg");
     expect(container.textContent).toContain(NO_AUDIO_ROUTE_MESSAGE);
     expect(hasButton("Continue without sound")).toBe(true);
 

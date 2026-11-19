@@ -11,7 +11,7 @@ export interface CompressJob {
   audioKbps: number;
   /** Output height, or null to keep the source size. */
   height: number | null;
-  audio: "native" | "ffmpeg" | "none";
+  audio: "native" | "copy" | "ffmpeg" | "none";
   audioChannels: number;
   durationSeconds: number;
   expectedBytes: number;
@@ -313,6 +313,8 @@ export async function runCompression(job: CompressJob, events: CompressEvents): 
 
   let audioBlob = job.convertedAudio;
   let firstProgress = job.audio === "ffmpeg" ? 0.1 : 0;
+  // The sound is copied from the source file as it is.
+  if (job.audio === "copy") audioBlob = job.file;
   if (job.audio === "native") {
     events.status("Preparing the sound…");
     if (await canCopyAudio(job)) {
