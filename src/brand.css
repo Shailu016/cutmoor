@@ -103,17 +103,9 @@ h1 {
   font-weight: 680;
 }
 
-.mono-label,
 code,
 kbd {
   font-family: var(--font-mono);
-}
-
-.grad-text {
-  background: var(--grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
 }
 
 /* Header */
@@ -184,26 +176,17 @@ kbd {
   max-width: 860px;
 }
 
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  color: #ffd2b8;
-  font-size: 13px;
-  font-weight: 700;
-}
-
 .hero-v3 h1 {
   margin: 22px 0 18px;
   color: #fff;
   font-size: clamp(40px, 6.4vw, 78px);
   line-height: 1.02;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
+}
+
+/* The second line of the hero heading, set apart by colour alone. */
+.hero-h1-second {
+  color: var(--ember-on-dark);
 }
 
 .hero-v3 .hero-lede {
@@ -238,101 +221,6 @@ kbd {
 
 .hero-v3 .hero-points svg {
   color: #ffb35c;
-}
-
-.hero-tiles {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 56px;
-}
-
-.hero-tile {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  column-gap: 14px;
-  row-gap: 2px;
-  align-items: center;
-  padding: 20px 22px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: var(--radius-lg);
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  text-decoration: none;
-  transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease;
-}
-
-.hero-tile:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.hero-tile-icon {
-  grid-row: 1 / 3;
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  color: #fff;
-}
-
-.hero-tile-icon {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.tile-0 .hero-tile-icon { color: #9aabff; }
-.tile-1 .hero-tile-icon { color: #ff9a6b; }
-.tile-2 .hero-tile-icon { color: #ffc98a; }
-.tile-3 .hero-tile-icon { color: #6ee7b7; }
-.tile-4 .hero-tile-icon { color: #7dd3fc; }
-.tile-5 .hero-tile-icon { color: #c4b5fd; }
-
-.hero-tile strong {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-.hero-tile > span:not(.hero-tile-icon) {
-  grid-column: 2;
-  color: #a9b1c0;
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.hero-tile-arrow {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  color: #ffb35c;
-  opacity: 0;
-  transform: translateX(-6px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.hero-tile:hover .hero-tile-arrow {
-  opacity: 1;
-  transform: none;
-}
-
-.hero-v3 .hero-strip {
-  justify-content: center;
-  border-top-color: rgba(255, 255, 255, 0.12);
-  margin-top: 40px;
-}
-
-.hero-v3 .hero-strip span {
-  padding: 5px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: var(--radius-pill);
-  color: #c4cad6;
 }
 
 /* Trust band */
@@ -468,11 +356,6 @@ kbd {
   text-wrap: balance;
 }
 
-@media (min-width: 1081px) {
-  .hero-split h1 .grad-text {
-    white-space: nowrap;
-  }
-}
 
 .hero-split > * {
   min-width: 0;
@@ -510,13 +393,6 @@ kbd {
 /* ---------- Tool pages ---------- */
 .tool-hero {
   position: relative;
-  padding: clamp(24px, 3vw, 40px);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-xl);
-  background:
-    radial-gradient(500px 220px at 100% 0%, rgba(255, 106, 61, 0.05), transparent 70%),
-    radial-gradient(600px 260px at 0% 0%, rgba(45, 75, 240, 0.07), transparent 70%),
-    var(--card);
 }
 
 .tool-hero h1 {
@@ -604,11 +480,6 @@ kbd {
   }
 }
 
-@media (max-width: 900px) {
-  .hero-tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .hero-art {
@@ -652,10 +523,6 @@ kbd {
     padding-inline: 10px;
   }
 
-  .hero-tiles {
-    grid-template-columns: 1fr;
-    margin-top: 28px;
-  }
 }
 
 /* ============================================================
@@ -743,7 +610,7 @@ main#main {
 .logo-word {
   font-size: 21px;
   font-weight: 650;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.04em;
 }
 
 .footer-brand .logo-mark svg rect {
@@ -836,7 +703,7 @@ main#main {
 .result-card-format {
   color: var(--panel-muted);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .result-card-name {
@@ -882,7 +749,7 @@ main#main {
   margin: 0;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.45;
 }
 
@@ -925,10 +792,7 @@ main#main {
 
 .result-stats dt {
   color: var(--panel-muted);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12px;
 }
 
 .result-stats dd {
@@ -1073,7 +937,7 @@ main#main {
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1106,10 +970,7 @@ main#main {
 
 .format-facts dt {
   color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: 12px;
 }
 
 .format-facts dd {
@@ -1647,42 +1508,7 @@ main#main {
    Phones: shorter pages, with the working part first
    ============================================================ */
 @media (max-width: 560px) {
-  /* Hero shortcuts: two compact tiles per row instead of six full-width cards. */
-  .hero-tiles {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .hero-tile {
-    grid-template-rows: auto;
-    column-gap: 10px;
-    min-height: 60px;
-    padding: 11px 12px;
-    border-radius: 14px;
-  }
-
-  .hero-tile-icon {
-    grid-row: auto;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-  }
-
-  .hero-tile-icon svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .hero-tile strong {
-    font-size: 14px;
-    line-height: 1.2;
-  }
-
-  /* The full description is on the tool cards just below. */
-  .hero-tile > span:not(.hero-tile-icon),
-  .hero-tile-arrow {
-    display: none;
-  }
+  
 
   /* Tool cards become rows (icon, name, one line), so every tool fits in about two screens. */
   .tool-grid,
@@ -1712,7 +1538,7 @@ main#main {
   .tool-card strong {
     grid-area: name;
     align-self: end;
-    font-size: 15.5px;
+    font-size: 15px;
   }
 
   .tool-card p {
@@ -1753,7 +1579,7 @@ main#main {
   }
 
   .tool-hero-copy p {
-    font-size: 14.5px;
+    font-size: 15px;
     line-height: 1.5;
   }
 

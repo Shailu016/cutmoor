@@ -400,6 +400,17 @@ export const SITE_PAGES: SitePage[] = [
         ],
       },
       {
+        heading: "Home page drawings and the AAC sound encoder",
+        paragraphs: [
+          "The small hand-drawn scenes on the home page are drawn with stick-scene by Kamran Ahmed, published under the MIT licence. Cutmoor ships its runtime unchanged and its own scenes beside it, and loads both from this site.",
+          "When a browser cannot encode AAC sound, the compressor adds an AAC encoder from the @mediabunny/aac-encoder package by Vanilagy, published under the Mozilla Public License 2.0 (MPL-2.0). It is built on FFmpeg's AAC encoder, which is LGPL-licensed. It is used unmodified and loads only when it is needed.",
+        ],
+        links: [
+          { label: "stick-scene", href: "https://github.com/nilbuild/stick-scene", description: "MIT." },
+          { label: "@mediabunny/aac-encoder", href: "https://github.com/Vanilagy/mediabunny", description: "MPL-2.0, with FFmpeg's LGPL AAC encoder." },
+        ],
+      },
+      {
         heading: "Add captions: speech models",
         paragraphs: [
           "The tool offers two speech-recognition models, both by Oriserve and both declared Apache-2.0. Draft is Whisper-Hindi2Hinglish-Swift, a fine-tune of OpenAI Whisper base. The Hugging Face user di12355 converted it to ONNX, and the download is about 160 MB. High accuracy is Whisper-Hindi2Hinglish-Apex, a fine-tune of OpenAI whisper-large-v3-turbo. Cutmoor converted it to ONNX and compressed the weights to 4-bit, and the download is about 800 MB. High accuracy needs WebGPU, so it runs in recent Chrome or Edge on a computer.",

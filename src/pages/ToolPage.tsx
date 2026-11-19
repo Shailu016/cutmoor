@@ -95,15 +95,9 @@ export function ToolPage() {
 
         <header className="tool-hero">
           <div className="tool-hero-copy">
-            <span className={`eyebrow eyebrow-${tool.accent}`}>
-              <ToolIcon icon={tool.icon} size={16} /> {tool.name}
-            </span>
             <h1>{tool.title}</h1>
             <p>{tool.intro}</p>
-          </div>
-          <aside className="trust-card" aria-label="What every tool includes">
-            <span className="mono-label">Every tool includes</span>
-            <ul className="trust-list">
+            <ul className="trust-list trust-inline" aria-label="What every tool includes">
               <li>
                 <Lock size={16} /> No upload
               </li>
@@ -114,14 +108,13 @@ export function ToolPage() {
                 <ShieldCheck size={16} /> No watermark
               </li>
             </ul>
-          </aside>
+          </div>
         </header>
 
         <ToolRenderer slug={tool.slug} />
 
         <div className="tool-lower">
           <section className="tool-steps">
-            <span className="mono-label">How it works</span>
             <h2>From file to download, with no upload bar</h2>
             <ol className="steps">
               {tool.steps.map((step, index) => (
@@ -164,7 +157,6 @@ export function ToolPage() {
         {!isAdFreePath(`/tools/${tool.slug}`) && <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_ARTICLE} className="ad-inline" />}
 
         <section className="faq-section">
-          <span className="mono-label">Questions</span>
           <h2>{tool.name}: common questions</h2>
           <div className="faq-list">
             {tool.faqs.map((faq) => (
@@ -178,7 +170,6 @@ export function ToolPage() {
 
         {toolGuides.length > 0 && (
           <section className="related-section">
-            <span className="mono-label">Learn</span>
             <h2>Guides for {tool.name.toLowerCase()}</h2>
             <div className="guide-grid">
               {toolGuides.map((guide) => (
@@ -197,7 +188,6 @@ export function ToolPage() {
 
         {related.length > 0 && (
           <section className="related-section">
-            <span className="mono-label">Next</span>
             <h2>Related tools</h2>
             <div className="tool-grid tool-grid-small">
               {related.map((item) =>

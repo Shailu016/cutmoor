@@ -64,7 +64,6 @@ export function FormatCompat({ slug, toolName }: { slug: string; toolName: strin
 
   return (
     <section className="format-compat" aria-labelledby="format-compat-heading">
-      <span className="mono-label">Formats and limits</span>
       <h2 id="format-compat-heading">{toolName}: supported formats and limits</h2>
       <div className="format-lists">
         <FormatList title="Accepts" entries={compat.inputs} />

@@ -677,7 +677,6 @@ details[open] > *:not(summary) {
     .section-head,
     .popular-list li,
     .all-tools-grid > *,
-    .steps-section li,
     .faq-section details {
       animation: reveal linear both;
       animation-timeline: view();
@@ -711,7 +710,6 @@ details[open] > *:not(summary) {
   .section-head,
   .popular-list li,
   .all-tools-grid > *,
-  .steps-section li,
   .faq-section details {
     animation: none !important;
     opacity: 1 !important;

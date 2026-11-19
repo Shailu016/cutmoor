@@ -145,7 +145,6 @@ export function GuidePage() {
 
             <div className="article-cta">
               <div>
-                <span className="mono-label">Do it now</span>
                 <h2>Put this guide to work.</h2>
                 <p>Open the matching tool. Your file stays on your device.</p>
               </div>
@@ -160,7 +159,6 @@ export function GuidePage() {
 
             {faqs.length > 0 && (
               <section className="faq-section">
-                <span className="mono-label">Questions</span>
                 <h2>Frequently asked</h2>
                 <div className="faq-list">
                   {faqs.map((faq) => (
@@ -207,11 +205,10 @@ export function GuidePage() {
               </nav>
             </div>
             <div className="aside-card aside-cta">
-              <span className="mono-label">Free tool</span>
-              <strong>No upload. No account.</strong>
-              <p>Compress, resize, trim, and convert video and images in the browser.</p>
-              <Link className="button button-primary button-block" to="/tools">
-                Open the toolkit
+              <strong>{relatedTools[0] ? relatedTools[0].name : "No upload. No account."}</strong>
+              <p>{relatedTools[0] ? relatedTools[0].short : "Compress, resize, trim, and convert video and images in the browser."} Your file stays on your device.</p>
+              <Link className="button button-primary button-block" to={relatedTools[0] ? `/tools/${relatedTools[0].slug}` : "/tools"}>
+                {relatedTools[0] ? `Open ${relatedTools[0].name}` : "Open the toolkit"}
               </Link>
             </div>
           </aside>
@@ -219,7 +216,6 @@ export function GuidePage() {
 
         {moreGuides.length > 0 && (
           <section className="related-section">
-            <span className="mono-label">Keep reading</span>
             <h2>More guides</h2>
             <div className="guide-grid">
               {moreGuides.map((item) => (

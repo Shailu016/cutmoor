@@ -34,7 +34,6 @@ export function LiveDemo() {
     <section className="shell section live-section" aria-labelledby="live-heading">
       <div className="section-head">
         <div>
-          <span className="mono-label">See it work</span>
           <h2 id="live-heading">One file, start to finish, on your device.</h2>
         </div>
         <p>

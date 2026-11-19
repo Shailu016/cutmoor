@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Link, NavLink } from "./Link";
-import { ArrowUpRight, Menu, X } from "lucide-react";
+import { ArrowRight, Menu, X } from "lucide-react";
 import { isAdFreePath } from "../lib/ad-free";
 import { takeTransitionFlag } from "../lib/motion";
 import { AdSlot } from "./AdSlot";
@@ -220,7 +220,7 @@ export function SiteLayout() {
                     </div>
                   ))}
                   <Link className="nav-dropdown-all" to="/tools">
-                    See all tools <ArrowUpRight size={14} />
+                    See all tools <ArrowRight size={14} />
                   </Link>
                 </div>
               )}
@@ -241,7 +241,7 @@ export function SiteLayout() {
 
           <div className="header-actions">
             <Link className="header-cta" to="/tools">
-              Open the toolkit <ArrowUpRight size={15} />
+              Open the toolkit <ArrowRight size={15} />
             </Link>
             <button
               ref={menuButtonRef}
@@ -308,7 +308,6 @@ export function SiteLayout() {
               <strong>Cut more. Upload less.</strong> The browser media toolkit for video and images. Your files stay on
               your device — no upload, no account, no watermark.
             </p>
-            <span className="mono-label">EST. 2026 · LOCAL-FIRST</span>
           </div>
           {FOOTER.map((column) => (
             <div key={column.title} className="footer-column">

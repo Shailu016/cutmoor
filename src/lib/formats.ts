@@ -49,8 +49,6 @@ export const STATUS_LABEL: Record<FormatStatus, string> = {
   unsupported: "Unsupported",
 };
 
-/** The largest video run through the video tools, from the 2026-11-13 test. */
-const MAX_TESTED_VIDEO = "a 104 MB, 20-second 1080p H.264 video (compressed to 24.5 MB in 96 s on the test machine)";
 
 const VIDEO_BROWSER_NOTE = "A current desktop or mobile browser with WebAssembly and Web Workers. Verified in Chrome only.";
 const IMAGE_BROWSER_NOTE =
@@ -73,6 +71,17 @@ const VIDEO_INPUTS: FormatEntry[] = [
   { label: "DRM-protected video, streaming URLs", status: "unsupported", note: "Only files you already have on your device." },
 ];
 
+/** Compress video reads the file with the browser's own decoder first, which opens AV1 as well; the other video tools still use FFmpeg. */
+const COMPRESS_INPUTS: FormatEntry[] = VIDEO_INPUTS.map((entry) =>
+  entry.label === "AV1 and other codecs"
+    ? {
+        label: "AV1 (YouTube downloads, newer phones)",
+        status: "supported" as const,
+        note: "Where the browser can decode AV1, such as recent Chrome and Edge. Otherwise Cutmoor says so before it starts.",
+      }
+    : entry,
+);
+
 const VIDEO_LIMITATIONS = [
   "Video is re-encoded, so the output is never bit-for-bit identical to the original.",
   "The video encoder is single-threaded, so long or high-resolution videos take longer.",
@@ -82,14 +91,19 @@ const VIDEO_LIMITATIONS = [
 
 export const TOOL_COMPAT: Record<string, ToolCompat> = {
   compress: {
-    inputs: VIDEO_INPUTS,
+    inputs: COMPRESS_INPUTS,
     outputs: [{ label: "MP4 (H.264 + AAC)", status: "supported" }],
-    maxTested: MAX_TESTED_VIDEO,
-    resolutions: "Tested from 320×180 to 1920×1080. Optional downscale to 1080p, 720p, or 480p.",
-    codecs: "Output is always H.264 video with AAC audio at 128 kbps.",
-    audio: "Kept and re-encoded to AAC. A video with no audio track compresses normally.",
+    maxTested:
+      "a 2.9 GB MKV, which opened and compressed in Chrome on a Windows PC. A 1.3 GB, 4 h 40 min 4K AV1 video ran at about 4 times real time there (a full run takes about 70 minutes; that test was stopped after 4 minutes).",
+    resolutions: "You choose how much smaller the file should be; Cutmoor picks the resolution and quality. Tested from 320×180 to 4K.",
+    codecs: "Output is H.264 video with AAC sound. The browser's own encoder is used first and uses the device's video hardware when it has some.",
+    audio: "Small stereo AAC sound is copied as it is. Other sound is converted to AAC at 128 kbps (96 kbps for videos an hour or longer). A video with no sound compresses normally.",
     metadata: VIDEO_LIMITATIONS[3],
-    limitations: VIDEO_LIMITATIONS.slice(0, 3),
+    limitations: [
+      "Video is re-encoded, so the output is never bit-for-bit identical to the original.",
+      "Reading 4K and AV1 video is the slowest step, so long videos can take an hour or more. Keep the tab open: a phone may pause or close a background tab.",
+      "Large results are written to the browser's private storage, so free disk space is the limit rather than memory. Very large files can still fail on a device with little free space; keep the original.",
+    ],
   },
   resize: {
     inputs: VIDEO_INPUTS,
