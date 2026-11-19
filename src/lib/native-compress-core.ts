@@ -11,7 +11,7 @@ export interface CompressJob {
   audioKbps: number;
   /** Output height, or null to keep the source size. */
   height: number | null;
-  audio: "native" | "ffmpeg" | "none";
+  audio: "native" | "copy" | "ffmpeg" | "none";
   audioChannels: number;
   durationSeconds: number;
   expectedBytes: number;
@@ -153,8 +153,17 @@ async function canCopyAudio(job: CompressJob): Promise<boolean> {
   }
 }
 
+/** Some browsers (Firefox, many phones) cannot encode AAC. Their encoder is then added from a small package, loaded only now. */
+async function ensureAacEncoder(): Promise<void> {
+  const { canEncodeAudio } = await import("mediabunny");
+  if (await canEncodeAudio("aac").catch(() => false)) return;
+  const { registerAacEncoder } = await import("@mediabunny/aac-encoder");
+  registerAacEncoder();
+}
+
 /** Converts the sound on its own first, which also mixes surround down to stereo. */
 async function convertAudio(job: CompressJob, onProgress: (value: number) => void): Promise<Blob> {
+  await ensureAacEncoder();
   const { ALL_FORMATS, BlobSource, Conversion, Input, Mp4OutputFormat, Output, StreamTarget } = await import("mediabunny");
   const input = new Input({ formats: ALL_FORMATS, source: new BlobSource(job.file) });
   const sink = memorySink(() => undefined);
@@ -313,6 +322,8 @@ export async function runCompression(job: CompressJob, events: CompressEvents): 
 
   let audioBlob = job.convertedAudio;
   let firstProgress = job.audio === "ffmpeg" ? 0.1 : 0;
+  // The sound is copied from the source file as it is.
+  if (job.audio === "copy") audioBlob = job.file;
   if (job.audio === "native") {
     events.status("Preparing the sound…");
     if (await canCopyAudio(job)) {

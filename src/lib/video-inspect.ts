@@ -11,6 +11,8 @@ export interface VideoInspection {
   hdr: boolean;
   audioChannels: number;
   audioSampleRate: number;
+  /** The sound's own bitrate in kbps, when it can be read. */
+  audioKbps?: number;
   canDecodeVideo: boolean;
   canDecodeAudio: boolean;
   canEncodeAudio: boolean;
@@ -34,6 +36,8 @@ async function inspect(file: File): Promise<VideoInspection | null> {
     const durationSeconds = metadataDuration ?? (await input.computeDuration().catch(() => 0));
     const audioChannels = audio?.numberOfChannels ?? 0;
     const audioSampleRate = audio?.sampleRate ?? 0;
+    const audioStats = audio ? await Promise.resolve().then(() => audio.computePacketStats(200)).catch(() => null) : null;
+    const audioKbps = audioStats && audioStats.averageBitrate > 0 ? Math.round(audioStats.averageBitrate / 1000) : undefined;
 
     const heights = [...new Set([height, ...COMMON_HEIGHTS.filter((value) => value < height)])].filter((value) => value > 0);
     const encodableHeights: number[] = [];
@@ -54,6 +58,7 @@ async function inspect(file: File): Promise<VideoInspection | null> {
       hdr: video ? await yes(video.hasHighDynamicRange()) : false,
       audioChannels,
       audioSampleRate,
+      audioKbps,
       canDecodeVideo: video ? await yes(video.canDecode()) : false,
       canDecodeAudio: audio ? await yes(audio.canDecode()) : false,
       canEncodeAudio: audio

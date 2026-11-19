@@ -49,7 +49,10 @@ function CompressSettings({
   const width = inspection?.width || meta.width;
   const height = inspection?.height || meta.height;
   const source = { sizeBytes: file.size, durationSeconds: duration, width, height };
-  const limits = native ? nativeLimits(duration) : FFMPEG_LIMITS;
+  const copiesSound = native && route.audio === "copy";
+  const baseLimits = native ? nativeLimits(duration) : FFMPEG_LIMITS;
+  // Copied sound keeps its own size, so the picture's share of a target is worked out from that.
+  const limits = copiesSound && inspection?.audioKbps ? { ...baseLimits, audioKbps: Math.max(32, Math.ceil(inspection.audioKbps)) } : baseLimits;
   const { choices, defaultPercent } = planSizeChoices(source, limits);
   const basePlan = planCompression(source, limits);
   const encodable = inspection?.encodableHeights ?? [];
@@ -74,7 +77,7 @@ function CompressSettings({
   const ffmpegArgs = (input: string) =>
     buildCompressArgs({ input, output, mode, targetMb: target, durationSeconds: duration, resolution });
 
-  const compressInBrowser = async (context: CustomJobContext, audio: "native" | "ffmpeg" | "none"): Promise<CustomJobOutput> => {
+  const compressInBrowser = async (context: CustomJobContext, audio: "native" | "copy" | "ffmpeg" | "none"): Promise<CustomJobOutput> => {
     const size = outputSize(resolution, width, height);
     const videoKbps = mode === "size" ? capKbps(estimatedKbps, size.width, size.height) : bestQualityKbps(size.width, size.height, source, limits.audioKbps);
     const audioKbps = audio === "none" ? 0 : limits.audioKbps;
@@ -98,6 +101,7 @@ function CompressSettings({
         },
         onStatus: context.setStatus,
         onOutputBytes: context.setOutputBytes,
+        onLog: context.log,
       });
       const notes: string[] = [];
       if (audio === "none" && inspection?.hasAudio) notes.push("This video was made without sound, as you chose.");

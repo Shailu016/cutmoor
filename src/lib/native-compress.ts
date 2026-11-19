@@ -9,7 +9,7 @@ export interface NativeCompressOptions {
   audioKbps: number;
   /** Output height, or null to keep the source size. */
   height: number | null;
-  audio: "native" | "ffmpeg" | "none";
+  audio: "native" | "copy" | "ffmpeg" | "none";
   audioChannels: number;
   durationSeconds: number;
   expectedBytes: number;
@@ -17,6 +17,8 @@ export interface NativeCompressOptions {
   onProgress: (value: number) => void;
   onStatus: (text: string) => void;
   onOutputBytes: (bytes: number) => void;
+  /** Details for the encoder log, such as why the sound could not be converted. */
+  onLog?: (message: string) => void;
 }
 
 export interface NativeCompressResult {
@@ -45,8 +47,9 @@ async function convertAudioWithFFmpeg(options: NativeCompressOptions): Promise<B
       outputName: "cutmoor-audio.m4a",
       args: (input) => ["-i", input, "-map", "0:a:0", "-vn", "-c:a", "aac", "-ac", "2", "-b:a", `${options.audioKbps}k`, "-y", "cutmoor-audio.m4a"],
     });
-  } catch {
+  } catch (error) {
     if (options.signal.aborted) throw cancelled();
+    options.onLog?.(`Sound conversion failed: ${error instanceof Error ? error.message : String(error)}`);
     throw new Error(NO_AUDIO_ROUTE_MESSAGE);
   } finally {
     stopProgress();
