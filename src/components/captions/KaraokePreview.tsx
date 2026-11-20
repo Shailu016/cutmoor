@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Film } from "lucide-react";
 import type { CaptionStyle } from "../../lib/captioning/contracts";
 import type { CaptionEvent } from "../../lib/captioning/types";
+import { fontWeightFor } from "../../lib/captioning/burn-in/font-stack";
+import { displayText, isNumberToken, wordColor, wordState } from "../../lib/captioning/burn-in/word-look";
 import { fitRect, type ActivePosition } from "./find-active";
 
 interface Props {
@@ -62,6 +64,20 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
 
   const event = position ? events[position.event] : undefined;
   const fontSize = Math.max(10, box.height * style.fontScale);
+  // The spoken word as a position across the whole caption (all lines), -1 before the first word.
+  let active = -1;
+  if (event && position && position.word >= 0) {
+    active = position.word;
+    for (let l = 0; l < position.line; l += 1) active += event.lines[l].length;
+  }
+  const blockStyle = {
+    fontSize,
+    fontFamily: style.fontFamily,
+    fontWeight: fontWeightFor(style),
+    color: style.textColor,
+    "--cap-box": style.activeBox ?? "transparent",
+  } as CSSProperties;
+  let flat = -1;
 
   return (
     <div className="job-screen cap-stage" ref={stageRef}>
@@ -94,21 +110,29 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
           style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
         >
           <div
-            className={`cap-block cap-bg-${style.background} cap-pos-${style.position}`}
-            style={{ fontSize, fontFamily: style.fontFamily, color: style.textColor }}
+            className={`cap-block cap-bg-${style.background} cap-pos-${style.position}${style.activeBox ? " cap-boxed" : ""}`}
+            style={blockStyle}
           >
             {event.lines.map((line, lineIndex) => (
               <div className="cap-line" key={lineIndex}>
-                {line.map((word, wordIndex) => (
-                  <span
-                    key={word.index}
-                    className="cap-word"
-                    style={position && position.line === lineIndex && position.word === wordIndex ? { color: style.activeColor } : undefined}
-                    data-active={position && position.line === lineIndex && position.word === wordIndex ? "true" : undefined}
-                  >
-                    {word.text}
-                  </span>
-                ))}
+                {line.map((word) => {
+                  flat += 1;
+                  const state = wordState(flat, active);
+                  const text = displayText(word.text, style);
+                  return (
+                    <span
+                      key={word.index}
+                      className="cap-word"
+                      style={{ color: wordColor(text, state, style) }}
+                      data-state={state}
+                      data-active={state === "active" ? "true" : undefined}
+                      data-number={style.highlightNumbers && isNumberToken(text) ? "true" : undefined}
+                      data-hidden={style.reveal === "spoken" && state === "upcoming" ? "true" : undefined}
+                    >
+                      {text}
+                    </span>
+                  );
+                })}
               </div>
             ))}
           </div>

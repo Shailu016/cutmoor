@@ -173,9 +173,14 @@ describe("caption styles", () => {
     return 0.2126 * channel(1) + 0.7152 * channel(3) + 0.0722 * channel(5);
   }
   const contrastOnBlack = (hex: string) => (luminance(hex) + 0.05) / 0.05;
+  const contrast = (a: string, b: string) => {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
 
-  it("lists the three styles from the contract, each with a label", () => {
-    expect(CAPTION_STYLE_ORDER).toEqual(["clean", "shorts", "bold"]);
+  it("lists every style from the contract once, each with a label", () => {
+    expect(CAPTION_STYLE_ORDER).toEqual(["clean", "shorts", "bold", "karaoke", "highlighter", "pop"]);
+    expect(new Set(CAPTION_STYLE_ORDER).size).toBe(Object.keys(CAPTION_STYLES).length);
     for (const id of CAPTION_STYLE_ORDER) {
       expect(CAPTION_STYLES[id].id).toBe(id);
       expect(CAPTION_STYLE_LABELS[id].name.length).toBeGreaterThan(0);
@@ -187,8 +192,21 @@ describe("caption styles", () => {
       expect(style.fontScale, style.id).toBeGreaterThan(0.02);
       expect(style.fontScale, style.id).toBeLessThan(0.12);
       expect(contrastOnBlack(style.textColor), style.id).toBeGreaterThanOrEqual(7);
-      expect(contrastOnBlack(style.activeColor), style.id).toBeGreaterThanOrEqual(7);
-      expect(style.activeColor.toLowerCase()).not.toBe(style.textColor.toLowerCase());
+      if (style.activeBox) {
+        // The spoken word sits on its own box: it must read on that box, and the box on the picture.
+        expect(contrast(style.activeColor, style.activeBox), style.id).toBeGreaterThanOrEqual(7);
+        expect(contrastOnBlack(style.activeBox), style.id).toBeGreaterThanOrEqual(7);
+      } else {
+        expect(contrastOnBlack(style.activeColor), style.id).toBeGreaterThanOrEqual(7);
+      }
+      if (style.upcomingColor) expect(contrastOnBlack(style.upcomingColor), style.id).toBeGreaterThanOrEqual(4.5);
+      // Every style colours numbers, and never in the spoken word's colour (unless that word has its own box).
+      expect(style.numberColor, style.id).toBeTruthy();
+      expect(contrastOnBlack(style.numberColor ?? ""), style.id).toBeGreaterThanOrEqual(7);
+      if (!style.activeBox) expect(style.numberColor?.toLowerCase(), style.id).not.toBe(style.activeColor.toLowerCase());
+      // Something visibly changes as words are said: the spoken word's colour, a box, or dimmed words to come.
+      const changes = style.activeColor.toLowerCase() !== style.textColor.toLowerCase() || Boolean(style.activeBox) || Boolean(style.upcomingColor);
+      expect(changes, style.id).toBe(true);
       expect(style.background).not.toBe("none"); // no style leaves text bare on a busy picture
     }
   });

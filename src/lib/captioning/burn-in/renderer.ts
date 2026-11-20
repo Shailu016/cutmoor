@@ -2,6 +2,7 @@ import type { CaptionStyle } from "../contracts";
 import type { CaptionEvent, Word } from "../types";
 import { cssFont } from "./font-stack";
 import { createEventLookup } from "./timeline";
+import { displayText, isWordVisible, wordColor, wordState } from "./word-look";
 
 /**
  * Lays out and draws caption events onto a 2D canvas.
@@ -54,6 +55,8 @@ export const MIN_FONT_PX = 6;
 const LINE_HEIGHT = 1.3;
 const PILL_COLOR = "rgba(0, 0, 0, 0.66)";
 const OUTLINE_COLOR = "#000000";
+/** How far the spoken-word box reaches past the word on each side, as a fraction of the font size. */
+export const ACTIVE_BOX_PAD = 0.14;
 
 export interface PlacedWord {
   text: string;
@@ -152,7 +155,7 @@ function splitToWidth(text: string, measure: (text: string) => number, limit: nu
 export function layoutEvent(
   event: CaptionEvent,
   measure: MeasureText,
-  style: Pick<CaptionStyle, "fontScale" | "background" | "position">,
+  style: Pick<CaptionStyle, "fontScale" | "background" | "position" | "uppercase" | "activeBox">,
   frameWidth: number,
   frameHeight: number,
 ): EventLayout {
@@ -161,9 +164,10 @@ export function layoutEvent(
   for (const line of event.lines) {
     const hint: number[] = [];
     for (const word of line) {
-      if (word.text.trim().length === 0) continue;
+      const text = displayText(word.text, style);
+      if (text.length === 0) continue;
       hint.push(words.length);
-      words.push(word);
+      words.push(text === word.text ? word : { ...word, text });
     }
     if (hint.length > 0) lineHints.push(hint);
   }
@@ -183,7 +187,8 @@ export function layoutEvent(
   for (let attempt = 0; attempt < 24; attempt++) {
     widths = words.map((w) => measure(w.text.trim(), fontPx));
     space = measure(" ", fontPx);
-    padX = usePill ? fontPx * 0.4 : 0;
+    // A pill, or the box behind the spoken word, reaches past the text; keep that inside the safe area too.
+    padX = usePill ? fontPx * 0.4 : style.activeBox ? fontPx * ACTIVE_BOX_PAD : 0;
     rowHeight = fontPx * LINE_HEIGHT;
     const maxTextWidth = frameWidth - 2 * marginX - 2 * padX;
 
@@ -372,18 +377,51 @@ export function createCaptionRenderer(options: CaptionRendererOptions): CaptionR
         ctx.shadowOffsetY = layout.fontPx * 0.05;
       }
 
+      const visible = (word: PlacedWord) => isWordVisible(wordState(word.wordIndex, active), style);
+
+      if (style.activeBox && active >= 0) {
+        // A box behind the spoken word, drawn without the text shadow. It reaches past the word's
+        // own width rather than changing it, so the line never moves when the box hops on.
+        const line = layout.lines.find((l) => l.words.some((w) => w.wordIndex === active));
+        const word = line?.words.find((w) => w.wordIndex === active);
+        if (line && word) {
+          ctx.save();
+          ctx.shadowColor = "rgba(0, 0, 0, 0)";
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = style.activeBox;
+          const padX = layout.fontPx * ACTIVE_BOX_PAD;
+          const half = layout.rowHeight * 0.44;
+          roundedRect(ctx, word.x - padX, line.y - half, word.x + word.width + padX, line.y + half, layout.fontPx * 0.18);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
       if (style.background === "outline") {
         ctx.strokeStyle = OUTLINE_COLOR;
         ctx.lineWidth = layout.fontPx * 0.16;
         for (const line of layout.lines) {
-          for (const word of line.words) ctx.strokeText(word.text, word.x, line.y);
+          for (const word of line.words) {
+            // The word on the box is dark on a light box; a black outline would only smudge the box.
+            if (!visible(word) || (style.activeBox && word.wordIndex === active)) continue;
+            ctx.strokeText(word.text, word.x, line.y);
+          }
         }
       }
 
       for (const line of layout.lines) {
         for (const word of line.words) {
-          ctx.fillStyle = word.wordIndex === active ? style.activeColor : style.textColor;
+          const state = wordState(word.wordIndex, active);
+          if (!isWordVisible(state, style)) continue;
+          const onBox = Boolean(style.activeBox) && state === "active";
+          if (onBox) {
+            ctx.save();
+            ctx.shadowColor = "rgba(0, 0, 0, 0)";
+            ctx.shadowBlur = 0;
+          }
+          ctx.fillStyle = wordColor(word.text, state, style);
           ctx.fillText(word.text, word.x, line.y);
+          if (onBox) ctx.restore();
         }
       }
       ctx.restore();

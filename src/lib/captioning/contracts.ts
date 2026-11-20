@@ -317,10 +317,11 @@ export interface CaptionPipeline {
 // ---------------------------------------------------------------- export
 
 export interface CaptionStyle {
-  id: "clean" | "shorts" | "bold";
+  id: "clean" | "shorts" | "bold" | "karaoke" | "highlighter" | "pop";
   fontFamily: string;
   /** Font size as a fraction of the video height. */
   fontScale: number;
+  /** Colour of words already spoken (and of upcoming words unless `upcomingColor` is set). */
   textColor: string;
   /** Colour of the word being spoken (karaoke). */
   activeColor: string;
@@ -328,6 +329,20 @@ export interface CaptionStyle {
   background: "none" | "pill" | "outline";
   /** "bottom" or "middle": where the block sits. */
   position: "bottom" | "middle";
+  /** Font weight. Defaults by preset (see font-stack.ts). */
+  fontWeight?: number;
+  /** Draw the words in capitals. Scripts without case (Devanagari) are unchanged. */
+  uppercase?: boolean;
+  /** Colour of words not spoken yet. Defaults to `textColor`. */
+  upcomingColor?: string;
+  /** "spoken" shows only the words said so far, so the line builds word by word. Default "all". */
+  reveal?: "all" | "spoken";
+  /** A box of this colour behind the word being spoken, hopping from word to word. */
+  activeBox?: string;
+  /** Colour for numbers, prices, percentages and years when `highlightNumbers` is on. Defaults to `activeColor`. */
+  numberColor?: string;
+  /** Give numbers, prices, percentages and years the accent colour. */
+  highlightNumbers?: boolean;
 }
 
 export interface BurnInOptions {

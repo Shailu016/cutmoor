@@ -43,7 +43,8 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
   const edits = useCaptionEdits(result ? result.words : null);
   const [styleId, setStyleId] = useState<CaptionStyle["id"]>("clean");
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
-  const style = CAPTION_STYLES[styleId];
+  const [highlightNumbers, setHighlightNumbers] = useState(true);
+  const style = { ...CAPTION_STYLES[styleId], highlightNumbers };
 
   // What the preview shows: the finished (and edited) captions, or the first captions while it works.
   const liveEvents = state.phase === "running" ? state.events : result ? edits.events : [];
@@ -204,6 +205,8 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
           edited={edits.edited}
           styleId={styleId}
           onStyle={setStyleId}
+          highlightNumbers={highlightNumbers}
+          onHighlightNumbers={setHighlightNumbers}
           burnIn={runtime?.burnIn ?? null}
           onSeek={seek}
           onStartOver={job.clearFile}
