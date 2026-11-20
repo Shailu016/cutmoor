@@ -45,26 +45,20 @@
 }
 
 .sc-art {
-  --split: 50%;
-  --cycle: 7s;
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  background: radial-gradient(120% 120% at 50% 0%, #1a2238 0%, #0b0f17 70%);
-  touch-action: pan-y;
+  border-bottom: 1px solid var(--line);
+  background: #fff radial-gradient(#e6e6e6 1px, transparent 1.2px) 0 0 / 14px 14px;
 }
 
-.sc-img {
+.sc-art stick-scene {
   position: absolute;
   inset: 0;
-  width: 100%;
   height: 100%;
-  object-fit: contain;
 }
 
-.sc-art[data-anim="wipe"] .sc-img-after,
-.sc-art[data-anim="size"] .sc-img-after,
 .ld-after {
   clip-path: inset(0 0 0 var(--split));
 }
@@ -128,15 +122,12 @@
   top: 10px;
   z-index: 2;
   display: inline-flex;
-  flex-direction: column;
-  gap: 1px;
-  max-width: 46%;
-  padding: 4px 8px 5px;
-  border-radius: 8px;
-  background: rgba(11, 15, 23, 0.62);
-  -webkit-backdrop-filter: blur(10px) saturate(1.4);
-  backdrop-filter: blur(10px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  align-items: baseline;
+  gap: 6px;
+  max-width: 62%;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(11, 15, 23, 0.78);
   color: #fff;
   pointer-events: none;
 }
@@ -147,506 +138,23 @@
 
 .sc-pill-after {
   right: 10px;
-  text-align: right;
-  align-items: flex-end;
-  border-color: rgba(154, 171, 255, 0.5);
+  background: var(--accent);
 }
 
 .sc-pill b {
-  font: 700 8.5px var(--font-mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #b9c3ff;
-}
-
-.sc-pill i {
-  font: 600 11px var(--font-mono);
-  font-style: normal;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-/* The size meter on the "smaller file" cards: the picture is meant to look the same, the bar shows the saving. */
-.sc-meter {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  z-index: 2;
-  display: grid;
-  gap: 5px;
-  padding: 8px 10px;
-  border-radius: 10px;
-  background: rgba(11, 15, 23, 0.66);
-  -webkit-backdrop-filter: blur(10px) saturate(1.4);
-  backdrop-filter: blur(10px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  pointer-events: none;
-}
-
-.sc-meter > span {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 62px;
-  align-items: center;
-  gap: 8px;
-}
-
-.sc-meter b {
-  font: 700 8.5px var(--font-mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #b9c3ff;
-}
-
-.sc-meter em {
-  font: 600 11px var(--font-mono);
-  font-style: normal;
-  color: #fff;
-  text-align: right;
-}
-
-.sc-bar {
-  display: block;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  transform-origin: left;
-}
-
-.sc-bar-after {
-  background: linear-gradient(90deg, #6b83ff, #9aabff);
-  transform: scaleX(var(--sharen));
-}
-
-/* The crop frame: it closes in on the part that is kept. */
-.sc-frame {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: var(--cw);
-  height: var(--ch);
-  transform: translate(-50%, -50%);
-  border: 2px solid #fff;
-  border-radius: 3px;
-  box-shadow: 0 0 0 999px rgba(5, 8, 15, 0.6);
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.sc-frame::before,
-.sc-frame::after {
-  content: "";
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 3px solid #ffd23f;
-}
-
-.sc-frame::before {
-  left: -4px;
-  top: -4px;
-  border-right: 0;
-  border-bottom: 0;
-}
-
-.sc-frame::after {
-  right: -4px;
-  bottom: -4px;
-  border-left: 0;
-  border-top: 0;
-}
-
-.sc-art[data-anim="crop"] .sc-img-after,
-.sc-art[data-anim="rotate"] .sc-img-after {
-  opacity: 1;
-}
-
-.sc-art[data-anim="crop"] .sc-img-before,
-.sc-art[data-anim="rotate"] .sc-img-before {
-  opacity: 0;
-}
-
-/* Auto captions: a row of real frames of the tool's own live preview, stepped through one by one. */
-.sc-sprite {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  aspect-ratio: 16 / 9;
-  transform: translateY(-50%);
-  background: var(--sprite) 100% 0 / calc(var(--frames, 1) * 100%) 100% no-repeat;
-}
-
-.sc-pill-note i {
-  font-weight: 500;
+  font: 600 12px var(--font-ui);
   color: #c9d2ff;
 }
 
-/* Film strips for tools that change time. The after strip is drawn to scale: half the length is half the width. */
-.sc-art.is-strip {
-  display: grid;
-  align-content: center;
-  gap: 16px;
-  padding: 18px 14px;
+.sc-pill-after b {
+  color: #e3e8ff;
 }
 
-.sc-strip {
-  display: grid;
-  gap: 5px;
-}
-
-.sc-reel {
-  position: relative;
-}
-
-.sc-reel img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 6px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
-}
-
-.sc-reel-after {
-  width: var(--aw);
-}
-
-.sc-strip-label {
-  display: flex;
-  justify-content: space-between;
-  font: 700 9px var(--font-mono);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #b9c3ff;
-}
-
-.sc-strip-label em {
+.sc-pill i {
+  font: 600 12px var(--font-ui);
   font-style: normal;
-  font-size: 12px;
-  letter-spacing: 0;
-  color: #fff;
   font-variant-numeric: tabular-nums;
-}
-
-.sc-strip-after .sc-strip-label {
-  width: var(--aw);
-}
-
-/* Trim: yellow brackets around the part that is kept; the cut part is dimmed, as in an editor's timeline. */
-.sc-keep {
-  position: absolute;
-  top: -3px;
-  bottom: -3px;
-  left: var(--kl);
-  width: var(--kw);
-  border: 3px solid #ffd23f;
-  border-top-width: 2px;
-  border-bottom-width: 2px;
-  border-radius: 6px;
-  box-shadow: 0 0 0 999px rgba(11, 15, 23, 0.6);
-  clip-path: inset(-3px -3px -3px -1000px);
-  pointer-events: none;
-}
-
-/* Speed: a playhead on each strip, at real speed. */
-.sc-ph {
-  position: absolute;
-  top: -4px;
-  bottom: -4px;
-  left: 0;
-  width: 2px;
-  margin-left: -1px;
-  background: #fff;
-  border-radius: 2px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-  visibility: hidden;
-}
-
-/* ---------- The animations (only while the card is on screen) ---------- */
-@media (prefers-reduced-motion: no-preference) {
-  .sc-art.is-live[data-anim="captions"] .sc-sprite {
-    animation: sc-frames var(--cycle) steps(var(--frames), jump-none) var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="wipe"],
-  .sc-art.is-live[data-anim="size"] {
-    animation: sc-wipe var(--cycle) var(--ease-in-out) var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="size"] .sc-bar-after {
-    animation: sc-shrink var(--cycle) var(--ease-out) var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="crop"] .sc-img-before {
-    animation: sc-crop-before var(--cycle) linear var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="crop"] .sc-frame {
-    animation: sc-crop-frame var(--cycle) var(--ease-in-out) var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="crop"] .sc-img-after {
-    animation: sc-crop-after var(--cycle) var(--ease-out) var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="rotate"] .sc-img-before {
-    animation: sc-rotate-before var(--cycle) var(--ease-in-out) var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="rotate"] .sc-img-after {
-    animation: sc-rotate-after var(--cycle) linear var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="trim"] .sc-keep {
-    animation: sc-trim var(--cycle) var(--ease-in-out) var(--d) infinite;
-  }
-
-  .sc-art.is-live[data-anim="trim"] .sc-strip-after,
-  .sc-art.is-live[data-anim="speed"] .sc-strip-after {
-    animation: sc-after-in var(--cycle) var(--ease-out) var(--d) infinite;
-  }
-
-  .sc-art.is-live .sc-ph-before {
-    visibility: visible;
-    animation: sc-play 4s linear infinite;
-  }
-
-  .sc-art.is-live .sc-ph-after {
-    visibility: visible;
-    animation: sc-play calc(4s * var(--awn)) linear infinite;
-  }
-
-  /* Hover: hold still; on the wipe cards the pointer moves the divider instead. */
-  .sc-art:hover,
-  .sc-art:hover * {
-    animation-play-state: paused !important;
-  }
-
-  .sc-art[data-anim="wipe"]:hover,
-  .sc-art[data-anim="size"]:hover {
-    animation: none;
-  }
-}
-
-/* Reduced motion: no movement, just a slow cross-fade between before and after. */
-@media (prefers-reduced-motion: reduce) {
-  .sc-art.is-live[data-anim="wipe"] .sc-img-after,
-  .sc-art.is-live[data-anim="size"] .sc-img-after,
-  .sc-art.is-live[data-anim="crop"] .sc-img-after,
-  .sc-art.is-live[data-anim="rotate"] .sc-img-after {
-    clip-path: none;
-    animation: sc-fade 8s ease-in-out infinite !important;
-  }
-
-  .sc-art[data-anim="wipe"] .sc-divider,
-  .sc-art[data-anim="size"] .sc-divider {
-    display: none;
-  }
-
-  .sc-art[data-anim="crop"] .sc-img-before,
-  .sc-art[data-anim="rotate"] .sc-img-before {
-    opacity: 1;
-  }
-}
-
-@keyframes sc-fade {
-  0%,
-  35% {
-    opacity: 0;
-  }
-  50%,
-  90% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-/* captions: hold the first frame, step through the frames, hold the last, start again */
-@keyframes sc-frames {
-  0%,
-  8% {
-    background-position-x: 0%;
-  }
-  78%,
-  100% {
-    background-position-x: 100%;
-  }
-}
-
-/* wipe: all "before", sweep to all "after", hold, sweep back */
-@keyframes sc-wipe {
-  0%,
-  12% {
-    --split: 100%;
-  }
-  42%,
-  80% {
-    --split: 0%;
-  }
-  100% {
-    --split: 100%;
-  }
-}
-
-@keyframes sc-shrink {
-  0%,
-  14% {
-    transform: scaleX(1);
-  }
-  44%,
-  80% {
-    transform: scaleX(var(--sharen));
-  }
-  100% {
-    transform: scaleX(1);
-  }
-}
-
-/* crop: the frame closes in, the outside darkens, then the result zooms up to fill */
-@keyframes sc-crop-frame {
-  0%,
-  10% {
-    visibility: visible;
-    width: 100%;
-    height: 90%;
-    opacity: 1;
-  }
-  38%,
-  50% {
-    visibility: visible;
-    width: var(--cw);
-    height: var(--ch);
-    opacity: 1;
-  }
-  58% {
-    opacity: 0;
-    width: var(--cw);
-    height: var(--ch);
-  }
-  59%,
-  100% {
-    visibility: hidden;
-    width: var(--cw);
-    height: var(--ch);
-  }
-}
-
-@keyframes sc-crop-before {
-  0%,
-  52% {
-    opacity: 1;
-  }
-  60%,
-  92% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes sc-crop-after {
-  0%,
-  50% {
-    opacity: 0;
-    transform: scale(var(--zoom));
-  }
-  62% {
-    opacity: 1;
-    transform: none;
-  }
-  90% {
-    opacity: 1;
-    transform: none;
-  }
-  98%,
-  100% {
-    opacity: 0;
-    transform: none;
-  }
-}
-
-/* rotate: the sideways picture turns a quarter clockwise and settles; then the real upright output takes over */
-@keyframes sc-rotate-before {
-  0%,
-  12% {
-    opacity: 1;
-    transform: none;
-  }
-  45% {
-    opacity: 1;
-    transform: rotate(90deg) scale(var(--rs));
-  }
-  52%,
-  92% {
-    opacity: 0;
-    transform: rotate(90deg) scale(var(--rs));
-  }
-  100% {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes sc-rotate-after {
-  0%,
-  44% {
-    opacity: 0;
-  }
-  50%,
-  90% {
-    opacity: 1;
-  }
-  96%,
-  100% {
-    opacity: 0;
-  }
-}
-
-/* trim: the brackets start around the whole clip and close in on the part that is kept */
-@keyframes sc-trim {
-  0%,
-  10% {
-    left: 0%;
-    width: 100%;
-  }
-  40%,
-  92% {
-    left: var(--kl);
-    width: var(--kw);
-  }
-  100% {
-    left: 0%;
-    width: 100%;
-  }
-}
-
-@keyframes sc-after-in {
-  0%,
-  38% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  50%,
-  92% {
-    opacity: 1;
-    transform: none;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-}
-
-@keyframes sc-play {
-  from {
-    left: 0%;
-  }
-  to {
-    left: 100%;
-  }
+  white-space: nowrap;
 }
 
 /* Home grids: three across on a laptop. */
@@ -664,51 +172,13 @@
   .tool-grid-showcase {
     grid-template-columns: minmax(0, 1fr);
   }
-}
 
-.tool-grid-showcase .tool-card-cta {
-  grid-column: 1 / -1;
-  min-height: 0;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-5);
-  padding: 20px 24px;
-}
-
-.tool-grid-showcase .tool-card-cta p {
-  flex: 1;
-}
-
-@media (max-width: 700px) {
-  .tool-grid-showcase .tool-card-cta {
-    flex-direction: column;
-    align-items: flex-start;
+  /* On a phone, three proofs per toolkit are enough; the link above the grid opens the rest. */
+  .tool-grid-showcase > .showcase-card:nth-child(n + 4) {
+    display: none;
   }
 }
 
-/* The reassurance under each step of The Flow. */
-.local-badge {
-  justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 5px 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  background: var(--paper);
-  color: var(--accent-strong);
-  font: 600 10.5px var(--font-mono);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.home-steps .local-badge {
-  display: inline-flex;
-  margin: 12px 0 0;
-  font-size: 10.5px;
-  letter-spacing: 0.05em;
-}
 
 /* ---------- Trust row ---------- */
 .trust-row {
@@ -1575,16 +1045,6 @@
   .ld-cursor,
   .ld-chip:not(.c3) {
     display: none;
-  }
-
-  .sc-art[data-anim="crop"] .sc-img-before,
-  .sc-art[data-anim="rotate"] .sc-img-before {
-    opacity: 1;
-  }
-
-  .sc-art[data-anim="crop"] .sc-img-after,
-  .sc-art[data-anim="rotate"] .sc-img-after {
-    opacity: 0;
   }
 }
 

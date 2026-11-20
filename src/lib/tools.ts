@@ -71,7 +71,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Will compression make my video blurry?",
         answer:
-          "Some quality loss is unavoidable when the file gets smaller. Cutmoor lowers the resolution only when your size needs it, and it reserves 128 kbps for audio so dialogue stays clear. For a mild reduction, use the Balanced preset instead of an aggressive target size.",
+          "Some quality loss is unavoidable when the file gets smaller. Cutmoor lowers the resolution only when your size needs it, and it keeps the sound at a clear 128 kbps (96 kbps for videos an hour or longer). For a mild reduction, pick a smaller percentage instead of an aggressive target size.",
       },
       {
         question: "What is the best target size for WhatsApp?",
@@ -81,12 +81,12 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Does Cutmoor upload my video?",
         answer:
-          "No. The encoder is WebAssembly running inside the page. The file is read from your disk, processed in memory, and saved back to your device. The only download is the encoder program itself, fetched once on first use; your video is never sent anywhere. The tool needs a connection to load, so it does not work offline.",
+          "No. The encoding runs inside the page, using your browser's own video encoder. The file is read from your disk in pieces and saved back to your device. Some browsers fetch a small helper once, such as the FFmpeg program for formats the browser cannot read; your video is never sent anywhere. The tool needs a connection to load, so it does not work offline.",
       },
       {
         question: "How large a file can it handle?",
         answer:
-          "Browser memory is the limit, not an upload quota. The largest video we have tested is 104 MB, on a desktop. Larger files depend on your device's memory, and phones and older laptops are more likely to run out. Very large files can run out of memory in the tab.",
+          "There is no upload quota. The file is read in pieces and long results are written to the browser's private storage, so free disk space matters more than memory. The largest we have tested is a 2.9 GB MKV in Chrome on a Windows PC. Long 4K videos take a long time (about 70 minutes for a 4 h 40 min AV1 video in our test), and phones and older laptops may be slower or run out of space.",
       },
     ],
     related: ["resize", "trim", "convert"],

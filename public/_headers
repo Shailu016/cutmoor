@@ -28,6 +28,9 @@
 # Home page card pictures (versioned with ?v=, see src/lib/card-art.ts).
 /cards/*
   Cache-Control: public, max-age=604800
+# Home page scene code (versioned with ?v=, see src/lib/stick-scenes.ts).
+/stick/*
+  Cache-Control: public, max-age=604800
 /favicon.svg
   Cache-Control: public, max-age=604800
 /favicon.ico

@@ -1,5 +1,5 @@
 import { Link } from "../components/Link";
-import { ArrowRight, Check, Lock, MonitorPlay, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Check, MonitorPlay, ShieldCheck, Zap } from "lucide-react";
 import { AdSlot } from "../components/AdSlot";
 import { FormatSummary } from "../components/FormatSummary";
 import { DemoStage } from "../components/DemoStage";
@@ -7,7 +7,6 @@ import { LiveDemo } from "../components/home/LiveDemo";
 import { ShowcaseCard } from "../components/home/ShowcaseCard";
 import { TrustRow } from "../components/home/TrustRow";
 import { Seo } from "../components/Seo";
-import { ToolIcon } from "../components/ToolIcon";
 import { GUIDES } from "../content/guides";
 import { HOME_FAQS } from "../lib/seo";
 import { IMAGE_TOOLS, TOOL_CATEGORIES, TOOLS, toolsInCategory, VIDEO_TOOLS, type ToolDef } from "../lib/tools";
@@ -47,14 +46,9 @@ const POPULAR_TASKS = [
 const HOME_VIDEO = ["compress", "auto-captions", "trim", "video-speed", "rotate-video", "resize"];
 const HOME_IMAGE = ["compress-image", "resize-image", "crop-image", "convert-image", "blur-image", "watermark-image"];
 
-const FEATURED_TOOLS = ["compress", "resize", "convert", "compress-image", "resize-image", "heic-to-jpg"];
-
 export function HomePage() {
   const featuredGuides = FEATURED_GUIDES.map((slug) => GUIDES.find((guide) => guide.slug === slug)).filter(
     (guide): guide is (typeof GUIDES)[number] => Boolean(guide),
-  );
-  const featuredTools = FEATURED_TOOLS.map((slug) => TOOLS.find((tool) => tool.slug === slug)).filter(
-    (tool): tool is (typeof TOOLS)[number] => Boolean(tool),
   );
 
   return (
@@ -64,24 +58,21 @@ export function HomePage() {
         <div className="hero-glow" aria-hidden="true" />
         <div className="shell hero-split">
         <div className="hero-center">
-          <span className="hero-badge">
-            <Sparkles size={14} /> 100% local · files never leave your device
-          </span>
           <h1>
             Edit video &amp; photos.{" "}
             <br />
-            <span className="grad-text">Never upload a thing.</span>
+            <span className="hero-h1-second">Never upload a thing.</span>
           </h1>
           <p className="hero-lede">
             Compress, trim, merge and caption video. Crop, convert and clean up photos. {TOOLS.length} free tools, no
             sign-up, no watermark — your files never leave your device.
           </p>
           <div className="hero-actions">
-            <Link className="button button-primary button-lg" to="/tools">
-              Start for free <ArrowRight size={18} />
+            <Link className="button button-primary button-lg" to="/tools/compress">
+              Compress a video <ArrowRight size={18} />
             </Link>
-            <Link className="button button-ghost button-lg" to="/guides">
-              Read the guides
+            <Link className="button button-ghost button-lg" to="/tools">
+              See all {TOOLS.length} tools
             </Link>
           </div>
           <ul className="hero-points">
@@ -101,25 +92,6 @@ export function HomePage() {
         </div>
         </div>
 
-        <div className="shell">
-          <div className="hero-tiles">
-            {featuredTools.map((tool, index) => (
-              <Link key={tool.slug} className={`hero-tile tile-${index % 6}`} to={`/tools/${tool.slug}`}>
-                <span className="hero-tile-icon">
-                  <ToolIcon icon={tool.icon} size={22} />
-                </span>
-                <strong>{tool.name}</strong>
-                <span>{tool.short}</span>
-                <ArrowRight className="hero-tile-arrow" size={16} />
-              </Link>
-            ))}
-          </div>
-          <div className="hero-strip">
-            {["MP4", "MOV", "WebM", "MKV", "AVI", "GIF", "JPG", "PNG", "WebP", "HEIC", "AVIF", "SVG"].map((f) => (
-              <span key={f}>{f}</span>
-            ))}
-          </div>
-        </div>
       </section>
 
       <TrustRow />
@@ -129,7 +101,6 @@ export function HomePage() {
       <section className="section shell" id="tools">
         <div className="section-head">
           <div>
-            <span className="mono-label">The toolkit</span>
             <h2>Two toolkits. One local-first rule.</h2>
           </div>
           <p>
@@ -140,34 +111,24 @@ export function HomePage() {
 
         <div className="tool-group">
           <div className="tool-group-head">
-            <div>
-              <span className="mono-label">Video · {VIDEO_TOOLS.length} tools</span>
-              <h3>Cut, shrink, edit, and convert footage</h3>
-            </div>
+            <h3>Cut, shrink, edit, and convert footage</h3>
+            <Link className="text-link" to="/tools">
+              All {VIDEO_TOOLS.length} video tools <ArrowRight size={15} />
+            </Link>
           </div>
           <div className="tool-grid tool-grid-showcase">
             {homeTools(HOME_VIDEO).map((tool, index) => (
               <ShowcaseCard key={tool.slug} tool={tool} index={index} />
             ))}
-            <Link className="tool-card tool-card-cta" to="/tools">
-              <span className="tool-card-icon">
-                <Sparkles size={20} />
-              </span>
-              <strong>One directory for every job</strong>
-              <p>Browse all {TOOLS.length} video and image tools, grouped by job, or find the right one by the problem you have.</p>
-              <span className="tool-card-link">
-                Browse all tools <ArrowRight size={14} />
-              </span>
-            </Link>
           </div>
         </div>
 
         <div className="tool-group" id="image-tools">
           <div className="tool-group-head">
-            <div>
-              <span className="mono-label">Images · {IMAGE_TOOLS.length} tools</span>
-              <h3>Resize, crop, convert, and protect pictures</h3>
-            </div>
+            <h3>Resize, crop, convert, and protect pictures</h3>
+            <Link className="text-link" to="/tools#image-tools">
+              All {IMAGE_TOOLS.length} image tools <ArrowRight size={15} />
+            </Link>
           </div>
           <div className="tool-grid tool-grid-showcase">
             {homeTools(HOME_IMAGE).map((tool, index) => (
@@ -181,13 +142,12 @@ export function HomePage() {
         <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_HOME} className="ad-inline" />
       </div>
 
-      <section className="shell section popular-section">
+      <section className="shell section all-tools" aria-labelledby="all-tools-heading">
         <div className="section-head">
           <div>
-            <span className="mono-label">Popular right now</span>
-            <h2>Start with the job you came for.</h2>
+            <h2 id="all-tools-heading">Start with the job you came for.</h2>
           </div>
-          <p>The most common things people need to do with a video or photo, one click away.</p>
+          <p>The most common jobs first, then all {TOOLS.length} tools in plain links. Each one runs on your device and never uploads your file.</p>
         </div>
         <ul className="popular-list">
           {POPULAR_TASKS.map((task) => (
@@ -198,16 +158,6 @@ export function HomePage() {
             </li>
           ))}
         </ul>
-      </section>
-
-      <section className="shell section all-tools" aria-labelledby="all-tools-heading">
-        <div className="section-head">
-          <div>
-            <span className="mono-label">Every tool</span>
-            <h2 id="all-tools-heading">All {TOOLS.length} tools, by the job you have.</h2>
-          </div>
-          <p>The same list as the Tools menu, in plain links. Each one runs on your device and never uploads your file.</p>
-        </div>
         <div className="all-tools-grid">
           {TOOL_CATEGORIES.map((category) => (
             <div key={category.id}>
@@ -229,7 +179,6 @@ export function HomePage() {
       <section className="shell section">
         <div className="why-section">
           <div className="why-copy">
-            <span className="mono-label">Why local</span>
             <h2>The upload is the slowest part. So we removed it.</h2>
             <p>
               Most converters take your file, put it on a server, queue it behind other jobs, and send back a link.
@@ -276,47 +225,10 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="section shell steps-section">
-        <div className="section-head">
-          <div>
-            <span className="mono-label">The flow</span>
-            <h2>Drop. Choose. Done.</h2>
-          </div>
-          <p>Three steps, whether the job is a 12-second Reel, a 48-megapixel photo, or a 40-minute screen recording.</p>
-        </div>
-        <ol className="home-steps">
-          <li>
-            <span>01</span>
-            <strong>Drop your file</strong>
-            <p>The browser reads the duration, format, and dimensions locally. Nothing is sent anywhere.</p>
-            <span className="local-badge">
-              <Lock size={12} aria-hidden="true" /> Nothing leaves your device
-            </span>
-          </li>
-          <li>
-            <span>02</span>
-            <strong>Pick the outcome</strong>
-            <p>Target size, aspect ratio, format, or timestamp. The presets match the platforms people actually use.</p>
-            <span className="local-badge">
-              <Lock size={12} aria-hidden="true" /> Nothing leaves your device
-            </span>
-          </li>
-          <li>
-            <span>03</span>
-            <strong>Take the export</strong>
-            <p>Download a clean file. No watermark, no account, no “upgrade to remove the limit” screen.</p>
-            <span className="local-badge">
-              <Lock size={12} aria-hidden="true" /> Nothing leaves your device
-            </span>
-          </li>
-        </ol>
-      </section>
-
       {featuredGuides.length > 0 && (
         <section className="section shell">
           <div className="section-head">
             <div>
-              <span className="mono-label">Guides</span>
               <h2>Know the limit before you hit it.</h2>
             </div>
             <Link className="text-link" to="/guides">
@@ -343,7 +255,6 @@ export function HomePage() {
       <section className="section shell faq-section">
         <div className="section-head">
           <div>
-            <span className="mono-label">Questions</span>
             <h2>What people ask before the first file.</h2>
           </div>
         </div>
@@ -359,7 +270,6 @@ export function HomePage() {
 
       <section className="shell cta-band">
         <div>
-          <span className="mono-label">Ready when you are</span>
           <h2>Make the file fit. Keep the quality.</h2>
           <p>Video and image tools, local processing, and an export that does not ask you to make an account.</p>
         </div>

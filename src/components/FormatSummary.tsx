@@ -52,7 +52,6 @@ export function FormatSummary() {
     <section className="section shell format-summary" aria-labelledby="format-summary-heading">
       <div className="section-head">
         <div>
-          <span className="mono-label">Formats</span>
           <h2 id="format-summary-heading">Know what works before you start.</h2>
         </div>
         <Link className="text-link" to="/tools">

@@ -102,12 +102,10 @@ export function ToolsIndexPage() {
           groups.map((group, index) => (
             <div className="tool-group" key={group.category.id} id={group.category.id === "image-size" ? "image-tools" : undefined}>
               <div className="tool-group-head">
-                <div>
-                  <span className="mono-label">
-                    {group.category.kind === "results" ? "Best match first" : group.category.kind === "video" ? "Video" : "Images"} · {group.tools.length} {group.tools.length === 1 ? "tool" : "tools"}
-                  </span>
-                  <h2>{group.category.title}</h2>
-                </div>
+                <h2>{group.category.title}</h2>
+                <span className="tool-group-count">
+                  {group.category.kind === "results" ? "Best match first" : group.category.kind === "video" ? "Video" : "Images"} · {group.tools.length} {group.tools.length === 1 ? "tool" : "tools"}
+                </span>
               </div>
               <div className="tool-grid tool-grid-wide">
                 {group.tools.map((tool) => (
@@ -142,7 +140,6 @@ export function ToolsIndexPage() {
         <AdSlot slot={import.meta.env.VITE_ADSENSE_SLOT_ARTICLE} className="ad-inline" />
 
         <section className="choice-section" id="choose">
-          <span className="mono-label">Choose by problem</span>
           <h2>What are you trying to fix?</h2>
           <div className="choice-table">
             {CHOICES.map((choice) => {
@@ -160,7 +157,6 @@ export function ToolsIndexPage() {
         </section>
 
         <section className="faq-section">
-          <span className="mono-label">Before you start</span>
           <h2>Four honest limits</h2>
           <div className="faq-list">
             <details className="faq">

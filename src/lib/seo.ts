@@ -399,12 +399,12 @@ export const HOME_FAQS = [
   {
     question: "Why does processing speed vary?",
     answer:
-      "Everything runs on your own device. The video encoder is a single-threaded WebAssembly build, so the time depends on the length and resolution of the video, the settings you choose, and how fast your device is. After every job the result card shows the processing time that job actually took.",
+      "Everything runs on your own device. Compress video uses your browser's own video encoder, which can use your device's video hardware. The other video tools use a single-threaded WebAssembly encoder. Either way the time depends on the length and resolution of the video, the settings you choose, and how fast your device is. After every job the result card shows the processing time that job actually took.",
   },
   {
     question: "Does compression reduce quality?",
     answer:
-      "Video compression re-encodes the file, which is lossy, so some detail is always lost. A smaller target size loses more. The before and after previews and the real file sizes on the result card let you judge the trade-off, and Best quality mode keeps more detail. PNG output is lossless.",
+      "Video compression re-encodes the file, which is lossy, so some detail is always lost. A smaller target size loses more. The before and after previews and the real file sizes on the result card let you judge the trade-off. PNG output is lossless.",
   },
   {
     question: "Does Cutmoor work on a phone?",
