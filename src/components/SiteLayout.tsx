@@ -321,7 +321,12 @@ export function SiteLayout() {
           ))}
         </div>
         <div className="shell footer-bottom">
-          <span>© 2026 Cutmoor. Free to use — no account, no upload.</span>
+          <div className="footer-copy">
+            <span>© 2026 Cutmoor. Free to use — no account, no upload.</span>
+            <span className="footer-maker">
+              Also by the maker: <a href="https://popuploom.com">PopupLoom</a>, a free popup builder.
+            </span>
+          </div>
           <div className="footer-legal">
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
