@@ -21,7 +21,7 @@ import { ConvertImageTool } from "../tools/ConvertImageTool";
 import { HeicTool } from "../tools/HeicTool";
 import { guidesForTool } from "../content/guide-helpers";
 import { GUIDES } from "../content/guides";
-import { toolBySlug, TOOLS } from "../lib/tools";
+import { toolBySlug, toolsInCategory, TOOL_CATEGORIES, TOOLS } from "../lib/tools";
 import { NotFoundPage } from "./NotFoundPage";
 
 const IMAGE_GUIDES: Record<string, { to: string; label: string }> = {
@@ -80,6 +80,9 @@ export function ToolPage() {
 
   const related = tool.related.map((item) => TOOLS.find((entry) => entry.slug === item)).filter(Boolean);
   const toolGuides = guidesForTool(tool.slug, GUIDES);
+  // Plain links to the rest of this tool's group, so every tool is reachable from its neighbours and not only from three picks.
+  const category = TOOL_CATEGORIES.find((entry) => entry.slugs.includes(tool.slug));
+  const moreInGroup = category ? toolsInCategory(category).filter((entry) => entry.slug !== tool.slug && !tool.related.includes(entry.slug)) : [];
 
   return (
     <>
@@ -205,6 +208,23 @@ export function ToolPage() {
                 ) : null,
               )}
             </div>
+          </section>
+        )}
+
+        {category && moreInGroup.length > 0 && (
+          <section className="related-section">
+            <h2>
+              More {category.kind} tools: {category.label}
+            </h2>
+            <ul className="popular-list">
+              {moreInGroup.map((entry) => (
+                <li key={entry.slug}>
+                  <Link to={`/tools/${entry.slug}`}>
+                    {entry.name} <ArrowRight size={14} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
       </div>
