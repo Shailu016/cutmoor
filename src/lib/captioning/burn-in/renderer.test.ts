@@ -335,6 +335,82 @@ describe("createCaptionRenderer", () => {
     expect(calls.find((c) => c.op === "fillText")?.args[0]).toBe("नमस्ते");
   });
 
+  it("karaoke: spoken words in the text colour, words still to come dimmed", () => {
+    const { ctx, calls } = recordingContext();
+    const s = style({ background: "none", activeColor: "#ffffff", textColor: "#ffffff", upcomingColor: "#999999" });
+    createCaptionRenderer({ ctx, width: 1280, height: 720, events: [ev], style: s }).draw(1350);
+    expect(calls.filter((c) => c.op === "fillText").map((c) => c.state.fill)).toEqual(["#ffffff", "#ffffff", "#999999"]);
+  });
+
+  it("a spoken reveal draws only the words said so far, at their final positions", () => {
+    const { ctx, calls } = recordingContext();
+    const r = createCaptionRenderer({ ctx, width: 1280, height: 720, events: [ev], style: style({ reveal: "spoken", background: "outline" }) });
+    r.draw(1350);
+    expect(calls.filter((c) => c.op === "fillText").map((c) => c.args[0])).toEqual(["Namaste", "dosto"]);
+    expect(calls.filter((c) => c.op === "strokeText").map((c) => c.args[0])).toEqual(["Namaste", "dosto"]);
+    const layout = r.layoutOf(ev);
+    expect(calls.filter((c) => c.op === "fillText").map((c) => c.args[1])).toEqual(layout.lines[0].words.map((w) => w.x));
+    calls.length = 0;
+    r.draw(950 + 100); // before the second word: only the first
+    expect(calls.filter((c) => c.op === "fillText").map((c) => c.args[0])).toEqual(["Namaste"]);
+  });
+
+  it("a box style fills one box behind the spoken word, before the text, and does not outline that word", () => {
+    const { ctx, calls } = recordingContext();
+    const s = style({ background: "outline", activeBox: "#c6f432", activeColor: "#111111" });
+    const r = createCaptionRenderer({ ctx, width: 1280, height: 720, events: [ev], style: s });
+    r.draw(1350);
+    const fills = calls.filter((c) => c.op === "fill");
+    expect(fills).toHaveLength(1);
+    expect(fills[0].state.fill).toBe("#c6f432");
+    const ops = calls.map((c) => c.op);
+    expect(ops.indexOf("fill")).toBeLessThan(ops.indexOf("fillText"));
+    expect(calls.filter((c) => c.op === "strokeText").map((c) => c.args[0])).toEqual(["Namaste", "welcome"]);
+    const layout = r.layoutOf(ev);
+    const boxLeft = calls.find((c) => c.op === "moveTo")?.args[0] as number;
+    const dosto = layout.lines[0].words[1];
+    expect(boxLeft).toBeGreaterThan(dosto.x - layout.fontPx * 0.5);
+    expect(boxLeft).toBeLessThan(dosto.x + layout.fontPx * 0.2); // moveTo starts after the corner radius
+    calls.length = 0;
+    createCaptionRenderer({ ctx, width: 1280, height: 720, events: [ev], style: s }).draw(1050 - 100); // before any word
+    expect(calls.some((c) => c.op === "fill")).toBe(false);
+  });
+
+  it("capitals: draws upper-case text and lays it out at that width; Devanagari is unchanged", () => {
+    const { ctx, calls } = recordingContext();
+    const e = makeEvent([["namaste", "नमस्ते"]]);
+    createCaptionRenderer({ ctx, width: 1280, height: 720, events: [e], style: style({ uppercase: true }) }).draw(1000);
+    expect(calls.filter((c) => c.op === "fillText").map((c) => c.args[0])).toEqual(["NAMASTE", "नमस्ते"]);
+  });
+
+  it("highlights numbers in the number colour only when asked, and the spoken word still wins", () => {
+    const e = makeEvent([["gold", "is", "$5,000", "up", "40%"]]);
+    const s = style({ background: "none", numberColor: "#ff00ff" });
+    const fillsAt = (on: boolean, t: number) => {
+      const { ctx, calls } = recordingContext();
+      createCaptionRenderer({ ctx, width: 1280, height: 720, events: [e], style: { ...s, highlightNumbers: on } }).draw(t);
+      return calls.filter((c) => c.op === "fillText").map((c) => c.state.fill);
+    };
+    expect(fillsAt(true, 1050)).toEqual([s.activeColor, s.textColor, "#ff00ff", s.textColor, "#ff00ff"]);
+    expect(fillsAt(true, 1650)).toEqual([s.textColor, s.textColor, s.activeColor, s.textColor, "#ff00ff"]);
+    expect(fillsAt(false, 1050)).toEqual([s.activeColor, s.textColor, s.textColor, s.textColor, s.textColor]);
+  });
+
+  it("every preset draws without throwing at landscape and portrait sizes", () => {
+    for (const preset of Object.values(CAPTION_STYLES)) {
+      for (const [w, h] of [[1920, 1080], [720, 1280]]) {
+        const { ctx, calls } = recordingContext();
+        const r = createCaptionRenderer({ ctx, width: w, height: h, events: [ev], style: { ...preset, highlightNumbers: true } });
+        for (let t = 900; t < 2000; t += 50) r.draw(t);
+        expect(calls.filter((c) => c.op === "fillText").length, preset.id).toBeGreaterThan(0);
+        const layout = r.layoutOf(ev);
+        expect(layout.bounds.left, preset.id).toBeGreaterThanOrEqual(w * SAFE_MARGIN_X - 0.01);
+        if (preset.activeBox) expect(layout.padX, preset.id).toBeGreaterThan(0); // the hopping box is counted in the bounds
+        expect(layout.bounds.right, preset.id).toBeLessThanOrEqual(w * (1 - SAFE_MARGIN_X) + 0.01);
+      }
+    }
+  });
+
   it("brackets drawing in save/restore so styles never leak into the video frame", () => {
     const { ctx, calls } = recordingContext();
     createCaptionRenderer({ ctx, width: 1280, height: 720, events: [ev], style: style() }).draw(1000);

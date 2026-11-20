@@ -80,7 +80,8 @@ export function buildFontStack(fontFamily: string): string {
 }
 
 /** Heavier presets get heavier weights; the variable Geist font supports all of them. */
-export function fontWeightFor(style: Pick<CaptionStyle, "id">): number {
+export function fontWeightFor(style: Pick<CaptionStyle, "id" | "fontWeight">): number {
+  if (typeof style.fontWeight === "number" && style.fontWeight >= 100 && style.fontWeight <= 900) return style.fontWeight;
   switch (style.id) {
     case "bold":
       return 800;
@@ -92,6 +93,6 @@ export function fontWeightFor(style: Pick<CaptionStyle, "id">): number {
 }
 
 /** The CSS `font` shorthand for a pixel size. */
-export function cssFont(style: Pick<CaptionStyle, "id" | "fontFamily">, fontPx: number): string {
+export function cssFont(style: Pick<CaptionStyle, "id" | "fontFamily" | "fontWeight">, fontPx: number): string {
   return `${fontWeightFor(style)} ${fontPx}px ${buildFontStack(style.fontFamily)}`;
 }

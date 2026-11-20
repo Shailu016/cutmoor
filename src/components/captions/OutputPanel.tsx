@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { AlertTriangle, Check, Download, FileJson, FileText, Film, RotateCcw, ShieldCheck, X } from "lucide-react";
 import { CaptionError, type BurnInExporter, type CaptionResult, type CaptionStyle } from "../../lib/captioning/contracts";
 import { toSrt, toVtt, toWordJson } from "../../lib/captioning/export";
@@ -36,6 +36,9 @@ interface PanelProps {
   edited: boolean;
   styleId: CaptionStyle["id"];
   onStyle: (id: CaptionStyle["id"]) => void;
+  /** Numbers, prices, percentages and years in the accent colour. */
+  highlightNumbers: boolean;
+  onHighlightNumbers: (on: boolean) => void;
   burnIn: BurnInExporter | null;
   onSeek: (ms: number) => void;
   onStartOver: () => void;
@@ -56,7 +59,7 @@ interface BurnState {
 const BURN_IDLE: BurnState = { status: "idle", fraction: 0, url: null, name: "", size: 0, error: null };
 
 /** The body of the dark output panel: what is happening, then style and downloads once there is a result. */
-export function OutputBody({ phase, hint, testDouble, file, events, result, wordCount, edited, styleId, onStyle, burnIn, onSeek, onStartOver, onUseLyrics, isVideo }: PanelProps) {
+export function OutputBody({ phase, hint, testDouble, file, events, result, wordCount, edited, styleId, onStyle, highlightNumbers, onHighlightNumbers, burnIn, onSeek, onStartOver, onUseLyrics, isVideo }: PanelProps) {
   const [burn, setBurn] = useState<BurnState>(BURN_IDLE);
   const [supported, setSupported] = useState<boolean | null>(null);
   const [saved, setSaved] = useState("");
@@ -91,7 +94,7 @@ export function OutputBody({ phase, hint, testDouble, file, events, result, word
     controllerRef.current?.abort();
     dropBurnResult();
     setBurn(BURN_IDLE);
-  }, [events, styleId, file, dropBurnResult]);
+  }, [events, styleId, highlightNumbers, file, dropBurnResult]);
 
   useEffect(
     () => () => {
@@ -120,7 +123,7 @@ export function OutputBody({ phase, hint, testDouble, file, events, result, word
       const blob = await burnIn.export({
         file,
         events,
-        style: CAPTION_STYLES[styleId],
+        style: { ...CAPTION_STYLES[styleId], highlightNumbers },
         signal: controller.signal,
         onProgress: (fraction) => setBurn((old) => (old.status === "running" ? { ...old, fraction: Math.max(old.fraction, Math.min(1, fraction)) } : old)),
       });
@@ -197,11 +200,19 @@ export function OutputBody({ phase, hint, testDouble, file, events, result, word
         <div className="cap-styles" role="group" aria-label="Caption style">
           {CAPTION_STYLE_ORDER.map((id) => {
             const style = CAPTION_STYLES[id];
+            // The second sample shows what changes as words are said: the lit word, or (karaoke) a word still to come.
+            const second = style.activeColor === style.textColor && style.upcomingColor ? style.upcomingColor : style.activeColor;
             return (
               <button key={id} type="button" className={styleId === id ? "cap-style active" : "cap-style"} aria-pressed={styleId === id} onClick={() => onStyle(id)}>
-                <span className={`cap-swatch cap-bg-${style.background}`} aria-hidden="true">
+                <span
+                  className={`cap-swatch cap-bg-${style.background}${style.uppercase ? " cap-swatch-upper" : ""}`}
+                  style={style.activeBox ? ({ "--cap-box": style.activeBox } as CSSProperties) : undefined}
+                  aria-hidden="true"
+                >
                   <span style={{ color: style.textColor }}>Aa </span>
-                  <span style={{ color: style.activeColor }}>Aa</span>
+                  <span className={style.activeBox ? "cap-swatch-box" : undefined} style={{ color: second }}>
+                    Aa
+                  </span>
                 </span>
                 <span className="cap-style-name">{CAPTION_STYLE_LABELS[id].name}</span>
                 <span className="cap-style-detail">{CAPTION_STYLE_LABELS[id].detail}</span>
@@ -209,6 +220,10 @@ export function OutputBody({ phase, hint, testDouble, file, events, result, word
             );
           })}
         </div>
+        <label className="cap-toggle">
+          <input type="checkbox" checked={highlightNumbers} onChange={(e) => onHighlightNumbers(e.target.checked)} />
+          Highlight numbers, prices and years
+        </label>
       </div>
 
       <div className="cap-section">

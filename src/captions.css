@@ -273,6 +273,20 @@
   margin: 0 0.12em;
 }
 
+/* Words still to come in a style that builds word by word: kept in the layout so nothing moves. */
+.cap-word[data-hidden] {
+  visibility: hidden;
+}
+
+/* A box behind the spoken word. The box grows outward with a shadow, so the line never shifts. */
+.cap-boxed .cap-word[data-state="active"] {
+  border-radius: 0.18em;
+  background: var(--cap-box);
+  box-shadow: 0 0 0 0.14em var(--cap-box);
+  text-shadow: none;
+  -webkit-text-stroke-width: 0;
+}
+
 .cap-dim {
   pointer-events: none;
 }
@@ -371,6 +385,34 @@
 
 .cap-swatch.cap-bg-pill > span:first-child {
   padding: 0;
+}
+
+.cap-swatch-upper {
+  text-transform: uppercase;
+  font-size: 15px;
+}
+
+.cap-swatch-box {
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px var(--cap-box);
+  background: var(--cap-box);
+}
+
+.cap-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--panel-text);
+  cursor: pointer;
+}
+
+.cap-toggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--ember-on-dark);
 }
 
 .cap-exports {

@@ -90,6 +90,8 @@ function output(result: CaptionResult, extra: { onUseLyrics?: () => void; testDo
     edited: false,
     styleId: "clean",
     onStyle: () => undefined,
+    highlightNumbers: true,
+    onHighlightNumbers: () => undefined,
     burnIn: null,
     onSeek: () => undefined,
     onStartOver: () => undefined,
