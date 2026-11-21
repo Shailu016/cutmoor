@@ -24,7 +24,7 @@ export interface SitePage {
 
 const UPDATED = "2026-11-11";
 /** The privacy policy was revised separately: analytics disclosure, the network check, and Cloudflare Web Analytics. */
-const PRIVACY_UPDATED = "2026-11-17";
+const PRIVACY_UPDATED = "2026-11-22";
 /** The About page was revised for the Add captions tool. */
 const CAPTIONS_UPDATED = "2026-11-13";
 /** The Licences page was revised when the second speech model shipped. */
@@ -96,7 +96,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Information stored in your browser",
         paragraphs: [
-          "Cutmoor itself sets no tracking cookies and keeps no account data. The tools work without storing anything about you in the browser.",
+          "Cutmoor itself sets no tracking cookies and keeps no account data. The one thing it stores about your choices is a caption look, if you save one in Add captions: a name and style settings (never your media), kept in your browser's local storage on this device until you delete it. It is never sent anywhere.",
         ],
         bullets: [
           "Advertising cookies, where used, are set by Google and its partners, not by Cutmoor. They are described in the next section.",
@@ -114,7 +114,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Analytics and server logs",
         paragraphs: [
-          "Cutmoor counts visits with Cloudflare Web Analytics, the same company that hosts the site. It does not use cookies, does not follow you from one site to another, and does not build a profile of you. It records only what a normal web request already contains, such as the page visited, the country, the browser and device type, and how fast the page loaded. It never sees your files, their names, or any text you type: the tools run on your device and send nothing. The counting script is added by Cloudflare when a page is delivered; it is not part of Cutmoor's own code, and the Add captions page does not load it, because that page's security policy refuses every host except our model host.",
+          "Cutmoor counts visits with Cloudflare Web Analytics, the same company that hosts the site. It does not use cookies, does not follow you from one site to another, and does not build a profile of you. It records only what a normal web request already contains, such as the page visited, the country, the browser and device type, and how fast the page loaded. It never sees your files, their names, or any text you type: the tools run on your device and never send them anywhere. The counting script is added by Cloudflare when a page is delivered; it is not part of Cutmoor's own code, and the Add captions page does not load it, because that page's security policy refuses every host except our model host.",
           "Cloudflare and the other hosts we use may also keep standard request logs, such as IP address, user agent, and the requested URL, for security and reliability. Those logs are controlled by the provider, not by the browser tools. Search engines such as Google may also tell us which searches led people to the site, through their own search reports; that data comes from the search engine, not from your device.",
           "The video encoder program file (FFmpeg compiled to WebAssembly) may be delivered from a public content network, unpkg.com, which receives the same standard request data when your browser downloads it. Only the program file is fetched from there; your videos and photos are never sent anywhere. The site checks the file's SHA-256 fingerprint before running it.",
         ],
@@ -124,6 +124,7 @@ export const SITE_PAGES: SitePage[] = [
         paragraphs: [
           "On 13 November 2026 we recorded every network request the live site made while it compressed a multi-megabyte test video in Chrome. During processing, the only requests were downloads: the encoder program from unpkg.com and the page's own worker script. No request carried the video, and no request in the whole session had a body larger than 1 KB.",
           "When the page first loaded, the browser also contacted Google (AdSense and its consent message). Those requests carry ordinary page and device information, not your files.",
+          "On 21 November 2026 we repeated the check on all 34 tools, adding a test file to each and running it. In the time we watched, no request carried a file or a file name, and no request body was larger than 850 characters. The requests to outside servers were Google (ads and its consent message), Cloudflare (visit counts) and, for the video tools that use the encoder, unpkg.com. The Add captions page makes no ad requests, and its browser security policy blocks the analytics script.",
           "This is a point-in-time check of the live site, not a promise about future versions. You can repeat it yourself: open your browser's developer tools, go to the Network tab, process a file, and look for any request that sends data out.",
         ],
       },
@@ -131,7 +132,7 @@ export const SITE_PAGES: SitePage[] = [
         heading: "Add captions and the model download",
         paragraphs: [
           "The Add captions tool needs a speech-recognition model, which is a large file. The first time you choose to use it, the page shows the download size and the host, and asks before anything is fetched. The model is downloaded from models.cutmoor.com, which is our own Cloudflare R2 storage, once, and your browser then keeps it so later jobs start without downloading again. The page checks each file against a known fingerprint (SHA-256) before using it.",
-          "Your audio, video, and transcript are processed on your device and never leave it. We never receive your media. The only thing the tool requests from the network is the model file itself.",
+          "Your audio, video, and transcript are processed on your device and never leave it. We never receive your media. Apart from the page's own files, the only thing this tool downloads is the speech model, from our own model host, and only after you agree. Each model asks separately: agreeing to the smaller one does not cover the larger one.",
         ],
         bullets: [
           "What the model host can see: your IP address, your browser's user agent, which file you requested, and the standard request details that web servers and Cloudflare keep in their logs. It cannot see your video, audio, transcript, or file names, because none of them are sent.",
@@ -142,7 +143,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Your rights",
         paragraphs: [
-          "Because Cutmoor does not create an account or store your files, there is usually no personal profile to export or delete. Cutmoor does not keep cookies or local storage of its own; your browser may cache the site's files, which you can clear at any time through your browser's site data settings.",
+          "Because Cutmoor does not create an account or store your files, there is usually no personal profile to export or delete. Cutmoor sets no cookies of its own. The only thing it writes to local storage is the caption looks you choose to save, which you can delete on the page or by clearing site data. Your browser may also cache the site's files, which you can clear at any time through your browser's site data settings.",
           "If you believe a deployed copy of Cutmoor is processing personal data unlawfully, contact the operator of that site. The contact address for this project is listed on the contact page.",
         ],
       },
@@ -227,7 +228,7 @@ export const SITE_PAGES: SitePage[] = [
     description:
       "What Cutmoor stores in your browser, how Google advertising cookies work on this site, and how to control personalised ads or clear stored data.",
     eyebrow: "Cookies",
-    updated: UPDATED,
+    updated: "2026-11-22",
     intro: [
       "Cutmoor uses as little browser storage as it can. This page lists what is stored, who stores it, and how you control it.",
     ],
@@ -235,10 +236,13 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Essential storage",
         paragraphs: [
-          "The tools need no cookies of their own. Your browser caches the video encoder and, if you convert a HEIC photo, the HEIC decoder, so later jobs start faster. That cache holds program files only, never your media.",
+          "The tools need no cookies of their own. Your browser caches the video encoder and, if you convert a HEIC photo, the HEIC decoder, so later jobs start faster. That cache holds program files only, never your media. Three small things are also kept on your device, listed below. None of them is ever sent anywhere.",
         ],
         bullets: [
           "Browser cache — the encoder and decoder program files, stored by your browser and cleared with your site data.",
+          "Speech model — if you agree to the Add captions download, the model files are saved in your browser so the next run starts straight away. You can delete them on the page.",
+          "Caption looks — if you save a look in Add captions, its name and style settings are kept in your browser's local storage until you delete it.",
+          "Compress video working file — for a large result, the compressed video may be written to your browser's private storage while the job runs. It is removed when you clear the result, and any leftover from a closed tab is removed at your next compress job.",
         ],
       },
       {
