@@ -398,7 +398,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Is my video uploaded to a server?",
         answer:
-          "No. The sound is read and turned into text on your device, in this tab. The only network request is the model download from our model host, once, after you agree. Your video, its sound, the captions, and the file name are never sent anywhere.",
+          "No. The sound is read and turned into text on your device, in this tab. Apart from the page's own files, the only thing this tool downloads is the speech model, from our own model host, after you agree (each model asks separately). Your video, its sound, the captions, and the file name are never sent anywhere.",
       },
       {
         question: "Which model should I choose?",

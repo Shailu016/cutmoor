@@ -58,6 +58,70 @@ afterEach(async () => {
   delete (window as { __cutmoorCaptionTiers?: unknown }).__cutmoorCaptionTiers;
 });
 
+/** A runtime for one model: its own manifest id and its own file, which is not downloaded yet. */
+function makeModelRuntime(id: string, bytes: number) {
+  const manifest: ModelManifest = { id, version: "1", files: [{ name: id, url: `https://models.cutmoor.com/m/${id}.bin`, bytes, sha256: id.padEnd(64, "b").slice(0, 64) }] };
+  const pipeline: CaptionPipeline = { run: async () => { throw new Error("not used"); }, dispose: vi.fn(async () => undefined) };
+  const runtime: CaptionRuntime = { pipeline, manifest, store: store(), burnIn: null, label: id };
+  return runtime;
+}
+
+describe("consent is asked for each model", () => {
+  const twoTiers = () => {
+    const fast = makeModelRuntime("fast", 170);
+    const high = makeModelRuntime("high", 835);
+    (window as { __cutmoorCaptionTiers?: unknown }).__cutmoorCaptionTiers = [
+      { id: "fast", name: "Standard", detail: "", factory: () => fast },
+      { id: "high", name: "High accuracy", detail: "", factory: () => high },
+    ];
+  };
+  const pickFile = async () => {
+    await act(async () => latest.selectFile(new File(["x"], "clip.mp4", { type: "video/mp4" })));
+  };
+
+  it("asks again for the larger model after a yes to the standard one", async () => {
+    twoTiers();
+    await render({ tier: "fast" });
+    await pickFile();
+    await act(async () => latest.start());
+    expect(latest.state.phase).toBe("needs-consent");
+    await act(async () => latest.approveDownload());
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 20)));
+    // Now the visitor chooses the 835 MB model: the earlier yes must not cover it.
+    await render({ tier: "high" });
+    await pickFile();
+    await act(async () => latest.start());
+    expect(latest.state).toMatchObject({ phase: "needs-consent", download: { totalBytes: 835 } });
+  });
+
+  it("does not ask twice for the same model", async () => {
+    twoTiers();
+    await render({ tier: "fast" });
+    await pickFile();
+    await act(async () => latest.start());
+    await act(async () => latest.approveDownload());
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 20)));
+    await pickFile();
+    await act(async () => latest.start());
+    expect(latest.state.phase).not.toBe("needs-consent");
+  });
+
+  it("asks again for the standard model after the visitor deleted it", async () => {
+    twoTiers();
+    await render({ tier: "fast" });
+    await pickFile();
+    await act(async () => latest.start());
+    await act(async () => latest.approveDownload());
+    await act(async () => new Promise((resolve) => setTimeout(resolve, 20)));
+    await act(async () => {
+      await latest.removeModel();
+    });
+    await pickFile();
+    await act(async () => latest.start());
+    expect(latest.state.phase).toBe("needs-consent");
+  });
+});
+
 describe("runtime lifecycle", () => {
   it("builds a fresh runtime when the tool is opened again after leaving it", async () => {
     const built: ReturnType<typeof makeRuntime>[] = [];

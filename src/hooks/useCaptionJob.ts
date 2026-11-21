@@ -100,7 +100,9 @@ export function useCaptionJob(factory?: CaptionRuntimeFactory, tier?: string, gl
   const abortRef = useRef<AbortController | null>(null);
   const runIdRef = useRef(0);
   const fileIdRef = useRef(0);
-  const consentRef = useRef(false);
+  // Which models the visitor has said yes to. A yes belongs to ONE model: agreeing to the 170 MB model must not
+  // let the 835 MB one download without asking, so this is keyed by the model's manifest id.
+  const consentedRef = useRef<Set<string>>(new Set());
   const runtimeRef = useRef<CaptionRuntime | null>(null);
   const fileRef = useRef<File | null>(null);
   const languageRef = useRef<CaptionLanguage>("hinglish");
@@ -355,7 +357,7 @@ export function useCaptionJob(factory?: CaptionRuntimeFactory, tier?: string, gl
       const input = fileRef.current;
       if (!target || !input) return;
       const ticket = (runIdRef.current += 1); // so a click that is overtaken by Cancel or a new file is dropped
-      if (!skipConsent && !consentRef.current && target.manifest && target.store) {
+      if (!skipConsent && !(target.manifest && consentedRef.current.has(target.manifest.id)) && target.manifest && target.store) {
         try {
           const cached = await cachedFileNames(target.manifest, target.store);
           const info = describeDownload(target.manifest, cached);
@@ -381,7 +383,9 @@ export function useCaptionJob(factory?: CaptionRuntimeFactory, tier?: string, gl
   const start = useCallback(() => void begin(false), [begin]);
 
   const approveDownload = useCallback(() => {
-    consentRef.current = true;
+    // The yes is for the model that asked (the one the visitor is looking at now), and only for it.
+    const modelId = runtimeRef.current?.manifest?.id;
+    if (modelId) consentedRef.current.add(modelId);
     void begin(true);
   }, [begin]);
 
@@ -414,8 +418,8 @@ export function useCaptionJob(factory?: CaptionRuntimeFactory, tier?: string, gl
         // The files could not be removed. The runtime was disposed all the same, so it still has to be replaced below.
         removed = 0;
       } finally {
-        // Whatever happened, the earlier "yes, download" belongs to the old situation: ask again next time.
-        consentRef.current = false;
+        // Whatever happened, the earlier "yes, download" for this model belongs to the old situation: ask again next time.
+        consentedRef.current.delete((target.manifest as ModelManifest).id);
       }
       // The disposed runtime must not be reused: build a fresh one for the next run, unless the visitor switched model meanwhile.
       if (factoryOfTarget) releaseRuntime(factoryOfTarget);
