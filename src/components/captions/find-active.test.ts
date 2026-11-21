@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CaptionEvent, Word } from "../../lib/captioning/types";
 import { captionSafeArea, placeBlock } from "../../lib/captioning/burn-in/position";
-import { anchorForDrag, findActive, findWordAtTime, fitRect, grabOffsetFromRect, pointerInPicture } from "./find-active";
+import { anchorForDrag, CONTROLS_CLEARANCE_PX, draggableHeight, findActive, findWordAtTime, fitRect, grabOffsetFromRect, pointerInPicture } from "./find-active";
 
 function w(index: number, text: string, startMs: number, endMs: number): Word {
   return { text, startMs, endMs, confidence: 1, index, windowIndex: 0 };
@@ -163,5 +163,35 @@ describe("preview pointer maths", () => {
     expect(moved.y).toBeGreaterThan(start.y);
     expect(at(-9999, -9999)).toEqual({ x: 0, y: 0 });
     expect(at(9999, 9999)).toEqual({ x: 1, y: 1 });
+  });
+});
+
+describe("draggableHeight keeps the player's control bar usable", () => {
+  const STAGE = 360;
+
+  it("lets the whole caption be dragged when it sits well above the controls", () => {
+    expect(draggableHeight({ top: 100, height: 40 }, 0, STAGE)).toBe(40);
+  });
+
+  it("offers nothing when the caption rests entirely on the control bar (the default landscape position)", () => {
+    // 7% from the bottom of a 360 px picture: the block's top is at 360 - 25 - 40 = 295, below the bar's top at 304.
+    expect(draggableHeight({ top: 305, height: 40 }, 0, STAGE)).toBe(0);
+  });
+
+  it("offers only the part above the bar when the caption overlaps it", () => {
+    const top = STAGE - CONTROLS_CLEARANCE_PX - 10; // 10 px of the block clears the bar
+    expect(draggableHeight({ top, height: 40 }, 0, STAGE)).toBe(10);
+  });
+
+  it("counts the picture's offset inside the stage (a letterboxed video)", () => {
+    // Without the offset this block would clear the bar completely; 150 px lower in the stage only 14 px of it does.
+    expect(draggableHeight({ top: 140, height: 40 }, 0, STAGE)).toBe(40);
+    expect(draggableHeight({ top: 140, height: 40 }, 150, STAGE)).toBe(14);
+  });
+
+  it("never goes negative, and leaves the block alone when the stage has no size yet", () => {
+    expect(draggableHeight({ top: 900, height: 40 }, 0, STAGE)).toBe(0);
+    expect(draggableHeight({ top: 100, height: 40 }, 0, 0)).toBe(40);
+    expect(draggableHeight({ top: 100, height: 40 }, 0, Number.NaN)).toBe(40);
   });
 });

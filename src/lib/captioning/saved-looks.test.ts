@@ -37,7 +37,10 @@ class MemoryStorage implements StorageLike {
 const base: CaptionStyle = { ...CAPTION_STYLES.clean };
 const styled: CaptionStyle = {
   ...base,
-  textColor: "#abcdef", // not a custom-look field, must not be stored
+  textColor: "#abcdef",
+  activeColor: "#fedcba",
+  uppercase: true,
+  highlightNumbers: false,
   sizeMul: 1.25,
   outlineWidth: 0.2,
   outlineColor: "#112233",
@@ -60,14 +63,27 @@ function storedDocument(storage: MemoryStorage): { version: number; looks: Saved
 }
 
 describe("customFields", () => {
-  it("keeps the custom-look fields and drops everything else", () => {
+  it("keeps the look fields, colours and capitals, and drops everything else", () => {
     const custom = customFields(styled);
     expect(Object.keys(custom).sort()).toEqual([...CUSTOM_LOOK_FIELDS].sort());
     expect(custom.sizeMul).toBe(1.25);
     expect(custom.animation).toBe("pop");
     expect(custom.animationMs).toBe(350);
-    expect("textColor" in custom).toBe(false);
+    // A look that forgot its colours and capitals felt broken: these must survive a save.
+    expect(custom.textColor).toBe("#abcdef");
+    expect(custom.activeColor).toBe("#fedcba");
+    expect(custom.uppercase).toBe(true);
+    expect(custom.highlightNumbers).toBe(false);
     expect("id" in custom).toBe(false);
+    expect("background" in custom).toBe(false);
+    expect("fontScale" in custom).toBe(false);
+  });
+
+  it("drops a colour or a flag that is not valid", () => {
+    const result = customFields({ ...base, textColor: "white", activeColor: "#12", uppercase: "yes" as unknown as boolean });
+    expect(result.textColor).toBeUndefined();
+    expect(result.activeColor).toBeUndefined();
+    expect(result.uppercase).toBeUndefined();
   });
 
   it("drops values that are not valid rather than storing them", () => {
@@ -84,12 +100,13 @@ describe("customFields", () => {
       animationMs: -10,
       fontKey: "",
     };
-    expect(customFields(bad)).toEqual({});
+    // Every bad value is dropped; only the preset's own valid colours remain.
+    expect(customFields(bad)).toEqual({ textColor: base.textColor, activeColor: base.activeColor });
   });
 });
 
 describe("saveLook", () => {
-  it("stores the preset id and only the custom-look fields", () => {
+  it("stores the preset id and only the look fields", () => {
     const storage = new MemoryStorage();
     const result = saveLook(storage, "  Big   yellow  ", styled, { now: 1000, id: "look-one" });
     expect(result.ok).toBe(true);
@@ -108,7 +125,8 @@ describe("saveLook", () => {
     expect(saved.preset).toBe("clean");
     expect(saved.name).toBe("Big yellow");
     const custom = saved.custom as Record<string, unknown>;
-    expect(custom.textColor).toBeUndefined();
+    expect(custom.textColor).toBe("#abcdef");
+    expect(custom.uppercase).toBe(true);
     expect(custom.sizeMul).toBe(1.25);
     expect(custom.animation).toBe("pop");
   });
@@ -256,6 +274,51 @@ describe("reading saved looks", () => {
   });
 });
 
+describe("entries this version cannot read are never thrown away", () => {
+  const future = { id: "future", name: "Future", preset: "clean", custom: { animation: "sparkle" }, createdAt: 1 };
+
+  function seeded(): MemoryStorage {
+    const storage = new MemoryStorage();
+    storage.setItem(SAVED_LOOKS_KEY, JSON.stringify({ version: 1, looks: [future] }));
+    return storage;
+  }
+
+  it("writes an unreadable entry back when another look is saved", () => {
+    const storage = seeded();
+    expect(saveLook(storage, "Mine", base, { now: 5, id: "look-mine" }).ok).toBe(true);
+    const stored = storedDocument(storage).looks as unknown as Record<string, unknown>[];
+    expect(stored.map((entry) => entry.id).sort()).toEqual(["future", "look-mine"]);
+    expect(stored.find((entry) => entry.id === "future")).toEqual(future);
+    // It is still not offered to the visitor.
+    expect(listLooks(storage).map((look) => look.id)).toEqual(["look-mine"]);
+  });
+
+  it("keeps it through a rename and a delete", () => {
+    const storage = seeded();
+    saveLook(storage, "Mine", base, { now: 5, id: "look-mine" });
+    expect(renameLook(storage, "look-mine", "Renamed").ok).toBe(true);
+    expect(deleteLook(storage, "look-mine").ok).toBe(true);
+    expect((storedDocument(storage).looks as unknown as { id: string }[]).map((entry) => entry.id)).toEqual(["future"]);
+  });
+
+  it("keeps entries beyond the 20-look cap too", () => {
+    const storage = new MemoryStorage();
+    const looks = Array.from({ length: 23 }, (_, i) => ({ id: "look-" + i, name: "L" + i, preset: "clean", custom: {}, createdAt: i }));
+    storage.setItem(SAVED_LOOKS_KEY, JSON.stringify({ version: 1, looks }));
+    expect(listLooks(storage)).toHaveLength(MAX_SAVED_LOOKS);
+    expect(deleteLook(storage, "look-0").ok).toBe(true);
+    expect(storedDocument(storage).looks).toHaveLength(22);
+  });
+
+  it("carries only a bounded number of unreadable entries", () => {
+    const storage = new MemoryStorage();
+    const junk = Array.from({ length: 100 }, (_, i) => ({ id: "bad-" + i, name: "B", preset: "nope", custom: {}, createdAt: i }));
+    storage.setItem(SAVED_LOOKS_KEY, JSON.stringify({ version: 1, looks: junk }));
+    expect(saveLook(storage, "Mine", base, { now: 1, id: "look-mine" }).ok).toBe(true);
+    expect(storedDocument(storage).looks.length).toBeLessThanOrEqual(41);
+  });
+});
+
 describe("applySavedLook", () => {
   it("builds the full style from the preset plus the saved custom fields", () => {
     const look: SavedLook = {
@@ -273,6 +336,29 @@ describe("applySavedLook", () => {
     // Non-custom fields still come from the preset.
     expect(applied.textColor).toBe(CAPTION_STYLES.karaoke.textColor);
     expect(applied.background).toBe(CAPTION_STYLES.karaoke.background);
+  });
+
+  it("applies a saved colour, capitals and number highlight over the preset", () => {
+    const look: SavedLook = {
+      id: "x",
+      name: "Look",
+      preset: "clean",
+      custom: { textColor: "#ff0000", activeColor: "#00ff00", uppercase: true, highlightNumbers: false },
+      createdAt: 1,
+    };
+    const applied = applySavedLook(look, CAPTION_STYLES.clean);
+    expect(applied.textColor).toBe("#ff0000");
+    expect(applied.activeColor).toBe("#00ff00");
+    expect(applied.uppercase).toBe(true);
+    expect(applied.highlightNumbers).toBe(false);
+  });
+
+  it("keeps the preset's own colours for a look saved before colours were stored", () => {
+    const old: SavedLook = { id: "old", name: "Old", preset: "karaoke", custom: { sizeMul: 1.2 }, createdAt: 1 };
+    const applied = applySavedLook(old, CAPTION_STYLES.karaoke);
+    expect(applied.textColor).toBe(CAPTION_STYLES.karaoke.textColor);
+    expect(applied.activeColor).toBe(CAPTION_STYLES.karaoke.activeColor);
+    expect(applied.upcomingColor).toBe(CAPTION_STYLES.karaoke.upcomingColor);
   });
 
   it("does not leave a custom field from the preset behind", () => {

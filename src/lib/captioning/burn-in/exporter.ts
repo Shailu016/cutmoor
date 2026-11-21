@@ -15,6 +15,7 @@ import { CaptionError } from "../contracts";
 import type { BurnInExporter, BurnInOptions } from "../contracts";
 import { SparseBlobBuilder } from "./blob-sink";
 import { loadCaptionFonts } from "./fonts";
+import { captionSampleText } from "./font-sample";
 import { CODEC_PREFERENCE, planOutput } from "./plan";
 import { createCaptionRenderer } from "./renderer";
 import { secondsToMs } from "./timeline";
@@ -128,7 +129,8 @@ export function createBurnInExporter(): BurnInExporter {
           );
         }
 
-        await guard(loadCaptionFonts());
+        // The chosen font, and the files of it that cover the real caption text, must be ready before frame one.
+        await guard(loadCaptionFonts({ fontKey: style.fontKey, text: captionSampleText(events) }));
         if (signal?.aborted) throw aborted();
 
         const canvas = new OffscreenCanvas(plan.width, plan.height);

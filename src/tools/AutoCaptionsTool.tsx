@@ -66,7 +66,10 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
   }, []);
   const applyLook = useCallback((look: CaptionStyle) => {
     setStyleId(look.id);
-    setCustom(customFields(look));
+    // The number highlight is its own page toggle, not part of the custom state: restore it when the look has it.
+    const { highlightNumbers: numbers, ...fields } = customFields(look);
+    setCustom(fields);
+    if (numbers !== undefined) setHighlightNumbers(numbers);
   }, []);
   const toggleSafeArea = useCallback((key: SafeAreaKey) => setSafeArea((old) => (old === key ? null : key)), []);
 
@@ -89,6 +92,7 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
     setStyleId("clean");
     setCustom({});
     setSafeArea(null);
+    setHighlightNumbers(true);
   }, [fileKey]);
 
   // A new file starts on the settings card anyway, so a pending lyrics request must not leak into it.

@@ -187,6 +187,20 @@ export function animationDurationMs(value: number | undefined): number {
   return Math.max(0, Math.min(MAX_ANIMATION_MS, Math.round(value)));
 }
 
+/** An entrance may use at most this share of the caption's time on screen, so it is always finished before the caption goes. */
+export const MAX_ANIMATION_SHARE = 0.5;
+
+/**
+ * The entrance length actually used for one caption: the chosen length, but never more than half the
+ * time the caption is on screen. A karaoke caption of 100 ms with a 500 ms typewriter used to end at
+ * 20% progress, with the words cut off; now it takes 50 ms and ends complete. Both renderers use this.
+ */
+export function effectiveAnimationMs(value: number | undefined, captionMs: number): number {
+  const chosen = animationDurationMs(value);
+  if (!Number.isFinite(captionMs) || captionMs <= 0) return chosen;
+  return Math.min(chosen, Math.floor(captionMs * MAX_ANIMATION_SHARE));
+}
+
 /** Code points, not UTF-16 units, so a typewriter never splits a surrogate pair. */
 export function charCount(text: string): number {
   return [...text].length;

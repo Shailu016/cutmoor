@@ -5,6 +5,7 @@ import type { FontFaceLike } from "./fonts";
 const h = vi.hoisted(() => ({
   load: vi.fn(async () => undefined as void),
   queries: [] as string[],
+  texts: [] as string[],
   declared: [] as string[],
 }));
 
@@ -20,8 +21,9 @@ const { loadCaptionFonts } = await import("./fonts");
 const env = () => ({
   fonts: {
     add: (_face: FontFaceLike) => undefined,
-    load: async (font: string) => {
+    load: async (font: string, text?: string) => {
       h.queries.push(font);
+      h.texts.push(text ?? "");
       return h.declared.some((family) => font.includes(`"${family}"`)) ? [{}] : [];
     },
     ready: Promise.resolve(),
@@ -40,6 +42,25 @@ describe("loadCaptionFonts with a chosen bundled font", () => {
       '700 32px "Fake Sans", "Noto Sans Devanagari", "Nirmala UI", "Mangal", "Kohinoor Devanagari", "Devanagari Sangam MN", "Lohit Devanagari", sans-serif',
     ]);
     expect(report).toEqual({ loaded: ["Fake Sans"], failed: [] });
+  });
+
+  it("asks the browser for the real caption text, so every script file of the font is loaded", async () => {
+    h.load.mockClear();
+    h.queries.length = 0;
+    h.texts.length = 0;
+    h.declared = ["Fake Sans"];
+    await loadCaptionFonts({ fontKey: "fake", text: "Aaéन", env: env() });
+    expect(h.texts.length).toBeGreaterThan(0);
+    expect(h.texts.every((text) => text === "Aaéन")).toBe(true);
+  });
+
+  it("falls back to the Latin sample when no text is given", async () => {
+    h.load.mockClear();
+    h.queries.length = 0;
+    h.texts.length = 0;
+    h.declared = ["Fake Sans"];
+    await loadCaptionFonts({ fontKey: "fake", env: env() });
+    expect(h.texts.every((text) => text === "Aa")).toBe(true);
   });
 
   it("uses the site font unchanged for an unknown key", async () => {

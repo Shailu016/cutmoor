@@ -1,6 +1,6 @@
 import type { CaptionStyle } from "../contracts";
 import type { CaptionEvent, Word } from "../types";
-import { animationDurationMs, animationFrame, animationText, isIdentityFrame } from "./animations";
+import { animationFrame, animationText, effectiveAnimationMs, isIdentityFrame } from "./animations";
 import { cssFont } from "./font-stack";
 import { CUSTOM_BOX_PAD, boxFor, outlineFor, shadowFor } from "./look";
 import {
@@ -353,7 +353,7 @@ export function createCaptionRenderer(options: CaptionRendererOptions): CaptionR
       const totalChars = layout.words.reduce((sum, word) => sum + [...word.text].length, 0);
       const rawFrame =
         style.animation && style.animation !== "none"
-          ? animationFrame(style.animation, animationProgress(event.startMs, timeMs, animationDurationMs(style.animationMs)), totalChars)
+          ? animationFrame(style.animation, animationProgress(event.startMs, timeMs, effectiveAnimationMs(style.animationMs, event.endMs - event.startMs)), totalChars)
           : null;
       const frame = rawFrame && !isIdentityFrame(rawFrame, totalChars) ? rawFrame : null;
       if (frame) {

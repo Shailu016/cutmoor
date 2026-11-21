@@ -91,7 +91,9 @@ describe("KaraokePreview custom look", () => {
     expect(block.style.fontFamily).toBe(style.fontFamily);
     expect(block.style.fontWeight).toBe("600");
     expect(block.style.fontSize).toBe("18px"); // 360 * 0.05
-    expect(block.style.background).toBe("");
+    // The block never paints a box itself, and an outline preset has no box at all.
+    expect(block.style.background).toBe("transparent");
+    expect(container.querySelectorAll(".cap-line-box")).toHaveLength(0);
     expect(block.style.textShadow).toBe("");
     expect(block.style.webkitTextStrokeWidth).toBe("");
     expect(block.className).toContain("cap-bg-outline");
@@ -115,7 +117,12 @@ describe("KaraokePreview custom look", () => {
     expect(block.style.webkitTextStrokeWidth).toBe("8.1px");
     expect(block.style.webkitTextStrokeColor).toBe("rgb(255, 45, 149)");
     expect(block.style.textShadow).toContain("rgba(0, 229, 255, 0.4)");
-    expect(block.style.background).toBe("rgba(122, 31, 162, 0.5)");
+    // The custom box is one rounded box per line, hugging the row, not one block-wide background.
+    expect(block.style.background).toBe("transparent");
+    const lineBox = container.querySelector<HTMLElement>(".cap-line-box");
+    expect(lineBox?.style.background).toBe("rgba(122, 31, 162, 0.5)");
+    expect(lineBox?.style.top).toBe("0px");
+    expect(lineBox?.style.bottom).toBe("0px");
     expect(block.textContent).toBe("CUSTOMLOOK");
   });
 
@@ -124,9 +131,51 @@ describe("KaraokePreview custom look", () => {
     expect(block.style.webkitTextStrokeWidth).toBe("0px");
   });
 
+  it("draws the preset pill behind each line, exactly as the export does", async () => {
+    // "Bold" is the dark-pill preset.
+    await render(CAPTION_STYLES.bold);
+    const boxes = container.querySelectorAll<HTMLElement>(".cap-line-box");
+    expect(boxes).toHaveLength(1);
+    expect(boxes[0].style.background).toBe("rgba(0, 0, 0, 0.66)");
+    // The preset pill keeps its taller inset look: 4% of the row at the top and bottom.
+    expect(boxes[0].style.top).not.toBe("0px");
+  });
+
   it("boxOpacity 0 hides the preset pill but keeps the text", async () => {
     const block = await render({ ...CAPTION_STYLES.bold, boxOpacity: 0 });
     expect(block.style.background).toBe("transparent");
+    expect(container.querySelectorAll(".cap-line-box")).toHaveLength(0);
     expect(block.textContent).toBe("customlook");
+  });
+
+  it("draws one box per line, so two lines of different lengths do not share a block-wide rectangle", async () => {
+    const twoLines: CaptionEvent = {
+      index: 0,
+      startMs: 0,
+      endMs: 2000,
+      lines: [
+        [{ text: "a", startMs: 0, endMs: 400, confidence: 1, index: 0, windowIndex: 0 }],
+        [{ text: "much-longer-second-line", startMs: 400, endMs: 900, confidence: 1, index: 1, windowIndex: 0 }],
+      ],
+    };
+    await act(async () => {
+      root.render(
+        createElement(KaraokePreview, {
+          url: null,
+          fileName: null,
+          events: [twoLines],
+          position: { event: 0, line: 0, word: 0 },
+          style: CAPTION_STYLES.bold,
+          videoRef: () => undefined,
+          badge: null,
+        }),
+      );
+    });
+    expect(container.querySelectorAll(".cap-line-box")).toHaveLength(2);
+  });
+
+  it("gives an outline preset no box", async () => {
+    await render(CAPTION_STYLES.shorts);
+    expect(container.querySelectorAll(".cap-line-box")).toHaveLength(0);
   });
 });

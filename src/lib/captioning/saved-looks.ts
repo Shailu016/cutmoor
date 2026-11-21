@@ -9,9 +9,12 @@ import { isAnimationName, MAX_ANIMATION_MS } from "./burn-in/animations";
  * returns the real one when the page has it, and null when storage is blocked (private windows,
  * third-party iframes, a full quota): every operation then fails cleanly instead of throwing.
  *
- * What is stored: the preset id plus only the custom-look fields of CaptionStyle. The preset
- * itself is not copied, so a later preset tweak still reaches old saved looks. Everything is
- * validated when read; an entry whose shape or values are wrong is ignored, never half-applied.
+ * What is stored: the preset id plus the look fields of CaptionStyle that a visitor can change
+ * (see CUSTOM_LOOK_FIELDS: font, size, colours, capitals, outline, shadow, box, position,
+ * animation, and the number highlight). The rest of the preset is not copied, so a later preset
+ * tweak still reaches old saved looks. Everything is validated when read; an entry whose shape or
+ * values are wrong is never half-applied. It is also never thrown away: it is kept as it was and
+ * written back, so a look saved by a newer version survives an older one saving or deleting.
  *
  * Nothing here sends data anywhere. The only key ever touched is `cutmoor.captionLooks.v1`.
  */
@@ -34,7 +37,18 @@ export const CUSTOM_LOOK_FIELDS = [
   "align",
   "animation",
   "animationMs",
+  // The Look tab and the number highlight also change these. They live on the preset too, so they
+  // are overridden when a look is applied but never cleared from the preset (see CLEARED_ON_APPLY).
+  "textColor",
+  "activeColor",
+  "uppercase",
+  "highlightNumbers",
 ] as const;
+
+/** The fields a preset does not own. Applying a look removes them from the preset first. */
+const CLEARED_ON_APPLY = CUSTOM_LOOK_FIELDS.filter(
+  (field) => field !== "textColor" && field !== "activeColor" && field !== "uppercase" && field !== "highlightNumbers",
+);
 
 export type CustomLookField = (typeof CUSTOM_LOOK_FIELDS)[number];
 /** Only the custom-look slice of a CaptionStyle. Every field stays optional, as in the contract. */
@@ -78,7 +92,15 @@ export interface SavedLooksRead {
   error?: "unavailable" | "corrupt" | "read-failed";
   /** Entries that were ignored because their shape or values failed validation. */
   skipped?: number;
+  /**
+   * Entries that could not be used but must not be lost: ones this version cannot read (a newer
+   * version's values) and ones beyond the 20-look cap. Writes put them back unchanged.
+   */
+  preserved?: unknown[];
 }
+
+/** A bound on what is carried along unread, so a hand-edited or hostile value cannot grow storage without limit. */
+const MAX_PRESERVED = 40;
 
 const PRESETS: readonly CaptionStyle["id"][] = ["clean", "shorts", "bold", "karaoke", "highlighter", "pop"];
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,80}$/;
@@ -90,6 +112,10 @@ function isPreset(value: unknown): value is CaptionStyle["id"] {
 
 function isColour(value: unknown): boolean {
   return typeof value === "string" && COLOUR_PATTERN.test(value);
+}
+
+function isBoolean(value: unknown): boolean {
+  return typeof value === "boolean";
 }
 
 function numberIn(min: number, max: number): (value: unknown) => boolean {
@@ -111,6 +137,10 @@ const FIELD_RULES: Readonly<Record<CustomLookField, (value: unknown) => boolean>
   align: (value) => value === "left" || value === "center" || value === "right",
   animation: (value) => isAnimationName(value),
   animationMs: numberIn(0, MAX_ANIMATION_MS),
+  textColor: isColour,
+  activeColor: isColour,
+  uppercase: isBoolean,
+  highlightNumbers: isBoolean,
 };
 
 /** Trims, collapses whitespace and caps the length. Returns null when nothing is left. */
@@ -201,20 +231,34 @@ export function readSavedLooks(storage: StorageLike | null): SavedLooksRead {
   if (document.version !== 1 || !Array.isArray(document.looks)) return { looks: [], ok: false, error: "corrupt" };
 
   const looks: SavedLook[] = [];
+  const preserved: unknown[] = [];
+  const keep = (entry: unknown) => {
+    if (preserved.length < MAX_PRESERVED) preserved.push(entry);
+  };
   const ids = new Set<string>();
   let skipped = 0;
-  for (const entry of document.looks) {
+  for (let index = 0; index < document.looks.length; index += 1) {
+    const entry: unknown = document.looks[index];
+    if (looks.length >= MAX_SAVED_LOOKS) {
+      // Over the cap: not shown, but not deleted either.
+      keep(entry);
+      continue;
+    }
     const look = sanitizeLook(entry);
-    if (!look || ids.has(look.id)) {
+    if (!look) {
+      skipped += 1;
+      keep(entry);
+      continue;
+    }
+    if (ids.has(look.id)) {
       skipped += 1;
       continue;
     }
     ids.add(look.id);
     looks.push(look);
-    if (looks.length >= MAX_SAVED_LOOKS) break;
   }
   looks.sort((a, b) => b.createdAt - a.createdAt || a.id.localeCompare(b.id));
-  return { looks, ok: true, skipped };
+  return { looks, ok: true, skipped, preserved };
 }
 
 /** Just the looks, newest first. Use `readSavedLooks` when the UI needs the failure reason. */
@@ -222,9 +266,9 @@ export function listLooks(storage: StorageLike | null): SavedLook[] {
   return readSavedLooks(storage).looks;
 }
 
-function writeLooks(storage: StorageLike, looks: readonly SavedLook[]): boolean {
+function writeLooks(storage: StorageLike, looks: readonly SavedLook[], preserved: readonly unknown[] = []): boolean {
   try {
-    storage.setItem(SAVED_LOOKS_KEY, JSON.stringify({ version: 1, looks }));
+    storage.setItem(SAVED_LOOKS_KEY, JSON.stringify({ version: 1, looks: [...looks, ...preserved] }));
     return true;
   } catch {
     return false;
@@ -262,7 +306,7 @@ export function saveLook(storage: StorageLike | null, name: string, style: Capti
   if (read.looks.some((look) => look.id === id)) id = createId(now);
 
   const look: SavedLook = { id, name: cleanName, preset: style.id, custom: customFields(style), createdAt: now };
-  if (!writeLooks(storage, [...read.looks, look])) return { ok: false, error: "write-failed" };
+  if (!writeLooks(storage, [...read.looks, look], read.preserved)) return { ok: false, error: "write-failed" };
   return { ok: true, look };
 }
 
@@ -279,7 +323,7 @@ export function renameLook(storage: StorageLike | null, id: string, name: string
   const looks = read.looks.slice();
   const look: SavedLook = { ...looks[index], name: cleanName };
   looks[index] = look;
-  if (!writeLooks(storage, looks)) return { ok: false, error: "write-failed" };
+  if (!writeLooks(storage, looks, read.preserved)) return { ok: false, error: "write-failed" };
   return { ok: true, look };
 }
 
@@ -290,7 +334,7 @@ export function deleteLook(storage: StorageLike | null, id: string): SavedLookRe
   if (read.error) return { ok: false, error: read.error };
   const looks = read.looks.filter((look) => look.id !== id);
   if (looks.length === read.looks.length) return { ok: false, error: "not-found" };
-  if (!writeLooks(storage, looks)) return { ok: false, error: "write-failed" };
+  if (!writeLooks(storage, looks, read.preserved)) return { ok: false, error: "write-failed" };
   return { ok: true };
 }
 
@@ -302,6 +346,6 @@ export function deleteLook(storage: StorageLike | null, id: string): SavedLookRe
 export function applySavedLook(look: SavedLook, preset: CaptionStyle): CaptionStyle {
   const next: CaptionStyle = { ...preset, id: look.preset };
   const writable = next as unknown as Record<string, unknown>;
-  for (const key of CUSTOM_LOOK_FIELDS) delete writable[key];
+  for (const key of CLEARED_ON_APPLY) delete writable[key];
   return { ...next, ...look.custom };
 }

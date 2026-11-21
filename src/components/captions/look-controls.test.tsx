@@ -125,8 +125,30 @@ describe("LookControls", () => {
       shadowColor: undefined,
       boxOpacity: undefined,
       boxColor: undefined,
+      textColor: undefined,
+      activeColor: undefined,
       uppercase: undefined,
     });
+  });
+
+  it("keeps the thickness, strength and opacity sliders usable: they stop above zero and the checkbox turns the effect off", async () => {
+    // Dragging one of these to 0 used to switch its effect off, which disabled the slider mid-drag.
+    await render(style({ outlineWidth: 0.2, shadow: 0.4, boxOpacity: 0.5 }));
+    for (const label of ["Outline thickness", "Shadow strength", "Box opacity"]) {
+      const slider = labelled(label) as HTMLInputElement;
+      expect(Number(slider.min), label).toBeGreaterThan(0);
+      expect(slider.disabled, label).toBe(false);
+    }
+  });
+
+  it("never sends a zero from a slider, only from its checkbox", async () => {
+    const onChange = await render(style({ outlineWidth: 0.2, shadow: 0.4, boxOpacity: 0.5 }));
+    setValue(labelled("Outline thickness"), "0");
+    setValue(labelled("Shadow strength"), "0");
+    setValue(labelled("Box opacity"), "0");
+    // A browser clamps a range input to its min, so the lowest a drag can send is the slider's own minimum.
+    const sent = onChange.mock.calls.flatMap(([patch]) => Object.values(patch as Record<string, number>));
+    expect(sent.every((value) => value > 0)).toBe(true);
   });
 
   it("gives every control an accessible label", async () => {
