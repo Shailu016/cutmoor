@@ -67,6 +67,8 @@ export function LookControls({ style, onChange }: Props) {
               shadowColor: undefined,
               boxOpacity: undefined,
               boxColor: undefined,
+              textColor: undefined,
+              activeColor: undefined,
               uppercase: undefined,
             })
           }
@@ -159,7 +161,9 @@ export function LookControls({ style, onChange }: Props) {
         <input
           id={controlId("outline-width")}
           type="range"
-          min={0}
+          // The slider stops at 1%: a value of 0 would switch the effect off and disable this very slider
+          // mid-drag. The checkbox above is how it is turned off.
+          min={1}
           max={30}
           step={1}
           value={Math.round(outlineValue * 100)}
@@ -201,7 +205,7 @@ export function LookControls({ style, onChange }: Props) {
         <input
           id={controlId("shadow-strength")}
           type="range"
-          min={0}
+          min={5}
           max={100}
           step={5}
           value={Math.round(shadowValue * 100)}
@@ -245,7 +249,7 @@ export function LookControls({ style, onChange }: Props) {
         <input
           id={controlId("box-opacity")}
           type="range"
-          min={0}
+          min={5}
           max={100}
           step={5}
           value={Math.round(boxValue * 100)}

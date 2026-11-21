@@ -50,6 +50,12 @@ export interface FontLoadOptions {
    * first export frame; absent/unknown means the site font, as before.
    */
   fontKey?: string;
+  /**
+   * The text that is about to be drawn. A browser loads only the font files that cover the characters it
+   * is asked for, so this decides which of a font's script files (Latin, accented Latin, Devanagari) are
+   * ready before the first frame. Default "Aa", which is the Latin file only.
+   */
+  text?: string;
   /** Give up waiting after this long. Default 4000 ms. */
   timeoutMs?: number;
 }
@@ -138,7 +144,7 @@ export async function loadCaptionFonts(options: FontLoadOptions = {}): Promise<F
     for (const weight of weights) {
       try {
         // fonts.load resolves with the faces it loaded; an empty list means nothing declared that family.
-        const faces = await withTimeout(env.fonts.load(`${weight} 32px ${buildFontStack(family)}`, "Aa"), timeoutMs);
+        const faces = await withTimeout(env.fonts.load(`${weight} 32px ${buildFontStack(family)}`, options.text || "Aa"), timeoutMs);
         if (faces === TIMED_OUT) {
           ready = false;
           reason = "Timed out while loading.";

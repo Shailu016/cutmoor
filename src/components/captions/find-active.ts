@@ -89,6 +89,20 @@ export function findWordAtTime(words: readonly Word[], timeMs: number): WordAtTi
 }
 
 /** Where a video of `media` size sits when fitted inside `box` without cropping (CSS object-fit: contain). */
+/** How much of the stage's bottom edge the browser's own player controls cover, in CSS px (a little more than the tallest bar). */
+export const CONTROLS_CLEARANCE_PX = 56;
+
+/**
+ * How tall the draggable part of a caption is. The caption is drawn in full, but the part resting on the
+ * player's control bar must not take clicks, or play and seek stop working whenever a caption is showing.
+ * `block.top` is relative to the picture, `pictureTop` is the picture's offset in the stage.
+ */
+export function draggableHeight(block: { top: number; height: number }, pictureTop: number, stageHeight: number): number {
+  if (!(stageHeight > 0)) return Math.max(0, block.height);
+  const controlsTop = stageHeight - CONTROLS_CLEARANCE_PX;
+  return Math.max(0, Math.min(block.height, controlsTop - (pictureTop + block.top)));
+}
+
 export function fitRect(boxW: number, boxH: number, mediaW: number, mediaH: number): { x: number; y: number; width: number; height: number } {
   if (!(boxW > 0 && boxH > 0)) return { x: 0, y: 0, width: 0, height: 0 };
   if (!(mediaW > 0 && mediaH > 0)) return { x: 0, y: 0, width: boxW, height: boxH };

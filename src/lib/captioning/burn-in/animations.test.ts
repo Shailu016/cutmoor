@@ -12,6 +12,7 @@ import {
   clampProgress,
   DEFAULT_ANIMATION_MS,
   easeOutBack,
+  effectiveAnimationMs,
   easeOutBounce,
   easeOutCubic,
   easeOutQuad,
@@ -320,5 +321,34 @@ describe("canvas renderer animation hook", () => {
     const { calls } = render("typewriter", 1000);
     expect(calls.filter((call) => call.op === "fillText")).toHaveLength(0);
     expect(calls.filter((call) => call.op === "strokeText")).toHaveLength(0);
+  });
+});
+
+describe("effectiveAnimationMs: an entrance always finishes before its caption ends", () => {
+  it("keeps the chosen length when the caption is long enough", () => {
+    expect(effectiveAnimationMs(300, 4000)).toBe(300);
+    expect(effectiveAnimationMs(undefined, 4000)).toBe(DEFAULT_ANIMATION_MS);
+  });
+
+  it("never uses more than half the caption's time on screen", () => {
+    expect(effectiveAnimationMs(500, 100)).toBe(50);
+    expect(effectiveAnimationMs(1500, 1000)).toBe(500);
+  });
+
+  it("falls back to the chosen length when the caption length is unknown", () => {
+    expect(effectiveAnimationMs(400, Number.NaN)).toBe(400);
+    expect(effectiveAnimationMs(400, 0)).toBe(400);
+    expect(effectiveAnimationMs(400, Number.POSITIVE_INFINITY)).toBe(400);
+  });
+
+  it("lets every animation reach the plain caption before a very short caption ends", () => {
+    // The reviewer's case: a 100 ms caption with a 500 ms animation ended at 20% progress and stayed cut off.
+    for (const id of ANIMATION_IDS) {
+      const duration = effectiveAnimationMs(500, 100);
+      const progress = animationProgress(0, 100, duration);
+      expect(progress, id).toBe(1);
+      const text = [..."hello"].length;
+      expect(isIdentityFrame(animationFrame(id, progress, text), text), id).toBe(true);
+    }
   });
 });

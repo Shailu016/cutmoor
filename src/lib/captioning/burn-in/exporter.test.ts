@@ -16,6 +16,7 @@ const h = vi.hoisted(() => ({
   utilized: [] as unknown[],
   hook: null as ((s: unknown) => unknown) | null,
   fontsGate: null as Promise<unknown> | null,
+  fontOptions: [] as unknown[],
   planGate: null as Promise<unknown> | null,
   executeCalled: false,
   draws: [] as number[],
@@ -73,7 +74,12 @@ vi.mock("mediabunny", () => {
     getFirstEncodableVideoCodec: async () => "avc",
   };
 });
-vi.mock("./fonts", () => ({ loadCaptionFonts: () => h.fontsGate ?? Promise.resolve({ loaded: [], failed: [] }) }));
+vi.mock("./fonts", () => ({
+  loadCaptionFonts: (options?: unknown) => {
+    h.fontOptions.push(options);
+    return h.fontsGate ?? Promise.resolve({ loaded: [], failed: [] });
+  },
+}));
 vi.mock("./plan", async (orig) => {
   const real = await orig<typeof import("./plan")>();
   return { ...real, planOutput: (...a: Parameters<typeof real.planOutput>) => h.planGate ?? real.planOutput(...a) };
@@ -116,12 +122,33 @@ beforeEach(() => {
   h.utilized = [track("video"), track("audio")];
   h.hook = null;
   h.fontsGate = null;
+  h.fontOptions = [];
   h.planGate = null;
   h.executeCalled = false;
   h.draws = [];
 });
 
 describe("burn-in exporter", () => {
+  it("waits for the chosen font and for the files that cover the real caption text before the first frame", async () => {
+    const options = baseOptions();
+    const lines = [[{ text: "café", startMs: 1000, endMs: 1500, confidence: 1, index: 0, windowIndex: 0 }, { text: "नमस्ते", startMs: 1500, endMs: 2000, confidence: 1, index: 1, windowIndex: 0 }]];
+    await createBurnInExporter().export({
+      ...options,
+      style: { ...CAPTION_STYLES.clean, fontKey: "poppins" },
+      events: [{ startMs: 1000, endMs: 2000, lines }] as never,
+    });
+    expect(h.fontOptions).toHaveLength(1);
+    const asked = h.fontOptions[0] as { fontKey?: string; text?: string };
+    expect(asked.fontKey).toBe("poppins");
+    expect(asked.text).toContain("é");
+    expect(asked.text).toContain("न");
+  });
+
+  it("asks only for the site font when the look has no font", async () => {
+    await createBurnInExporter().export(baseOptions());
+    expect((h.fontOptions[0] as { fontKey?: string }).fontKey).toBeUndefined();
+  });
+
   it("finding 1: a source whose first timestamp is 1 s draws the event that starts at 1000 ms on its first frame", async () => {
     h.firstTimestamp = 1;
     await createBurnInExporter().export(baseOptions());

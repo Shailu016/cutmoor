@@ -3,9 +3,9 @@ import { AudioLines, Film } from "lucide-react";
 import type { CaptionStyle } from "../../lib/captioning/contracts";
 import type { CaptionEvent, Word } from "../../lib/captioning/types";
 import { buildFontStack, cssFont, cssFontFamily, resolvedFontWeight } from "../../lib/captioning/burn-in/font-stack";
-import { animationDurationMs, animationFrame, animationText, captionCharCount, type AnimationFrame } from "../../lib/captioning/burn-in/animations";
+import { animationFrame, effectiveAnimationMs, animationText, captionCharCount, type AnimationFrame } from "../../lib/captioning/burn-in/animations";
 import { preloadCaptionFont } from "../../lib/captioning/burn-in/font-catalog";
-import { boxFor, outlineFor, shadowFor } from "../../lib/captioning/burn-in/look";
+import { boxFor, CUSTOM_BOX_PAD, outlineFor, shadowFor } from "../../lib/captioning/burn-in/look";
 import {
   captionSafeArea,
   effectiveAnchor,
@@ -17,7 +17,10 @@ import {
 import { layoutEvent } from "../../lib/captioning/burn-in/renderer";
 import { isNumberToken, wordColor, wordState } from "../../lib/captioning/burn-in/word-look";
 import { usePrefersReducedMotion } from "../../hooks/useMotionPrefs";
-import { anchorForDrag, fitRect, grabOffsetFromRect, type ActivePosition, type ClientRectLike } from "./find-active";
+import { anchorForDrag, draggableHeight, fitRect, grabOffsetFromRect, type ActivePosition, type ClientRectLike } from "./find-active";
+
+/** A drag area shorter than this is not worth offering; the grid, sliders and arrow keys still move the caption. */
+const MIN_HIT_PX = 14;
 import { SafeAreaOverlay, type SafeAreaKey } from "./SafeAreaOverlay";
 
 interface Props {
@@ -63,7 +66,8 @@ interface DragState {
 function useEntryAnimation(event: CaptionEvent | undefined, style: CaptionStyle, reducedMotion: boolean): AnimationFrame | null {
   const [running, setRunning] = useState<{ event: CaptionEvent; frame: AnimationFrame } | null>(null);
   const animation = style.animation ?? "none";
-  const duration = animationDurationMs(style.animationMs);
+  // Never longer than half the caption's time on screen, the same rule the exported video uses.
+  const duration = effectiveAnimationMs(style.animationMs, event ? event.endMs - event.startMs : Number.POSITIVE_INFINITY);
 
   useEffect(() => {
     if (!event || reducedMotion || animation === "none" || duration <= 0 || typeof requestAnimationFrame !== "function") {
@@ -167,6 +171,13 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
   const entry = useEntryAnimation(event, style, reducedMotion);
   const interactive = typeof onAnchorChange === "function";
 
+  // A drag cannot outlive its caption. When the caption ends, its element is removed and never sees the
+  // pointer release, which used to leave the drag stuck so the next caption followed the mouse unpressed.
+  useEffect(() => {
+    dragRef.current = null;
+    setDragging(false);
+  }, [event]);
+
   // One layout for both renderers. `layoutEvent` is pure; the canvas only provides the same
   // text measurement the burn-in renderer uses.
   const laidOut = useMemo(() => {
@@ -207,6 +218,9 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
   const blockSize: Size | null = layout ? { width: layout.bounds.right - layout.bounds.left, height: layout.bounds.bottom - layout.bounds.top } : null;
   const rect = blockSize ? placeBlock(style, blockSize, box.width, box.height) : null;
   const anchor = effectiveAnchor(style);
+  // Only the part of the caption above the player's control bar can be dragged (see draggableHeight).
+  const stageHeight = stageRef.current?.clientHeight ?? 0;
+  const hitHeight = rect ? draggableHeight(rect, box.y, stageHeight) : 0;
 
   // The active word by its stable transcript index: layoutEvent can split a hopeless long
   // word, but the word's `index` still identifies every piece.
@@ -238,23 +252,27 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
   if (style.shadow !== undefined) {
     blockStyle.textShadow = shadow ? `${shadow.offsetXPx}px ${shadow.offsetYPx}px ${shadow.blurPx}px ${shadow.color}` : "none";
   }
-  if (style.boxOpacity !== undefined || style.boxColor !== undefined) {
-    blockStyle.background = resolvedBox?.color ?? "transparent";
-  }
+  // The box is drawn behind each line (below), the way the export draws it, so the block itself never paints
+  // one. Otherwise a caption of two lines of different lengths shows one big rectangle here and two pills in the video.
+  blockStyle.background = "transparent";
+  const customBox = style.boxOpacity !== undefined && Number.isFinite(style.boxOpacity);
+  const boxInset = layout ? layout.rowHeight * 0.04 : 0;
+  const boxPad = layout ? (customBox ? Math.max(layout.padX, layout.fontPx * CUSTOM_BOX_PAD) : layout.padX) : 0;
 
   const onPointerDown = (pointerEvent: PointerEvent<HTMLDivElement>) => {
     if (!interactive || !onAnchorChange || !blockSize) return;
     if (pointerEvent.pointerType === "mouse" && pointerEvent.button !== 0) return;
-    const element = pointerEvent.currentTarget;
-    const pictureElement = element.parentElement;
-    if (!pictureElement) return;
+    const hit = pointerEvent.currentTarget;
+    const element = blockRef.current;
+    const pictureElement = element?.parentElement;
+    if (!element || !pictureElement) return;
     const blockRect = element.getBoundingClientRect();
     const pictureRect = pictureElement.getBoundingClientRect();
     if (!(blockRect.width > 0 && blockRect.height > 0 && pictureRect.width > 0 && pictureRect.height > 0)) return;
     pointerEvent.preventDefault();
     element.focus({ preventScroll: true });
     try {
-      element.setPointerCapture(pointerEvent.pointerId);
+      hit.setPointerCapture(pointerEvent.pointerId);
     } catch {
       /* pointer capture is a nicety: without it the drag still works while the pointer stays over the block */
     }
@@ -275,6 +293,12 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
   const onPointerMove = (pointerEvent: PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag || drag.pointerId !== pointerEvent.pointerId || !onAnchorChange) return;
+    // A mouse button released where this element never heard it: the drag is over, do not keep following the pointer.
+    if (pointerEvent.pointerType === "mouse" && pointerEvent.buttons === 0) {
+      dragRef.current = null;
+      setDragging(false);
+      return;
+    }
     pointerEvent.preventDefault();
     const next = anchorForDrag({
       picture: drag.picture,
@@ -386,15 +410,11 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
               visibility: "visible",
               zIndex: 1,
               userSelect: "none",
-              pointerEvents: interactive ? "auto" : "none",
-              touchAction: interactive ? "none" : undefined,
-              cursor: interactive ? (dragging ? "grabbing" : "grab") : undefined,
+              // The caption itself never takes pointer events; only the drag area below does, so the
+              // player's controls underneath keep working. The keyboard still reaches the block.
+              pointerEvents: "none",
               outlineOffset: 2,
             }}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
             onKeyDown={onKeyDown}
           >
             {layout.lines.map((line, lineIndex) => {
@@ -418,9 +438,26 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
                     height: layout.rowHeight,
                     lineHeight: `${layout.rowHeight}px`,
                     whiteSpace: "nowrap",
+                    zIndex: 0, // its own stacking context, so the box below can sit behind this line's text
                     ...placement,
                   }}
                 >
+                  {resolvedBox && (
+                    <span
+                      aria-hidden="true"
+                      className="cap-line-box"
+                      style={{
+                        position: "absolute",
+                        left: -boxPad,
+                        right: -boxPad,
+                        top: customBox ? 0 : boxInset,
+                        bottom: customBox ? 0 : boxInset,
+                        borderRadius: layout.fontPx * 0.35,
+                        background: resolvedBox.color,
+                        zIndex: -1,
+                      }}
+                    />
+                  )}
                   {line.words.map((placed, wordPosition) => {
                     const word = layout.words[placed.wordIndex];
                     const state = wordState(placed.wordIndex, activeIndex);
@@ -445,6 +482,16 @@ export function KaraokePreview({ url, fileName, events, position, style, videoRe
                 </div>
               );
             })}
+            {interactive && hitHeight >= MIN_HIT_PX && (
+              <div
+                className="cap-hit"
+                style={{ position: "absolute", left: 0, top: 0, width: "100%", height: hitHeight, pointerEvents: "auto", touchAction: "none", cursor: dragging ? "grabbing" : "grab" }}
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={endDrag}
+                onPointerCancel={endDrag}
+              />
+            )}
             {interactive && (
               <span id={hintId} className="cap-sr">
                 Drag the caption or use the arrow keys to move it. Hold Shift for bigger steps.
