@@ -36,6 +36,10 @@ interface PanelProps {
   edited: boolean;
   styleId: CaptionStyle["id"];
   onStyle: (id: CaptionStyle["id"]) => void;
+  /** The full style to burn in: the preset plus the visitor's custom fields and the number highlight. Omitted when the panel is used alone (then the preset and the highlight switch are used). */
+  style?: CaptionStyle;
+  /** The customize card (look, position, words, motion, saved looks), shown under the presets. */
+  customize?: ReactNode;
   /** Numbers, prices, percentages and years in the accent colour. */
   highlightNumbers: boolean;
   onHighlightNumbers: (on: boolean) => void;
@@ -59,7 +63,10 @@ interface BurnState {
 const BURN_IDLE: BurnState = { status: "idle", fraction: 0, url: null, name: "", size: 0, error: null };
 
 /** The body of the dark output panel: what is happening, then style and downloads once there is a result. */
-export function OutputBody({ phase, hint, testDouble, file, events, result, wordCount, edited, styleId, onStyle, highlightNumbers, onHighlightNumbers, burnIn, onSeek, onStartOver, onUseLyrics, isVideo }: PanelProps) {
+export function OutputBody({ phase, hint, testDouble, file, events, result, wordCount, edited, styleId, onStyle, style: styleProp, customize, highlightNumbers, onHighlightNumbers, burnIn, onSeek, onStartOver, onUseLyrics, isVideo }: PanelProps) {
+  // Any change to the look (preset, custom field, number highlight) makes a finished burned-in video out of date.
+  const fullStyle: CaptionStyle = styleProp ?? { ...CAPTION_STYLES[styleId], highlightNumbers };
+  const styleKey = JSON.stringify(fullStyle);
   const [burn, setBurn] = useState<BurnState>(BURN_IDLE);
   const [supported, setSupported] = useState<boolean | null>(null);
   const [saved, setSaved] = useState("");
@@ -94,7 +101,7 @@ export function OutputBody({ phase, hint, testDouble, file, events, result, word
     controllerRef.current?.abort();
     dropBurnResult();
     setBurn(BURN_IDLE);
-  }, [events, styleId, highlightNumbers, file, dropBurnResult]);
+  }, [events, styleKey, file, dropBurnResult]);
 
   useEffect(
     () => () => {
@@ -123,7 +130,7 @@ export function OutputBody({ phase, hint, testDouble, file, events, result, word
       const blob = await burnIn.export({
         file,
         events,
-        style: { ...CAPTION_STYLES[styleId], highlightNumbers },
+        style: fullStyle,
         signal: controller.signal,
         onProgress: (fraction) => setBurn((old) => (old.status === "running" ? { ...old, fraction: Math.max(old.fraction, Math.min(1, fraction)) } : old)),
       });
@@ -225,6 +232,8 @@ export function OutputBody({ phase, hint, testDouble, file, events, result, word
           Highlight numbers, prices and years
         </label>
       </div>
+
+      {customize}
 
       <div className="cap-section">
         <span className="mono-label">Download</span>

@@ -353,7 +353,7 @@ export const TOOLS: ToolDef[] = [
     description:
       "Add word-timed captions to a video in your browser. Edit every word, then export SRT, VTT, or a burned-in MP4. English, Hindi, Hinglish. No upload, no account.",
     intro:
-      "Drop a video and Cutmoor listens to it on your device, then writes captions with a time for every word, in English, Hindi, or Hinglish. Fix any mistake in the editor, watch each word light up as it is spoken, and export SRT, VTT, or an MP4 with the captions burned in for Reels, Shorts, and TikTok. A speech model downloads once, after you agree; your video, its sound, and the text never leave your device.",
+      "Drop a video and Cutmoor listens to it on your device, then writes captions with a time for every word, in English, Hindi, or Hinglish. Fix any mistake in the editor, watch each word light up as it is spoken, style the captions your way (font, colours, outline, position, one to five words at a time, entry animations), and export SRT, VTT, or an MP4 with the captions burned in for Reels, Shorts, and TikTok. A speech model downloads once, after you agree; your video, its sound, and the text never leave your device.",
     icon: "captions",
     accent: "rose",
     keywords: [
@@ -364,6 +364,9 @@ export const TOOLS: ToolDef[] = [
       "captions for reels and shorts",
       "caption generator without upload",
       "hindi and hinglish captions",
+      "caption styles for reels",
+      "custom caption font and colour",
+      "one word at a time captions",
     ],
     steps: [
       {
@@ -372,7 +375,7 @@ export const TOOLS: ToolDef[] = [
       },
       {
         name: "Choose a model",
-        text: "Draft is about 160 MB and is a quick first pass for clear speech. High accuracy is about 800 MB, needs WebGPU, and is aimed at a computer.",
+        text: "Standard is about 160 MB and is a quick first pass for clear speech. High accuracy is about 800 MB, needs WebGPU, and is aimed at a computer.",
       },
       {
         name: "Approve the one-time download",
@@ -381,6 +384,10 @@ export const TOOLS: ToolDef[] = [
       {
         name: "Edit and preview",
         text: "The first captions appear while the rest is still being read. Click any word to fix it, split or join words, or nudge its timing, then play the video to check the highlight.",
+      },
+      {
+        name: "Style the captions",
+        text: "Pick a preset (Clean, Shorts, Bold, Karaoke, Highlighter or Pop), then open Customize to change the font, size, colours, outline, shadow and box, move the captions, show one to five words at a time, add an entry animation, or save the look for next time. The preview and the exported video use the same look.",
       },
       {
         name: "Export",
@@ -396,17 +403,17 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Which model should I choose?",
         answer:
-          "Draft downloads about 160 MB and runs on more devices. It is a quick first pass for clear speech, and it can miss words on fast, noisy or accented speech. High accuracy downloads about 800 MB and needs WebGPU, which means recent Chrome or Edge on a computer. It is the accurate one, and much better on fast, noisy, or children's speech.",
+          "Standard downloads about 160 MB and runs on more devices. It is a quick first pass for clear speech, and it can miss words on fast, noisy or accented speech. High accuracy downloads about 800 MB and needs WebGPU, which means recent Chrome or Edge on a computer. It is the accurate one, and much better on fast, noisy, or children's speech.",
       },
       {
         question: "What is downloaded, and how big is it?",
         answer:
-          "The speech model you choose: about 160 MB for Draft, or about 800 MB for High accuracy. Before anything downloads, the page shows the exact size and the host, and waits for your yes. Each file is checked against a SHA-256 fingerprint shipped with the site, then stored in your browser, so later visits start without downloading again. You can delete it from the tool page at any time.",
+          "The speech model you choose: about 160 MB for Standard, or about 800 MB for High accuracy. Before anything downloads, the page shows the exact size and the host, and waits for your yes. Each file is checked against a SHA-256 fingerprint shipped with the site, then stored in your browser, so later visits start without downloading again. You can delete it from the tool page at any time.",
       },
       {
         question: "How accurate are the captions?",
         answer:
-          "We do not quote an accuracy percentage, because it depends on the recording. Machine captions can be wrong, especially with background noise, music, heavy accents, or several people talking at once. Draft is a quick first pass: it can miss words on fast, noisy or accented speech. High accuracy is the accurate one, and much better on fast, noisy, or children's speech. Songs, rap, and speech over loud music are the hardest case: where there is singing, music behind or under the voice gives more wrong words and some missing lines. Some singing, especially a chorus over dense music, may not be heard at all, and the tool leaves a gap rather than making words up; pasting the lyrics in the Lyrics or script box is the fix for a song. Words the model was unsure about are marked in the editor, but always read the captions through and fix them before you publish.",
+          "We do not quote an accuracy percentage, because it depends on the recording. Machine captions can be wrong, especially with background noise, music, heavy accents, or several people talking at once. Standard is a quick first pass: it can miss words on fast, noisy or accented speech. High accuracy is the accurate one, and much better on fast, noisy, or children's speech. Songs, rap, and speech over loud music are the hardest case: where there is singing, music behind or under the voice gives more wrong words and some missing lines. Some singing, especially a chorus over dense music, may not be heard at all, and the tool leaves a gap rather than making words up; pasting the lyrics in the Lyrics or script box is the fix for a song. Words the model was unsure about are marked in the editor, but always read the captions through and fix them before you publish.",
       },
       {
         question: "Which languages does it support?",
@@ -437,6 +444,21 @@ export const TOOLS: ToolDef[] = [
         question: "Can I use the captions on YouTube or Instagram?",
         answer:
           "SRT and VTT files can be uploaded to YouTube and most video platforms. For Instagram, TikTok, and Shorts, use the MP4 with the captions burned into the picture.",
+      },
+      {
+        question: "Can I change the caption font, colours and position?",
+        answer:
+          "Yes, for the burned-in MP4. Start from a preset, then open Customize. Look: six fonts (Geist, Inter, Montserrat, Poppins, Bebas Neue and Noto Sans Devanagari), size from half to double, text and highlight colours, outline, shadow, a box behind the text, and all capitals. Position: a nine-point grid, left, centre or right alignment, and Across and Height sliders. You can also drag the captions in the preview, or move them with the arrow keys. Guides for Instagram Stories, Instagram Reels, YouTube Shorts and TikTok show roughly where each app covers the picture; they are approximate, appear only in the preview, and are never drawn into the video. The fonts come with the page, so nothing is fetched from a font service.",
+      },
+      {
+        question: "Can I show one word at a time, or add an animation?",
+        answer:
+          "Yes. Under Words, choose Auto or one to five words per caption; the captions are laid out again straight away, with no new run of the speech model, and the SRT and VTT files follow the same split. Under Motion, pick an entry animation (None, Fade, Pop, Bounce, Slide up, Zoom in, Typewriter or Shake) and how long it takes. Animations are drawn into the burned-in MP4. The preview respects your device's reduced-motion setting, and the exported video does not.",
+      },
+      {
+        question: "Where are my saved looks stored?",
+        answer:
+          "In this browser only, on your device. Under My looks you can name a look, apply it later, rename it, or delete it, up to 20 looks. They are never sent anywhere, and clearing this site's data in your browser removes them. Changing the look after you made an MP4 discards that file, so the video you download always matches what you see.",
       },
     ],
     related: ["captions", "audio", "trim"],

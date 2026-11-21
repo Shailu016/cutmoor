@@ -1,4 +1,5 @@
 import type { CaptionEvent, Word } from "../../lib/captioning/types";
+import { anchorFromOrigin, type Anchor, type SafeArea, type Size } from "../../lib/captioning/burn-in/position";
 
 /**
  * Finding "what is being said right now" for the karaoke preview and the editor. These run up to
@@ -95,4 +96,51 @@ export function fitRect(boxW: number, boxH: number, mediaW: number, mediaH: numb
   const width = mediaW * scale;
   const height = mediaH * scale;
   return { x: (boxW - width) / 2, y: (boxH - height) / 2, width, height };
+}
+
+export interface Point {
+  x: number;
+  y: number;
+}
+
+export interface ClientRectLike {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+/** A client (pointer) position in the video picture's own pixel coordinates. */
+export function pointerInPicture(picture: ClientRectLike, clientX: number, clientY: number): Point {
+  return { x: clientX - picture.left, y: clientY - picture.top };
+}
+
+/** Where inside the block the pointer went down, in CSS pixels from the block's top-left. */
+export function grabOffsetFromRect(rect: ClientRectLike, clientX: number, clientY: number): Point {
+  const clamp = (value: number, max: number) => Math.min(max, Math.max(0, value));
+  return { x: clamp(clientX - rect.left, rect.width), y: clamp(clientY - rect.top, rect.height) };
+}
+
+export interface DragAnchorInput {
+  /** The picture's box in client coordinates. */
+  picture: ClientRectLike;
+  /** Where inside the block the pointer went down, fixed for the whole drag. */
+  grab: Point;
+  /** Pointer position in client coordinates. */
+  clientX: number;
+  clientY: number;
+  /** The block's size in frame pixels (its measured width/height). */
+  blockSize: Size;
+  /** The frame's safe area in frame pixels. */
+  safe: SafeArea;
+}
+
+/**
+ * The anchors that keep the point of the block the visitor grabbed under the pointer.
+ * Pure, so the drag maths can be tested without a browser: convert the pointer to picture
+ * coordinates, subtract the fixed grab offset, and invert the block placement.
+ */
+export function anchorForDrag(input: DragAnchorInput): Anchor {
+  const point = pointerInPicture(input.picture, input.clientX, input.clientY);
+  return anchorFromOrigin(point.x - input.grab.x, point.y - input.grab.y, input.safe, input.blockSize);
 }

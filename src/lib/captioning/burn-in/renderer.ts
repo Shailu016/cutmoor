@@ -1,8 +1,24 @@
 import type { CaptionStyle } from "../contracts";
 import type { CaptionEvent, Word } from "../types";
+import { animationDurationMs, animationFrame, animationText, isIdentityFrame } from "./animations";
 import { cssFont } from "./font-stack";
-import { createEventLookup } from "./timeline";
+import { CUSTOM_BOX_PAD, boxFor, outlineFor, shadowFor } from "./look";
+import {
+  ACTIVE_BOX_PAD,
+  LINE_HEIGHT,
+  MAX_BLOCK_HEIGHT,
+  MIN_FONT_PX,
+  SAFE_MARGIN_X,
+  baseFontPx,
+  horizontalPad,
+  lineLeft,
+  placeBlock,
+} from "./position";
+import { animationProgress, createEventLookup } from "./timeline";
 import { displayText, isWordVisible, wordColor, wordState } from "./word-look";
+
+// Kept exported from this module because the renderer tests and callers already import them here.
+export { ACTIVE_BOX_PAD, LINE_HEIGHT, MAX_BLOCK_HEIGHT, MIN_FONT_PX, SAFE_MARGIN_X, baseFontPx, bottomMargin } from "./position";
 
 /**
  * Lays out and draws caption events onto a 2D canvas.
@@ -32,6 +48,10 @@ export interface Canvas2DLike {
   shadowBlur: number;
   shadowOffsetX: number;
   shadowOffsetY: number;
+  /** Task D: real canvases have these; a recording fake may omit them. Only entry animations use them. */
+  globalAlpha?: number;
+  translate?(x: number, y: number): void;
+  scale?(x: number, y: number): void;
   measureText(text: string): { width: number };
   fillText(text: string, x: number, y: number): void;
   strokeText(text: string, x: number, y: number): void;
@@ -46,17 +66,6 @@ export interface Canvas2DLike {
 
 export type MeasureText = (text: string, fontPx: number) => number;
 
-/** Sides stay 5% from the frame edge. */
-export const SAFE_MARGIN_X = 0.05;
-/** Block height never exceeds 40% of the frame so captions cannot swallow the picture. */
-export const MAX_BLOCK_HEIGHT = 0.4;
-/** Below this the text is unreadable anyway; stop shrinking. */
-export const MIN_FONT_PX = 6;
-const LINE_HEIGHT = 1.3;
-const PILL_COLOR = "rgba(0, 0, 0, 0.66)";
-const OUTLINE_COLOR = "#000000";
-/** How far the spoken-word box reaches past the word on each side, as a fraction of the font size. */
-export const ACTIVE_BOX_PAD = 0.14;
 
 export interface PlacedWord {
   text: string;
@@ -94,16 +103,6 @@ export interface EventLayout {
   padX: number;
   /** Everything drawn for this event (text plus pill padding) lies inside this box. */
   bounds: Box;
-}
-
-export function baseFontPx(style: Pick<CaptionStyle, "fontScale">, frameHeight: number): number {
-  const scale = Number.isFinite(style.fontScale) && style.fontScale > 0 ? style.fontScale : 0.05;
-  return Math.max(MIN_FONT_PX, Math.round(scale * frameHeight));
-}
-
-/** Distance from the frame bottom to the block's bottom edge. Portrait video leaves more room for app UI overlays. */
-export function bottomMargin(frameWidth: number, frameHeight: number): number {
-  return frameHeight * (frameHeight > frameWidth ? 0.16 : 0.07);
 }
 
 /** Greedy wrap of word indices into rows no wider than `maxWidth`. A single over-wide word keeps its own row. */
@@ -155,7 +154,7 @@ function splitToWidth(text: string, measure: (text: string) => number, limit: nu
 export function layoutEvent(
   event: CaptionEvent,
   measure: MeasureText,
-  style: Pick<CaptionStyle, "fontScale" | "background" | "position" | "uppercase" | "activeBox">,
+  style: Pick<CaptionStyle, "fontScale" | "sizeMul" | "background" | "position" | "uppercase" | "activeBox" | "anchorX" | "anchorY" | "align">,
   frameWidth: number,
   frameHeight: number,
 ): EventLayout {
@@ -174,7 +173,6 @@ export function layoutEvent(
 
   const marginX = frameWidth * SAFE_MARGIN_X;
   const maxBlockHeight = frameHeight * MAX_BLOCK_HEIGHT;
-  const usePill = style.background === "pill";
   let fontPx = baseFontPx(style, frameHeight);
 
   let rows: number[][] = [];
@@ -188,7 +186,7 @@ export function layoutEvent(
     widths = words.map((w) => measure(w.text.trim(), fontPx));
     space = measure(" ", fontPx);
     // A pill, or the box behind the spoken word, reaches past the text; keep that inside the safe area too.
-    padX = usePill ? fontPx * 0.4 : style.activeBox ? fontPx * ACTIVE_BOX_PAD : 0;
+    padX = horizontalPad(style, fontPx);
     rowHeight = fontPx * LINE_HEIGHT;
     const maxTextWidth = frameWidth - 2 * marginX - 2 * padX;
 
@@ -246,23 +244,23 @@ export function layoutEvent(
   }
 
   const blockHeight = rows.length * rowHeight;
-  const bottomEdge = frameHeight - bottomMargin(frameWidth, frameHeight);
-  const blockTop = style.position === "middle" ? (frameHeight - blockHeight) / 2 : bottomEdge - blockHeight;
+  const blockWidth = rowWidths.reduce((widest, width) => Math.max(widest, width), 0) + 2 * padX;
+  const block = placeBlock(style, { width: blockWidth, height: blockHeight }, frameWidth, frameHeight);
+  const align = style.align ?? "center";
 
   const lines: PlacedLine[] = [];
   let left = Infinity;
   let right = -Infinity;
   rows.forEach((row, r) => {
     const width = rowWidths[r];
-    // Centre, but never start left of the margin even if (at the minimum font) the row is too wide.
-    const x = Math.max(marginX + padX, (frameWidth - width) / 2);
+    const x = lineLeft(block, width, padX, align);
     let cursor = x;
     const placed: PlacedWord[] = row.map((i) => {
       const word: PlacedWord = { text: words[i].text.trim(), x: cursor, width: widths[i], wordIndex: i };
       cursor += widths[i] + space;
       return word;
     });
-    lines.push({ words: placed, x, y: blockTop + r * rowHeight + rowHeight / 2, width });
+    lines.push({ words: placed, x, y: block.top + r * rowHeight + rowHeight / 2, width });
     left = Math.min(left, x - padX);
     right = Math.max(right, x + width + padX);
   });
@@ -270,7 +268,7 @@ export function layoutEvent(
   const bounds: Box =
     lines.length === 0
       ? { left: 0, top: 0, right: 0, bottom: 0 }
-      : { left, top: blockTop, right, bottom: blockTop + blockHeight };
+      : { left, top: block.top, right, bottom: block.top + blockHeight };
   return { fontPx, words, lines, rowHeight, padX, bounds };
 }
 
@@ -350,31 +348,91 @@ export function createCaptionRenderer(options: CaptionRendererOptions): CaptionR
 
       const active = activeWordIndex(layout.words, timeMs);
       ctx.save();
+
+      // ---- Task D: entry animation (canvas export). Absent or "none" changes nothing below. ----
+      const totalChars = layout.words.reduce((sum, word) => sum + [...word.text].length, 0);
+      const rawFrame =
+        style.animation && style.animation !== "none"
+          ? animationFrame(style.animation, animationProgress(event.startMs, timeMs, animationDurationMs(style.animationMs)), totalChars)
+          : null;
+      const frame = rawFrame && !isIdentityFrame(rawFrame, totalChars) ? rawFrame : null;
+      if (frame) {
+        // Scale and offset the whole block around its centre, exactly like the preview's CSS transform.
+        if (typeof ctx.translate === "function" && typeof ctx.scale === "function") {
+          const cx = (layout.bounds.left + layout.bounds.right) / 2;
+          const cy = (layout.bounds.top + layout.bounds.bottom) / 2;
+          ctx.translate(cx + frame.dx * layout.fontPx, cy + frame.dy * layout.fontPx);
+          ctx.scale(frame.scale, frame.scale);
+          ctx.translate(-cx, -cy);
+        }
+        ctx.globalAlpha = frame.opacity;
+      }
+      // Typewriter cuts each word at the same code-point offset the preview uses.
+      const typed = new Map<PlacedWord, string>();
+      if (frame?.visibleChars !== undefined) {
+        let offset = 0;
+        for (const line of layout.lines) {
+          for (const word of line.words) {
+            typed.set(word, animationText(word.text, offset, frame));
+            offset += [...word.text].length;
+          }
+        }
+      }
+      const drawnText = (word: PlacedWord): string => typed.get(word) ?? word.text;
+      // ---- end Task D ----
+
       ctx.font = cssFont(style, layout.fontPx);
       ctx.textBaseline = "middle";
       ctx.textAlign = "left";
       ctx.lineJoin = "round";
 
-      if (style.background === "pill") {
-        ctx.fillStyle = PILL_COLOR;
+      const clearShadow = () => {
+        ctx.shadowColor = "rgba(0, 0, 0, 0)";
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+      };
+
+      // The box goes down first, without any text shadow. With an explicit opacity it is a custom
+      // box; without one, the boxFor() preset rule still gives the old pill, drawn exactly as before.
+      const box = boxFor(style);
+      if (box) {
+        ctx.fillStyle = box.color;
+        const customBox = style.boxOpacity !== undefined && Number.isFinite(style.boxOpacity);
         const inset = layout.rowHeight * 0.04;
         for (const line of layout.lines) {
-          roundedRect(
-            ctx,
-            line.x - layout.padX,
-            line.y - layout.rowHeight / 2 + inset,
-            line.x + line.width + layout.padX,
-            line.y + layout.rowHeight / 2 - inset,
-            layout.fontPx * 0.35,
-          );
+          if (customBox) {
+            // A custom box hugs the row; the preset pill keeps its taller inset look. This pad is
+            // drawing only (layout is untouched), and is the same 0.3 em the preview's padding uses.
+            const pad = Math.max(layout.padX, layout.fontPx * CUSTOM_BOX_PAD);
+            roundedRect(
+              ctx,
+              line.x - pad,
+              line.y - layout.rowHeight / 2,
+              line.x + line.width + pad,
+              line.y + layout.rowHeight / 2,
+              layout.fontPx * 0.35,
+            );
+          } else {
+            roundedRect(
+              ctx,
+              line.x - layout.padX,
+              line.y - layout.rowHeight / 2 + inset,
+              line.x + line.width + layout.padX,
+              line.y + layout.rowHeight / 2 - inset,
+              layout.fontPx * 0.35,
+            );
+          }
           ctx.fill();
         }
-      } else if (style.background === "none") {
-        // No box behind the text, so a soft shadow keeps it readable on bright footage.
-        ctx.shadowColor = "rgba(0, 0, 0, 0.75)";
-        ctx.shadowBlur = layout.fontPx * 0.18;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = layout.fontPx * 0.05;
+      }
+
+      const shadow = shadowFor(style, layout.fontPx);
+      if (shadow) {
+        ctx.shadowColor = shadow.color;
+        ctx.shadowBlur = shadow.blurPx;
+        ctx.shadowOffsetX = shadow.offsetXPx;
+        ctx.shadowOffsetY = shadow.offsetYPx;
       }
 
       const visible = (word: PlacedWord) => isWordVisible(wordState(word.wordIndex, active), style);
@@ -386,8 +444,7 @@ export function createCaptionRenderer(options: CaptionRendererOptions): CaptionR
         const word = line?.words.find((w) => w.wordIndex === active);
         if (line && word) {
           ctx.save();
-          ctx.shadowColor = "rgba(0, 0, 0, 0)";
-          ctx.shadowBlur = 0;
+          clearShadow();
           ctx.fillStyle = style.activeBox;
           const padX = layout.fontPx * ACTIVE_BOX_PAD;
           const half = layout.rowHeight * 0.44;
@@ -397,14 +454,17 @@ export function createCaptionRenderer(options: CaptionRendererOptions): CaptionR
         }
       }
 
-      if (style.background === "outline") {
-        ctx.strokeStyle = OUTLINE_COLOR;
-        ctx.lineWidth = layout.fontPx * 0.16;
+      const outline = outlineFor(style, layout.fontPx);
+      if (outline) {
+        ctx.strokeStyle = outline.color;
+        ctx.lineWidth = outline.widthPx;
         for (const line of layout.lines) {
           for (const word of line.words) {
             // The word on the box is dark on a light box; a black outline would only smudge the box.
             if (!visible(word) || (style.activeBox && word.wordIndex === active)) continue;
-            ctx.strokeText(word.text, word.x, line.y);
+            const text = drawnText(word);
+            if (text.length === 0) continue;
+            ctx.strokeText(text, word.x, line.y);
           }
         }
       }
@@ -419,8 +479,13 @@ export function createCaptionRenderer(options: CaptionRendererOptions): CaptionR
             ctx.shadowColor = "rgba(0, 0, 0, 0)";
             ctx.shadowBlur = 0;
           }
+          const text = drawnText(word);
+          if (text.length === 0) {
+            if (onBox) ctx.restore();
+            continue;
+          }
           ctx.fillStyle = wordColor(word.text, state, style);
-          ctx.fillText(word.text, word.x, line.y);
+          ctx.fillText(text, word.x, line.y);
           if (onBox) ctx.restore();
         }
       }

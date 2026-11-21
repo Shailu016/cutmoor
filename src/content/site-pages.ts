@@ -413,7 +413,7 @@ export const SITE_PAGES: SitePage[] = [
       {
         heading: "Add captions: speech models",
         paragraphs: [
-          "The tool offers two speech-recognition models, both by Oriserve and both declared Apache-2.0. Draft is Whisper-Hindi2Hinglish-Swift, a fine-tune of OpenAI Whisper base. The Hugging Face user di12355 converted it to ONNX, and the download is about 160 MB. High accuracy is Whisper-Hindi2Hinglish-Apex, a fine-tune of OpenAI whisper-large-v3-turbo. Cutmoor converted it to ONNX and compressed the weights to 4-bit, and the download is about 800 MB. High accuracy needs WebGPU, so it runs in recent Chrome or Edge on a computer.",
+          "The tool offers two speech-recognition models, both by Oriserve and both declared Apache-2.0. Standard is Whisper-Hindi2Hinglish-Swift, a fine-tune of OpenAI Whisper base. The Hugging Face user di12355 converted it to ONNX, and the download is about 160 MB. High accuracy is Whisper-Hindi2Hinglish-Apex, a fine-tune of OpenAI whisper-large-v3-turbo. Cutmoor converted it to ONNX and compressed the weights to 4-bit, and the download is about 800 MB. High accuracy needs WebGPU, so it runs in recent Chrome or Edge on a computer.",
           "Oriserve describes its training data as proprietary or partly proprietary and does not publish it. We rely on the Apache-2.0 licence each model page declares and have not independently verified the training data.",
           "Silero VAD v6 by the Silero Team is part of the app's model files, but Add captions does not run it: that page uses a small built-in vocal-activity detector to decide which stretches to read. The Silero repository's LICENSE file says MIT.",
           "Both models download once from models.cutmoor.com after the visitor agrees, are checked against SHA-256 fingerprints shipped with the site, and are stored in the browser. Nothing else is sent anywhere.",
@@ -432,7 +432,7 @@ export const SITE_PAGES: SitePage[] = [
           {
             label: "whisper-hinglish-swift-onnx (di12355)",
             href: "https://huggingface.co/di12355/whisper-hinglish-swift-onnx",
-            description: "ONNX conversion of the Draft model; Apache-2.0 with the OpenAI Whisper MIT notice.",
+            description: "ONNX conversion of the Standard model; Apache-2.0 with the OpenAI Whisper MIT notice.",
           },
           { label: "OpenAI Whisper", href: "https://github.com/openai/whisper", description: "MIT." },
           { label: "Silero VAD", href: "https://github.com/snakers4/silero-vad", description: "MIT per the repository LICENSE file; v6." },

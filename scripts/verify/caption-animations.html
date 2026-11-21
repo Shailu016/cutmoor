@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Caption entry animations verification</title>
+  </head>
+  <body style="margin: 0; background: #eef1f5; color: #121722">
+    <main style="width: 1120px; margin: 0 auto; padding: 16px; font-family: 'Geist Variable', system-ui, sans-serif">
+      <canvas id="sheet" width="1100" height="880" style="display: block; width: 1100px; border-radius: 10px"></canvas>
+
+      <section style="display: flex; gap: 18px; align-items: flex-start; margin-top: 18px">
+        <div>
+          <h2 style="margin: 0 0 8px; font-size: 15px">Live preview (HTML, KaraokePreview)</h2>
+          <div id="preview-host" style="width: 640px; height: 360px"></div>
+        </div>
+        <p style="max-width: 420px; margin: 22px 0 0; font-size: 13px; line-height: 1.55; color: #566070">
+          This page is a production Vite build of the real modules. It draws the same short caption with every
+          animation through the canvas renderer the MP4 exporter calls per frame, then shows the HTML preview and
+          the two new controls. Under <code>prefers-reduced-motion</code> the HTML preview stays still; the canvas
+          export path always animates, as the brief requires.
+        </p>
+      </section>
+
+      <div id="ui-host" style="margin-top: 18px"></div>
+    </main>
+    <script type="module" src="./caption-animations-harness.tsx"></script>
+  </body>
+</html>

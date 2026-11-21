@@ -3,7 +3,9 @@ import { describeLowSpeech } from "../components/captions/low-speech";
 import { FileDrop } from "../components/FileDrop";
 import { KaraokePreview } from "../components/captions/KaraokePreview";
 import { CaptionEditor } from "../components/captions/CaptionEditor";
+import { CustomizePanel } from "../components/captions/CustomizePanel";
 import { OutputBody, PanelFrame } from "../components/captions/OutputPanel";
+import type { SafeAreaKey } from "../components/captions/SafeAreaOverlay";
 import { ConsentCard, ProgressCard, SettingsCard, UnavailableCard } from "../components/captions/StageCards";
 import type { CaptionRuntimeFactory } from "../components/captions/runtime-types";
 import { CAPTION_STYLES } from "../components/captions/styles";
@@ -13,6 +15,7 @@ import { usePlayhead } from "../components/captions/usePlayhead";
 import { useCaptionJob } from "../hooks/useCaptionJob";
 import { useElapsed } from "../hooks/useElapsed";
 import type { CaptionStyle } from "../lib/captioning/contracts";
+import { customFields } from "../lib/captioning/saved-looks";
 
 /**
  * Auto captions: drop a video, get word-timed captions, fix them, preview them with the spoken
@@ -44,7 +47,28 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
   const [styleId, setStyleId] = useState<CaptionStyle["id"]>("clean");
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const [highlightNumbers, setHighlightNumbers] = useState(true);
-  const style = { ...CAPTION_STYLES[styleId], highlightNumbers };
+  // What the visitor changed on top of the preset (font, size, outline, position, animation...).
+  // Picking another preset clears it; an absent field always means "as the preset has it".
+  const [custom, setCustom] = useState<Partial<CaptionStyle>>({});
+  const [safeArea, setSafeArea] = useState<SafeAreaKey | null>(null);
+  const style: CaptionStyle = { ...CAPTION_STYLES[styleId], ...custom, highlightNumbers };
+  const patchStyle = useCallback((patch: Partial<CaptionStyle>) => {
+    setCustom((old) => {
+      const next: Partial<CaptionStyle> = { ...old, ...patch };
+      // A field set back to undefined means "reset to the preset": drop it so the preset shows through.
+      for (const key of Object.keys(next) as (keyof CaptionStyle)[]) if (next[key] === undefined) delete next[key];
+      return next;
+    });
+  }, []);
+  const chooseStyle = useCallback((id: CaptionStyle["id"]) => {
+    setStyleId(id);
+    setCustom({});
+  }, []);
+  const applyLook = useCallback((look: CaptionStyle) => {
+    setStyleId(look.id);
+    setCustom(customFields(look));
+  }, []);
+  const toggleSafeArea = useCallback((key: SafeAreaKey) => setSafeArea((old) => (old === key ? null : key)), []);
 
   // What the preview shows: the finished (and edited) captions, or the first captions while it works.
   const liveEvents = state.phase === "running" ? state.events : result ? edits.events : [];
@@ -61,7 +85,11 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
 
   // New file or a fresh run: back to the default look.
   const fileKey = job.file;
-  useEffect(() => setStyleId("clean"), [fileKey]);
+  useEffect(() => {
+    setStyleId("clean");
+    setCustom({});
+    setSafeArea(null);
+  }, [fileKey]);
 
   // A new file starts on the settings card anyway, so a pending lyrics request must not leak into it.
   useEffect(() => setLyricsBoxRequest(0), [fileKey]);
@@ -82,6 +110,9 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
   const busy = state.phase === "running" || state.phase === "needs-consent";
   const hasFile = job.file !== null;
   const isVideo = (job.meta?.hasVideo ?? true) && hasFile;
+  // A file with no picture to draw (an MP3, or a video this browser cannot decode) gets an explanation instead of a black box.
+  const isAudioFile = Boolean(job.file && (job.file.type.startsWith("audio/") || /.(mp3|wav|m4a|aac|ogg|oga|flac|opus)$/i.test(job.file.name)));
+  const noPicture: "audio" | "undecodable" | null = !hasFile ? null : isAudioFile ? "audio" : job.meta && !job.meta.hasVideo ? "undecodable" : null;
 
   const panelState = (() => {
     if (!hasFile) return { label: "Waiting", className: "job-state-idle", phase: "idle" as const };
@@ -188,6 +219,9 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
             position={playhead.position}
             style={style}
             videoRef={setVideo}
+            onAnchorChange={(anchorX, anchorY) => patchStyle({ anchorX, anchorY })}
+            safeArea={safeArea}
+            noPicture={noPicture}
             badge={hasFile ? (result ? "Preview" : state.phase === "running" ? "First captions" : "Source") : null}
           >
             {state.phase === "running" && <div className="demo-dim cap-dim" aria-hidden="true" />}
@@ -204,7 +238,22 @@ export function AutoCaptionsTool({ factory }: { factory?: CaptionRuntimeFactory 
           wordCount={edits.words.length}
           edited={edits.edited}
           styleId={styleId}
-          onStyle={setStyleId}
+          onStyle={chooseStyle}
+          style={style}
+          customize={
+            <CustomizePanel
+              style={style}
+              onChange={patchStyle}
+              onApplyLook={applyLook}
+              safeArea={safeArea}
+              onSafeArea={toggleSafeArea}
+              wordsPerCaption={edits.wordsPerCaption}
+              onWordsPerCaption={edits.setWordsPerCaption}
+              script={edits.script}
+              onScript={edits.setScript}
+              hasDevanagari={edits.hasDevanagari}
+            />
+          }
           highlightNumbers={highlightNumbers}
           onHighlightNumbers={setHighlightNumbers}
           burnIn={runtime?.burnIn ?? null}

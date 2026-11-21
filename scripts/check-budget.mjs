@@ -19,7 +19,7 @@ const BUDGET = {
   firstLoadJsGz: 230 * KB, // every JS file except the lazy HEIC chunk, together
   singleChunkGz: 100 * KB, // any one first-load JS file
   articleChunkGz: 15 * KB, // one guide article, loaded only on its own page
-  cssGz: 26 * KB, // all CSS together (24 until the 2026-11 motion + home showcase work, which added about 2 KB)
+  cssGz: 28 * KB, // all CSS together (24 until the 2026-11 motion + home showcase work, which added about 2 KB; 26 until the caption Customize panel, 2026-11-21)
   lazyHeicGz: 850 * KB,
   lazyAacGz: 300 * KB, // the AAC sound encoder, fetched only when a browser has none and sound must be converted
   captionsChunkGz: 250 * KB, // any one captions-* chunk

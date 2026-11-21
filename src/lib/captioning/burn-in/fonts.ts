@@ -1,4 +1,5 @@
 import { buildFontStack } from "./font-stack";
+import { captionFontFor } from "./font-catalog";
 
 /**
  * Makes sure the caption fonts are ready before the first frame is drawn.
@@ -39,11 +40,16 @@ export interface ExtraFontFace {
 
 export interface FontLoadOptions {
   env?: FontEnv | null;
-  /** Families that must be ready. Default: the site font. */
+  /** Families that must be ready. Default: the site font, or the chosen bundled font. */
   families?: readonly string[];
   /** Weights the presets use. */
   weights?: readonly number[];
   extraFaces?: readonly ExtraFontFace[];
+  /**
+   * The custom look's font. The catalog CSS for it is imported and the family awaited before the
+   * first export frame; absent/unknown means the site font, as before.
+   */
+  fontKey?: string;
   /** Give up waiting after this long. Default 4000 ms. */
   timeoutMs?: number;
 }
@@ -84,14 +90,28 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | type
 
 export async function loadCaptionFonts(options: FontLoadOptions = {}): Promise<FontLoadReport> {
   const env = options.env === undefined ? defaultEnv() : options.env;
-  const families = options.families ?? [SITE_FONT_FAMILY];
-  const weights = options.weights ?? [600, 700, 800];
+  const chosen = options.fontKey ? captionFontFor(options.fontKey) : null;
+  const families = options.families ?? (chosen ? [chosen.family] : [SITE_FONT_FAMILY]);
+  const weights = options.weights ?? (chosen ? chosen.weights : [600, 700, 800]);
   const timeoutMs = options.timeoutMs ?? 4000;
   const report: FontLoadReport = { loaded: [], failed: [] };
 
   if (!env) {
     for (const family of families) report.failed.push({ family, reason: "This browser has no font loading API." });
     return report;
+  }
+
+  // A bundled font is CSS + font files that only exist once its chunk is imported. Do that first,
+  // then the normal `fonts.load` below proves the face is really usable. A failed import is not
+  // fatal: the stack's fallbacks draw the caption and the report says why.
+  let importReason: string | null = null;
+  if (chosen) {
+    try {
+      const loaded = await withTimeout(chosen.load(), timeoutMs);
+      if (loaded === TIMED_OUT) importReason = "Timed out while loading the bundled font files.";
+    } catch (error) {
+      importReason = describe(error);
+    }
   }
 
   for (const extra of options.extraFaces ?? []) {
@@ -132,7 +152,7 @@ export async function loadCaptionFonts(options: FontLoadOptions = {}): Promise<F
       }
     }
     if (ready) report.loaded.push(family);
-    else report.failed.push({ family, reason });
+    else report.failed.push({ family, reason: importReason ? `${importReason} The fallback font is used.` : reason });
   }
 
   try {

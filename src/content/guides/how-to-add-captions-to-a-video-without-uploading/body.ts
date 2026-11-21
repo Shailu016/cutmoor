@@ -25,7 +25,7 @@ export const body: GuideBody = {
       ],
       bullets: [
         "Add the video. Drop a file on the tool or choose it from your device. MP4 and MOV from a phone are the most common.",
-        "Choose a model. Draft is about 160 MB and is a quick first pass for clear speech. High accuracy is about 800 MB, needs WebGPU, and is the accurate one, so it is for a recent Chrome or Edge on a computer.",
+        "Choose a model. Standard is about 160 MB and is a quick first pass for clear speech. High accuracy is about 800 MB, needs WebGPU, and is the accurate one, so it is for a recent Chrome or Edge on a computer.",
         "Approve the model download. The first time, the tool shows the size and the host and waits for you. On a phone, use Wi-Fi if you can.",
         "Wait for the captions. The tool shows which stage it is in. Captions appear as they are found, so you can start reading before the end.",
         "Edit. Click a word to correct it, and adjust timing where a caption comes in early or late.",
@@ -34,9 +34,9 @@ export const body: GuideBody = {
       ],
     },
     {
-      heading: "Choose Draft or High accuracy",
+      heading: "Choose Standard or High accuracy",
       paragraphs: [
-        "Before the first run you choose between two speech models. Draft is the smaller one, about 160 MB. It is a quick first pass for clear speech from one person: it starts sooner, uses less memory, and works in more browsers, but it can miss words on fast, noisy or accented speech.",
+        "Before the first run you choose between two speech models. Standard is the smaller one, about 160 MB. It is a quick first pass for clear speech from one person: it starts sooner, uses less memory, and works in more browsers, but it can miss words on fast, noisy or accented speech.",
         "High accuracy is about 800 MB. It is a much larger model and is clearly better on fast, noisy, or children's speech, but it needs WebGPU, which means a recent Chrome or Edge on a computer. It is aimed at a desktop or laptop. A phone may run out of memory with this model.",
         "Each model downloads once, separately, after you agree. If you use only one of them, you only download that one.",
       ],
@@ -53,7 +53,7 @@ export const body: GuideBody = {
       heading: "How accurate is it?",
       paragraphs: [
         "We are not going to give you a percentage, because it would depend on a recording we have never heard. What we can say is what makes it better or worse.",
-        "Songs, rap, and speech over loud music are a known weak spot: where there is singing, music behind or under the voice gives more wrong words and some missing lines, and a song takes longer. It cannot make out every sung line: dense choruses and lines buried in music are the first to go, and it leaves a gap there instead of filling it with guessed words. If you have the lyrics, paste them in the Lyrics or script box and the tool will fit your words to the audio. If the recording is fast, noisy, or has children speaking, High accuracy is much better than Draft.",
+        "Songs, rap, and speech over loud music are a known weak spot: where there is singing, music behind or under the voice gives more wrong words and some missing lines, and a song takes longer. It cannot make out every sung line: dense choruses and lines buried in music are the first to go, and it leaves a gap there instead of filling it with guessed words. If you have the lyrics, paste them in the Lyrics or script box and the tool will fit your words to the audio. If the recording is fast, noisy, or has children speaking, High accuracy is much better than Standard.",
       ],
       table: {
         headers: ["Helps", "Hurts"],
@@ -61,7 +61,7 @@ export const body: GuideBody = {
           ["One clear speaker close to the microphone", "Several people talking over each other"],
           ["Quiet room, steady volume", "Music, traffic, or crowd noise under the voice"],
           ["Normal speaking pace", "Very fast speech, shouting, or mumbling"],
-          ["Adult voices", "Children's speech, especially with the Draft model"],
+          ["Adult voices", "Children's speech, especially with the Standard model"],
           ["Common words", "Names, brands, and technical terms, which are often misspelled"],
         ],
         caption: "Treat the output as a good first draft. Read it against the audio once before you publish.",
@@ -75,6 +75,19 @@ export const body: GuideBody = {
       ],
     },
     {
+      heading: "Style the captions",
+      paragraphs: [
+        "Pick a preset first (Clean, Shorts, Bold, Karaoke, Highlighter or Pop), then open Customize to make it yours. Changes show in the preview straight away, and the burned-in MP4 is drawn with the same look, so what you see is what you export.",
+      ],
+      bullets: [
+        "Look: six fonts (Geist, Inter, Montserrat, Poppins, Bebas Neue and Noto Sans Devanagari), size, text and highlight colours, outline, shadow, a box behind the text, and all capitals.",
+        "Position: a nine-point grid, left, centre or right alignment, and Across and Height sliders. You can also drag the captions in the preview. The safe-area guides for Instagram Stories, Instagram Reels, YouTube Shorts and TikTok are approximate and only appear in the preview, so keep captions clear of where an app puts its own buttons.",
+        "Words: one to five words per caption, or Auto. One or two words at a time is the fast, punchy style for Reels and Shorts. The change is instant and needs no new run of the speech model.",
+        "Motion: Fade, Pop, Bounce, Slide up, Zoom in, Typewriter or Shake, with a length you can set. Animations are drawn into the MP4.",
+        "My looks: save a look under a name and apply it to the next video. Saved looks stay in this browser and are never uploaded.",
+      ],
+    },
+    {
       heading: "SRT, VTT or burned-in captions?",
       paragraphs: [
         "A subtitle file is a separate text file with timing. The viewer can turn it on or off, and you can edit it later. Burned-in captions are drawn into the picture of a new video, so they show everywhere but cannot be switched off or edited afterwards.",
@@ -82,7 +95,7 @@ export const body: GuideBody = {
       bullets: [
         "Use VTT for web video players and most websites.",
         "Use SRT for YouTube uploads, desktop editors, and older players. If you need to go from one to the other, the subtitle converter on this site does it.",
-        "Burn in captions for short vertical videos, where viewers watch without sound and the platform's own caption styling would be missing or inconsistent.",
+        "Burn in captions for short vertical videos, where viewers watch without sound and the platform's own caption styling would be missing or inconsistent. Fonts, colours, position and animation only apply to burned-in captions; SRT and VTT carry the text and timing, including the words-per-caption split.",
       ],
     },
     {
@@ -96,7 +109,7 @@ export const body: GuideBody = {
     {
       heading: "Deleting the model",
       paragraphs: [
-        "The cached model takes up space on your device. Draft is about 160 MB and High accuracy is about 800 MB, so together they can be large. The tool has a Delete model button, and clearing this site's data in your browser settings removes them too. If you delete a model, the next time you choose it the tool will ask before downloading it again.",
+        "The cached model takes up space on your device. Standard is about 160 MB and High accuracy is about 800 MB, so together they can be large. The tool has a Delete model button, and clearing this site's data in your browser settings removes them too. If you delete a model, the next time you choose it the tool will ask before downloading it again.",
       ],
     },
   ],
@@ -109,7 +122,7 @@ export const body: GuideBody = {
     {
       question: "Which model should I choose?",
       answer:
-        "Use Draft, about 160 MB, for a quick first pass on clear speech from one person. It starts sooner and uses less memory. Use High accuracy, about 800 MB, for the accurate transcript on fast, noisy, or children's speech, but only on a computer with recent Chrome or Edge, because it needs WebGPU.",
+        "Use Standard, about 160 MB, for a quick first pass on clear speech from one person. It starts sooner and uses less memory. Use High accuracy, about 800 MB, for the accurate transcript on fast, noisy, or children's speech, but only on a computer with recent Chrome or Edge, because it needs WebGPU.",
     },
     {
       question: "Why does the tool download a model first?",
