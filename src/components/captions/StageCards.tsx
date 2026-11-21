@@ -156,7 +156,7 @@ export function SettingsCard({ tiers = [], tier = "", onTier, modelStatus, model
             Paste the lyrics or the script and Cutmoor lines the words up with the audio instead of guessing. The text stays in this browser and is never uploaded.
           </p>
           {tier !== "high" && (
-            <p className="settings-note">Timing from your words is most precise with High accuracy. On Draft it is a rougher estimate, and some lines may fall back to ordinary captioning.</p>
+            <p className="settings-note">Timing from your words is most precise with High accuracy. On Standard it is a rougher estimate, and some lines may fall back to ordinary captioning.</p>
           )}
           <p className="cap-privacy">
             <ShieldCheck size={15} aria-hidden="true" />

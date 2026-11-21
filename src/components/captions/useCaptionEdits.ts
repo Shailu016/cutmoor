@@ -1,18 +1,29 @@
 import { useCallback, useMemo, useState } from "react";
 import { layoutCaptions } from "../../lib/captioning/layout";
+import { applyScript, hasDevanagari as textHasDevanagari, type CaptionScript } from "../../lib/captioning/translit";
 import type { CaptionEvent, Word } from "../../lib/captioning/types";
 import { canRedo, canUndo, commit, createHistory, redo, undo, type History } from "./history";
 import type { EditResult } from "./word-edit";
+
+/** The choices the words-per-caption control offers. `undefined` is "automatic". */
+const MIN_WORDS_PER_CAPTION = 1;
+const MAX_WORDS_PER_CAPTION = 5;
 
 interface State {
   /** Identifies which transcript the history belongs to; a new transcript starts a fresh history. */
   source: Word[] | null;
   history: History<Word[]>;
   selected: number;
+  /**
+   * Layout choices, not edits: changing them must not touch the undo history. A new transcript
+   * starts at the defaults (automatic words, the words as recognised).
+   */
+  wordsPerCaption: number | undefined;
+  script: CaptionScript;
 }
 
 function fresh(source: Word[] | null): State {
-  return { source, history: createHistory(source ?? []), selected: -1 };
+  return { source, history: createHistory(source ?? []), selected: -1, wordsPerCaption: undefined, script: "original" };
 }
 
 export interface CaptionEdits {
@@ -29,11 +40,23 @@ export interface CaptionEdits {
   canRedo: boolean;
   /** True once any edit has been made and not undone. */
   edited: boolean;
+  /** Hard cap on words in one caption, or undefined for the automatic layout. Not an edit. */
+  wordsPerCaption: number | undefined;
+  setWordsPerCaption: (value: number | undefined) => void;
+  /** "original" keeps the recognised spelling; "roman" transliterates Devanagari captions. Not an edit. */
+  script: CaptionScript;
+  setScript: (script: CaptionScript) => void;
+  /** True when any word has Devanagari, so the UI can offer the Hinglish option only then. */
+  hasDevanagari: boolean;
 }
 
 /**
  * The transcript the visitor edits: the pipeline's words, plus an undo history. When a new
  * result arrives (a new file, a re-run) it starts over, so one file's edits never leak into the next.
+ *
+ * The layout choices (words per caption, script) live here next to the words because they are
+ * recalculated client-side: changing either re-lays out the same timed words instantly, with no
+ * model rerun. They are kept apart from the history, so they never create an undo step.
  */
 export function useCaptionEdits(source: Word[] | null): CaptionEdits {
   const [state, setState] = useState<State>(() => fresh(source));
@@ -46,10 +69,28 @@ export function useCaptionEdits(source: Word[] | null): CaptionEdits {
   }
 
   const words = current.history.present;
-  const events = useMemo(() => layoutCaptions(words), [words]);
+  const events = useMemo(() => {
+    // `applyScript` returns new Word objects, so the layout below never mutates the editable list.
+    const scripted = applyScript(words, current.script);
+    const options = current.wordsPerCaption === undefined ? undefined : { maxWordsPerCaption: current.wordsPerCaption };
+    return layoutCaptions(scripted, options);
+  }, [words, current.script, current.wordsPerCaption]);
+  const hasDevanagari = useMemo(() => words.some((word) => textHasDevanagari(word.text)), [words]);
 
   const select = useCallback((index: number) => {
     setState((s) => ({ ...s, selected: Math.max(-1, Math.min(index, s.history.present.length - 1)) }));
+  }, []);
+
+  const setWordsPerCaption = useCallback((value: number | undefined) => {
+    const normalized =
+      typeof value === "number" && Number.isFinite(value)
+        ? Math.min(MAX_WORDS_PER_CAPTION, Math.max(MIN_WORDS_PER_CAPTION, Math.floor(value)))
+        : undefined;
+    setState((s) => ({ ...s, wordsPerCaption: normalized }));
+  }, []);
+
+  const setScript = useCallback((script: CaptionScript) => {
+    setState((s) => ({ ...s, script }));
   }, []);
 
   const apply = useCallback(
@@ -78,5 +119,10 @@ export function useCaptionEdits(source: Word[] | null): CaptionEdits {
     canUndo: canUndo(current.history),
     canRedo: canRedo(current.history),
     edited: current.history.past.length > 0,
+    wordsPerCaption: current.wordsPerCaption,
+    setWordsPerCaption,
+    script: current.script,
+    setScript,
+    hasDevanagari,
   };
 }

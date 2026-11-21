@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CaptionEvent, Word } from "../../lib/captioning/types";
-import { findActive, findWordAtTime, fitRect } from "./find-active";
+import { captionSafeArea, placeBlock } from "../../lib/captioning/burn-in/position";
+import { anchorForDrag, findActive, findWordAtTime, fitRect, grabOffsetFromRect, pointerInPicture } from "./find-active";
 
 function w(index: number, text: string, startMs: number, endMs: number): Word {
   return { text, startMs, endMs, confidence: 1, index, windowIndex: 0 };
@@ -124,5 +125,43 @@ describe("fitRect", () => {
   it("uses the whole box when the video size is unknown (audio), and nothing for an empty box", () => {
     expect(fitRect(160, 90, 0, 0)).toEqual({ x: 0, y: 0, width: 160, height: 90 });
     expect(fitRect(0, 90, 10, 10)).toEqual({ x: 0, y: 0, width: 0, height: 0 });
+  });
+});
+
+describe("preview pointer maths", () => {
+  const picture = { left: 100, top: 50, width: 800, height: 450 };
+  const block = { left: 400, top: 300, width: 200, height: 100 };
+
+  it("converts client coordinates into picture coordinates", () => {
+    expect(pointerInPicture(picture, 250, 150)).toEqual({ x: 150, y: 100 });
+  });
+
+  it("keeps the grabbed point inside the block, even at its edges", () => {
+    expect(grabOffsetFromRect(block, 500, 350)).toEqual({ x: 100, y: 50 });
+    expect(grabOffsetFromRect(block, 0, 0)).toEqual({ x: 0, y: 0 });
+    expect(grabOffsetFromRect(block, 9999, 9999)).toEqual({ x: 200, y: 100 });
+  });
+
+  it("turns a drag into the anchors that keep the grabbed point under the pointer", () => {
+    const safe = captionSafeArea(picture.width, picture.height);
+    const grab = grabOffsetFromRect(block, 500, 350);
+    const next = anchorForDrag({ picture, grab, clientX: 500, clientY: 350, blockSize: { width: block.width, height: block.height }, safe });
+    // The block is already where those anchors put it, so a zero movement returns the same place.
+    const expected = placeBlock({ position: "bottom", anchorX: next.x, anchorY: next.y }, { width: block.width, height: block.height }, picture.width, picture.height);
+    expect(expected.left).toBeCloseTo(block.left - picture.left, 6);
+    expect(expected.top).toBeCloseTo(block.top - picture.top, 6);
+  });
+
+  it("increases the anchors as the pointer moves right and down, and clamps at the edges", () => {
+    const safe = captionSafeArea(picture.width, picture.height);
+    const size = { width: block.width, height: block.height };
+    const grab = { x: 100, y: 50 };
+    const at = (x: number, y: number) => anchorForDrag({ picture, grab, clientX: x, clientY: y, blockSize: size, safe });
+    const start = at(500, 350);
+    const moved = at(700, 400);
+    expect(moved.x).toBeGreaterThan(start.x);
+    expect(moved.y).toBeGreaterThan(start.y);
+    expect(at(-9999, -9999)).toEqual({ x: 0, y: 0 });
+    expect(at(9999, 9999)).toEqual({ x: 1, y: 1 });
   });
 });

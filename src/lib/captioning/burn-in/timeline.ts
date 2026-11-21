@@ -56,6 +56,18 @@ export function createEventLookup(events: readonly CaptionEvent[]): EventLookup 
   };
 }
 
+/**
+ * Task D: entry-animation progress, 0 at the caption's own start and 1 when the animation is over.
+ * The source is the caption's time in the video, never a wall clock, so an export frame drawn
+ * twice (or two exports of the same clip) gets exactly the same value. A missing or zero duration
+ * counts as finished, so a caption never stays stuck at opacity 0.
+ */
+export function animationProgress(startMs: number, timeMs: number, durationMs: number): number {
+  if (!Number.isFinite(startMs) || !Number.isFinite(timeMs)) return 1;
+  if (!Number.isFinite(durationMs) || durationMs <= 0) return 1;
+  return Math.min(1, Math.max(0, (timeMs - startMs) / durationMs));
+}
+
 export interface FrameTime {
   timestamp: number;
   duration: number;

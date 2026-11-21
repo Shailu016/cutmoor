@@ -343,6 +343,34 @@ export interface CaptionStyle {
   numberColor?: string;
   /** Give numbers, prices, percentages and years the accent colour. */
   highlightNumbers?: boolean;
+
+  // ---- Custom look. Every field is optional; when absent the preset behaves exactly as before. ----
+  /** Key of a bundled font (see burn-in/font-catalog.ts). Absent = the preset's `fontFamily`. */
+  fontKey?: string;
+  /** Multiplies the preset size (`fontScale`). 0.5 to 2, default 1. */
+  sizeMul?: number;
+  /** Outline thickness as a fraction of the font size. 0 = none. Absent = the preset's outline. */
+  outlineWidth?: number;
+  /** Colour of the outline. Default "#000000". */
+  outlineColor?: string;
+  /** Drop shadow strength, 0 (off) to 1. Absent = off. */
+  shadow?: number;
+  /** Shadow colour. Default "#000000". */
+  shadowColor?: string;
+  /** Opacity of the box behind the text, 0 to 1. Absent = the preset's background. */
+  boxOpacity?: number;
+  /** Colour of the box behind the text. Default "#000000". */
+  boxColor?: string;
+  /** Horizontal anchor of the caption block, 0 (left) to 1 (right) of the safe area. Absent = centred. */
+  anchorX?: number;
+  /** Vertical anchor of the caption block, 0 (top) to 1 (bottom) of the safe area. Absent = `position`. */
+  anchorY?: number;
+  /** Text alignment inside the block. Default "center". */
+  align?: "left" | "center" | "right";
+  /** Entry animation of each caption (see burn-in/animations.ts). Default "none". */
+  animation?: string;
+  /** How long the entry animation takes, in ms. Default 200. */
+  animationMs?: number;
 }
 
 export interface BurnInOptions {

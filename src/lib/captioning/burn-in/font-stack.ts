@@ -9,6 +9,7 @@
  */
 
 import type { CaptionStyle } from "../contracts";
+import { captionFontFor, fontFamilyFor, nearestFontWeight } from "./font-catalog";
 
 /** System fonts that carry Devanagari, then a generic family so something always matches. */
 export const DEVANAGARI_FALLBACKS: readonly string[] = [
@@ -92,7 +93,23 @@ export function fontWeightFor(style: Pick<CaptionStyle, "id" | "fontWeight">): n
   }
 }
 
+/**
+ * The weight actually drawn: the preset's wish, snapped to a weight the chosen bundled font ships.
+ * Bebas Neue only has 400, for example; asking for 800 would synthesise a smeared fake bold in
+ * some browsers, so we ask for the real file. Without a font key this is exactly `fontWeightFor`.
+ */
+export function resolvedFontWeight(style: Pick<CaptionStyle, "id" | "fontWeight" | "fontKey">): number {
+  const desired = fontWeightFor(style);
+  const font = captionFontFor(style.fontKey);
+  return font ? nearestFontWeight(desired, font.weights) : desired;
+}
+
+/** The family a style is drawn in: the chosen bundled font, else the preset's own family. */
+export function cssFontFamily(style: Pick<CaptionStyle, "fontFamily" | "fontKey">): string {
+  return fontFamilyFor(style);
+}
+
 /** The CSS `font` shorthand for a pixel size. */
-export function cssFont(style: Pick<CaptionStyle, "id" | "fontFamily" | "fontWeight">, fontPx: number): string {
-  return `${fontWeightFor(style)} ${fontPx}px ${buildFontStack(style.fontFamily)}`;
+export function cssFont(style: Pick<CaptionStyle, "id" | "fontFamily" | "fontWeight" | "fontKey">, fontPx: number): string {
+  return `${resolvedFontWeight(style)} ${fontPx}px ${buildFontStack(cssFontFamily(style))}`;
 }

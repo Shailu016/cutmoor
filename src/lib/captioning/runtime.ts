@@ -134,7 +134,7 @@ export function installCaptionRuntime(): boolean {
     // Same formatter as the consent card, so the size promised here is the size shown there.
     const mb = (m: ModelManifest) => formatBytes(total(m));
     window.__cutmoorCaptionTiers = [
-      { id: "fast", name: "Draft", detail: `Quick first pass (${mb(manifest)} download) for clear speech. It can miss words on fast, noisy or accented speech; High accuracy is the accurate one.`, factory: tierFactory(manifest, FAST) },
+      { id: "fast", name: "Standard", detail: `Quick first pass (${mb(manifest)} download) for clear speech. It can miss words on fast, noisy or accented speech; High accuracy is the accurate one.`, factory: tierFactory(manifest, FAST) },
       { id: "high", name: "High accuracy", detail: `Larger model (${mb(high)} download, one time). Much better on fast, noisy or accented speech, but slower and needs a computer with a graphics card.`, needsGpu: true, factory: tierFactory(high, HIGH) },
     ];
   }

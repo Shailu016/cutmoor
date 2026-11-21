@@ -39,6 +39,12 @@ export interface LayoutOptions {
   minDurationMs?: number;
   maxDurationMs?: number;
   /**
+   * Hard upper bound on words in one caption, 1 or more. Absent (or not finite) means no word
+   * limit, which is the old layout exactly. Used by the visitor's "words per caption" choice;
+   * the layout still applies every other limit, so a value only ever shortens a caption.
+   */
+  maxWordsPerCaption?: number;
+  /**
    * Word indices (into the `words` array passed to `layoutCaptions`) where a pasted lyric line
    * starts, i.e. the break the visitor asked for. Values are usually sorted but any order,
    * duplicates and out-of-range/non-integer entries are tolerated and ignored. A value that cannot
@@ -61,6 +67,8 @@ interface Limits {
   maxCps: number;
   minDurationMs: number;
   maxDurationMs: number;
+  /** Infinity when the caller did not ask for a word limit. */
+  maxWordsPerCaption: number;
 }
 
 function pick(value: number | undefined, fallback: number): number {
@@ -72,12 +80,17 @@ function pick(value: number | undefined, fallback: number): number {
  * huge line budget would make the DP allocate forever, so both ends are capped.
  */
 function resolveOptions(options?: LayoutOptions): Limits {
+  const maxWords =
+    typeof options?.maxWordsPerCaption === "number" && Number.isFinite(options.maxWordsPerCaption)
+      ? Math.max(1, Math.floor(options.maxWordsPerCaption))
+      : Number.POSITIVE_INFINITY;
   return {
     maxCharsPerLine: Math.min(1_000_000, Math.max(1, Math.floor(pick(options?.maxCharsPerLine, DEFAULTS.maxCharsPerLine)))),
     maxLines: Math.min(100, Math.max(1, Math.floor(pick(options?.maxLines, DEFAULTS.maxLines)))),
     maxCps: Math.max(0.001, pick(options?.maxCps, DEFAULTS.maxCps)),
     minDurationMs: Math.max(0, Math.floor(pick(options?.minDurationMs, DEFAULTS.minDurationMs))),
     maxDurationMs: Math.max(1, Math.floor(pick(options?.maxDurationMs, DEFAULTS.maxDurationMs))),
+    maxWordsPerCaption: maxWords,
   };
 }
 
@@ -276,7 +289,8 @@ function remainderFits(
  * Picks the exclusive end of the next event. The scan stops as soon as a hard limit is crossed:
  * duration and the greedy line count only grow with more words, so no later prefix can recover.
  * Characters-per-second can recover (a long pause lowers it), so a failing CPS test does not stop
- * the scan; it only withholds the "best end" mark.
+ * the scan; it only withholds the "best end" mark. A word limit (`maxWordsPerCaption`) bounds the
+ * scan too, so every event it returns holds at most that many words; the other limits still apply.
  *
  * Among the allowed ends: the longest one at the preferred reading speed wins; if that leaves fewer than three words, the longest one at
  * the soft (double) speed is used instead. Then, when the block would end mid-sentence but a sentence ended inside it after at
@@ -305,8 +319,9 @@ function chooseBlockEnd(
   const sentenceEnds: number[] = [];
   // Only needed for preferred breaks: ends that are within every hard limit and the strict speed.
   const allowed = preferredBreaks.size > 0 ? new Uint8Array(total - from + 1) : undefined;
+  const scanEnd = Math.min(total, from + limits.maxWordsPerCaption);
 
-  for (let to = from + 1; to <= total; to += 1) {
+  for (let to = from + 1; to <= scanEnd; to += 1) {
     const word = words[to - 1];
     const separator = to - 1 > from ? 1 : 0;
     const addition = word.text.length + separator;
@@ -367,6 +382,8 @@ function chooseBlockEnd(
 /**
  * Lays out a transcript. The hard invariant is that
  * `events.flatMap((event) => event.lines.flat())` equals the input, in order, word for word.
+ * With `maxWordsPerCaption` set, no event holds more words than that; every other limit and the
+ * word times are untouched.
  *
  * Event times: startMs is always the first word's start. endMs is the last word's end, extended
  * up to `minDurationMs` so a one-word caption does not flash (never past the next event's start);

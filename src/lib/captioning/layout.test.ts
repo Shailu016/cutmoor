@@ -565,6 +565,110 @@ describe("layoutCaptions", () => {
     });
   });
 
+  describe("words per caption", () => {
+    function captionsOf(events: CaptionEvent[]): Word[] {
+      return events.flatMap((event) => event.lines.flat());
+    }
+
+    it("is the old layout exactly when the option is absent", () => {
+      const input = words(["Kya", "haal", "hai.", "Main", "theek", "hoon", "yaar", "tum", "batao", "aaj", "kal"], 320, 60);
+      const baseline = layoutCaptions(input);
+      expect(layoutCaptions(input, { maxWordsPerCaption: undefined })).toEqual(baseline);
+      // A non-finite value is "no limit", which also keeps the old path.
+      expect(layoutCaptions(input, { maxWordsPerCaption: Number.NaN })).toEqual(baseline);
+      expect(layoutCaptions(input, { maxWordsPerCaption: Number.POSITIVE_INFINITY })).toEqual(baseline);
+    });
+
+    it("never puts more than the chosen number of words in a caption", () => {
+      const input = words(Array.from({ length: 40 }, () => "word"), 300);
+      for (const cap of [1, 2, 3, 4, 5]) {
+        const events = layoutCaptions(input, { maxWordsPerCaption: cap });
+        expect(captionsOf(events)).toEqual(input);
+        for (const event of events) {
+          const count = event.lines.flat().length;
+          expect(count).toBeGreaterThan(0);
+          expect(count).toBeLessThanOrEqual(cap);
+          expect(event.lines.length).toBeLessThanOrEqual(2);
+        }
+      }
+    });
+
+    it("keeps the duration, line and reading-speed rules at the smaller size", () => {
+      // Mixed lengths and a pause, so line width, duration and CPS all get a chance to bite.
+      const input: Word[] = [];
+      let cursor = 0;
+      for (let i = 0; i < 30; i += 1) {
+        const duration = 120 + ((i * 97) % 500);
+        const text = "x".repeat(2 + ((i * 5) % 9));
+        input.push(word(text, cursor, cursor + duration, i));
+        cursor += duration + (i % 4 === 0 ? 450 : 0);
+      }
+      const options = { maxWordsPerCaption: 3, maxCharsPerLine: 20, maxLines: 2, maxCps: 17, minDurationMs: 0, maxDurationMs: 3000 };
+      const events = layoutCaptions(input, options);
+      expect(captionsOf(events)).toEqual(input);
+      for (const event of events) {
+        const eventWords = event.lines.flat();
+        expect(eventWords.length).toBeLessThanOrEqual(3);
+        expect(event.lines.length).toBeLessThanOrEqual(2);
+        for (const line of event.lines) {
+          if (line.length > 1) {
+            const width = line.reduce((sum, item) => sum + item.text.length, 0) + line.length - 1;
+            expect(width).toBeLessThanOrEqual(20);
+          }
+        }
+        if (eventWords.length > 1) {
+          expect(event.endMs - event.startMs).toBeLessThanOrEqual(3000);
+          const chars = eventWords.reduce((sum, item) => sum + item.text.length, 0) + eventWords.length - 1;
+          expect((chars * 1000) / (event.endMs - event.startMs)).toBeLessThanOrEqual(34.5);
+        }
+      }
+    });
+
+    it("changes nothing when the cap is at least as large as the old captions", () => {
+      const input = words(Array.from({ length: 12 }, () => "word"), 300);
+      const baseline = layoutCaptions(input);
+      const largest = Math.max(...baseline.map((event) => event.lines.flat().length));
+      expect(layoutCaptions(input, { maxWordsPerCaption: largest })).toEqual(baseline);
+      expect(layoutCaptions(input, { maxWordsPerCaption: 100 })).toEqual(baseline);
+    });
+
+    it("sanitises impossible values instead of losing words", () => {
+      const input = words(["alpha", "beta", "gamma", "delta", "epsilon"], 300);
+      for (const cap of [0, -3, 1.9]) {
+        const events = layoutCaptions(input, { maxWordsPerCaption: cap });
+        expect(captionsOf(events)).toEqual(input);
+        // 0 and negatives clamp to one word; 1.9 floors to one.
+        for (const event of events) expect(event.lines.flat()).toHaveLength(1);
+      }
+    });
+
+    it("keeps the preferred-break guarantees with a word cap", () => {
+      const input = words(Array.from({ length: 20 }, () => "aa"), 300);
+      const events = layoutCaptions(input, {
+        maxCharsPerLine: 20,
+        maxLines: 1,
+        maxCps: 1_000_000,
+        minDurationMs: 0,
+        maxDurationMs: 1_000_000,
+        preferredBreakBefore: [6, 12],
+        maxWordsPerCaption: 3,
+      });
+      expect(captionsOf(events)).toEqual(input);
+      for (const event of events) expect(event.lines.flat().length).toBeLessThanOrEqual(3);
+      // A break cannot extend a caption past the cap, so every event ends on a real word boundary.
+      for (const event of events) expect(event.lines.every((line) => line.length > 0)).toBe(true);
+    });
+
+    it("reuses the same word objects, so every word keeps its timing and confidence", () => {
+      const input = words(["ek", "do", "teen", "chaar", "paanch"], 280, 80);
+      const snapshot = input.map((item) => ({ ...item }));
+      const flat = captionsOf(layoutCaptions(input, { maxWordsPerCaption: 2 }));
+      expect(flat).toEqual(input);
+      for (let index = 0; index < input.length; index += 1) expect(flat[index]).toBe(input[index]);
+      expect(input).toEqual(snapshot);
+    });
+  });
+
   it("never makes two captions overlap, even when several words share one instant (zero-length words)", () => {
     const input = ["a", "b", "c"].map((text, index) => word(text, 0, 0, index));
     const events = layoutCaptions(input, { maxCharsPerLine: 1, maxLines: 1 });

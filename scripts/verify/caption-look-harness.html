@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Caption look verification</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #000;
+        color: #fff;
+        font-family: system-ui, sans-serif;
+      }
+      #stage-wrap {
+        width: min(640px, 100vw);
+        margin: 0 auto;
+      }
+      #controls {
+        width: min(360px, calc(100vw - 16px));
+        margin: 16px auto 40px;
+        padding: 12px;
+        background: #131824;
+        border: 1px solid #2a3142;
+        border-radius: 8px;
+      }
+      /* The comparison screenshot is the picture only; native controls would sit on top of the caption. */
+      video::-webkit-media-controls,
+      video::-webkit-media-controls-enclosure,
+      video::-webkit-media-controls-panel {
+        display: none !important;
+      }
+      video {
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./caption-look-harness.tsx"></script>
+  </body>
+</html>
