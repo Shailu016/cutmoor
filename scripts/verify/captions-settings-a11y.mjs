@@ -27,7 +27,7 @@ for (const [label, width, height] of [["desktop", 1366, 900], ["phone", 375, 812
   await (await page.$('input[type="file"]')).uploadFile(media);
   await page.waitForFunction(() => [...document.querySelectorAll("button")].some((b) => /generate captions/i.test(b.textContent ?? "")), { timeout: 20_000 });
   const picker = await page.evaluate(() => [...document.querySelectorAll('[aria-label="Speech model"] button')].map((b) => b.textContent.trim()));
-  check(picker.join("|") === "Draft|High accuracy", `${label}: model picker shows Draft and High accuracy (${picker.join(", ")})`);
+  check(picker.join("|") === "Standard|High accuracy", `${label}: model picker shows Standard and High accuracy (${picker.join(", ")})`);
   const before = await page.evaluate(() => document.querySelector(".cap-stage-card")?.getBoundingClientRect().height);
   await page.evaluate(() => document.querySelector("details.cap-glossary")?.setAttribute("open", ""));
   await new Promise((r) => setTimeout(r, 300));
