@@ -8,13 +8,13 @@ export function TrustRow() {
       <div className="trust-fact">
         <ShieldCheck size={20} aria-hidden="true" />
         <div>
-          <strong className="num">0 bytes uploaded</strong>
+          <strong className="num">0 bytes of files uploaded</strong>
           <span>
             Check it:{" "}
             <button type="button" className="trust-tip" aria-describedby="trust-how">
               how to verify
               <span role="tooltip" id="trust-how">
-                Open your browser&apos;s developer tools, choose the Network tab, then run any tool. Your file never appears in a request.
+                Open your browser&apos;s developer tools, choose the Network tab, then run any tool. You will see the page&apos;s own files and, on some pages, ad and visit-count requests, but your file never appears in a request.
               </span>
             </button>
           </span>
