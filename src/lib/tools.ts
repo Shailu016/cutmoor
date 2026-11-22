@@ -318,7 +318,7 @@ export const TOOLS: ToolDef[] = [
     steps: [
       { name: "Add a subtitle file", text: "Drop an .srt or .vtt file, or paste the text." },
       { name: "Choose the output", text: "Convert to VTT, convert to SRT, or shift the timing by a positive or negative offset." },
-      { name: "Copy or download", text: "The converted file is created in the page. Nothing is sent to a server." },
+      { name: "Copy or download", text: "The converted file is created in the page. Your file is never sent to a server." },
     ],
     faqs: [
       {
@@ -516,7 +516,7 @@ export const TOOLS: ToolDef[] = [
       {
         question: "Does Cutmoor upload my image?",
         answer:
-          "No. The image is decoded and re-encoded by your browser using the canvas API. There is no upload endpoint, no account, and no server-side copy. Processing an image makes no network requests at all; you can check this in your browser's Network tab.",
+          "No. The image is decoded and re-encoded by your browser using the canvas API. There is no upload endpoint, no account, and no server-side copy. No request carries your image. You can check this in your browser's Network tab: you will see the page's own files and the requests that ads and visit counting make, but nothing with your picture in it.",
       },
       {
         question: "What is a realistic target size?",
